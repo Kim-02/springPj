@@ -1,4 +1,4 @@
-package com.example.springbootpj;
+package com.dasolsystem.core;
 
 public class test1 {
     public void Test1(){
