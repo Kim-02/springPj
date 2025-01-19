@@ -1,4 +1,4 @@
-package com.dasolsystem.serious;
+package com.dasolsystem;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
