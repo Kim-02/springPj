@@ -2,6 +2,7 @@ package com.dasolsystem.core.Post.Controller;
 
 import com.dasolsystem.core.Entity.Post;
 import com.dasolsystem.core.Post.Dto.RequestRegistrPostDto;
+import com.dasolsystem.core.Post.Dto.ResponseJson;
 import com.dasolsystem.core.Post.Dto.ResponsePostDto;
 import com.dasolsystem.core.Post.Dto.ResponseSavedIdDto;
 import com.dasolsystem.core.Post.Service.PostService;
@@ -20,16 +21,18 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping
-    public ResponseEntity<ResponseSavedIdDto> registerPost(@RequestBody RequestRegistrPostDto requsetDto){
+    public ResponseEntity<ResponseJson<Object>> registerPost(@RequestBody RequestRegistrPostDto requsetDto){
         ResponseSavedIdDto responseSavedIdDto = postService.write(requsetDto);
 
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{savedId}")
-                .buildAndExpand(responseSavedIdDto.getSavedId())
-                .toUri();
 
-        return ResponseEntity.created(location).body(responseSavedIdDto);
+
+        return ResponseEntity.ok(
+                ResponseJson.builder()
+                        .status(200)
+                        .message("OK")
+                        .result(responseSavedIdDto)
+                .build()
+        );
     }
 
 //    @Description("postid를 통해 게시물을 받아오는 API")
