@@ -1,17 +1,11 @@
 package com.dasolsystem.core.Post.Controller;
 
-import com.dasolsystem.core.Entity.Post;
 import com.dasolsystem.core.Post.Dto.*;
 import com.dasolsystem.core.Post.Service.PostService;
-import jakarta.websocket.OnClose;
 import jdk.jfr.Description;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.net.URI;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,7 +14,7 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping
-    public ResponseEntity<ResponseJson<Object>> registerPost(@RequestBody RequestRegistrPostDto requsetDto){
+    public ResponseEntity<ResponseJson<Object>> registerPost(@RequestBody RequestRegisterPostDto requsetDto){
         ResponseSavedIdDto responseSavedIdDto = postService.write(requsetDto);
 
 
@@ -69,7 +63,7 @@ public class PostController {
         );
     }
     @GetMapping
-    public ResponseEntity<ResponseJson<Object>> getPostList(@ModelAttribute RequestListDto requestListDto){
+    public ResponseEntity<ResponseJson<Object>> getPostList(RequestListDto requestListDto){
         ResponsePostListDto postList = postService.getList(requestListDto);
         return ResponseEntity.ok(
                 ResponseJson.builder()

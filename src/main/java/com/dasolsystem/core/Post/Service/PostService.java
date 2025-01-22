@@ -5,7 +5,6 @@ import com.dasolsystem.core.Post.Dto.*;
 import com.dasolsystem.core.Post.Repository.PostRepository;
 import jdk.jfr.Description;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,7 @@ public class PostService {
     private final PostRepository postRepository;
 
     @Description("작성하는 메서드")
-    public ResponseSavedIdDto write(RequestRegistrPostDto requestDto){ //컨트롤러 단에서 넘겨줄 데이터를 받는 write
+    public ResponseSavedIdDto write(RequestRegisterPostDto requestDto){ //컨트롤러 단에서 넘겨줄 데이터를 받는 write
         Post post = Post.builder()
                 .title(requestDto.getTitle())
                 .content(requestDto.getContent())

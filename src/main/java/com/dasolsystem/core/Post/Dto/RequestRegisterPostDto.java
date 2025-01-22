@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RequestRegistrPostDto {
+public class RequestRegisterPostDto {
 
     private String title;
 
