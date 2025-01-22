@@ -1,16 +1,18 @@
 package com.dasolsystem.core.Post.Service;
 
 import com.dasolsystem.core.Entity.Post;
-import com.dasolsystem.core.Post.Dto.RequestRegistrPostDto;
-import com.dasolsystem.core.Post.Dto.ResponsePostDto;
-import com.dasolsystem.core.Post.Dto.ResponseSavedIdDto;
+import com.dasolsystem.core.Post.Dto.*;
 import com.dasolsystem.core.Post.Repository.PostRepository;
 import jdk.jfr.Description;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -43,5 +45,38 @@ public class PostService {
                 .content((post.getContent()))
                 .createdDate(post.getCreatedDate())
                 .build();
+    }
+
+    @Description("게시글 수정하는 메서드")
+    @Transactional
+    public void edit(Long postId, RequestUpdatePostDto requestDto){
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 게시글입니다. "));
+        post.update(requestDto);
+    }
+
+    @Description("게시글 삭제하는 메서드")
+    public void delete(Long postId){
+        Post post = postRepository.findById(postId)
+                .orElseThrow(()-> new RuntimeException("존재하지 않는 게시글입니다"));
+        postRepository.delete(post); //기본적으로 제공해주는 CRUD
+
+    }
+
+    public ResponsePostListDto getList(RequestListDto requestListDto){
+        PageRequest pageRequest = PageRequest.of(requestListDto.getPage(), requestListDto.getPageSize());
+        Page<Post> posts = postRepository.findAll(pageRequest);
+        ResponsePostListDto responseDto = ResponsePostListDto.builder()
+                .totalCount((int) posts.getTotalElements())
+                .page(posts.getNumber())
+                .pageSize(posts.getSize())
+                .postList(posts.stream().map(post -> ResponsePostDto.builder()
+                        .postId(post.getPostId())
+                        .title(post.getTitle())
+                        .content(post.getContent())
+                        .createdDate(post.getCreatedDate())
+                        .build()).collect(Collectors.toList()))
+                .build();
+        return responseDto;
     }
 }

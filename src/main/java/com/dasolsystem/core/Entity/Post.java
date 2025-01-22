@@ -1,5 +1,6 @@
 package com.dasolsystem.core.Entity;
 
+import com.dasolsystem.core.Post.Dto.RequestUpdatePostDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -25,4 +26,9 @@ public class Post {
     @CreatedDate
     private LocalDateTime createdDate;
 
+
+    public void update(RequestUpdatePostDto requestDto){
+        this.title = requestDto.getTitle();
+        this.content = requestDto.getContent();
+    }
 }
