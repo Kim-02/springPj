@@ -1,8 +1,8 @@
-package com.dasolsystem.core.Post.Service;
+package com.dasolsystem.core.post.service;
 
-import com.dasolsystem.core.Entity.Post;
-import com.dasolsystem.core.Post.Dto.*;
-import com.dasolsystem.core.Post.Repository.PostRepository;
+import com.dasolsystem.core.entity.Post;
+import com.dasolsystem.core.post.Dto.*;
+import com.dasolsystem.core.post.repository.PostRepository;
 import jdk.jfr.Description;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

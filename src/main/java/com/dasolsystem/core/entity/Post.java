@@ -1,6 +1,6 @@
-package com.dasolsystem.core.Entity;
+package com.dasolsystem.core.entity;
 
-import com.dasolsystem.core.Post.Dto.RequestUpdatePostDto;
+import com.dasolsystem.core.post.Dto.RequestUpdatePostDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -8,7 +8,7 @@ import org.springframework.data.annotation.CreatedDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Data
+@Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

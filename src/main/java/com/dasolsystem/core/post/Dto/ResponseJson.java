@@ -1,4 +1,4 @@
-package com.dasolsystem.core.Post.Dto;
+package com.dasolsystem.core.post.Dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;

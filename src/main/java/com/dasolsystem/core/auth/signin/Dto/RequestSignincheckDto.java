@@ -1,4 +1,4 @@
-package com.dasolsystem.core.Post.Dto;
+package com.dasolsystem.core.auth.signin.Dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,11 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class RequestUpdatePostDto {
-
-    private String title;
-    private String content;
+public class RequestSignincheckDto {
+    private String id;
+    private String pw;
 }

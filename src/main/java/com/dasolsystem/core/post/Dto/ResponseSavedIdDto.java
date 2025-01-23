@@ -1,7 +1,6 @@
-package com.dasolsystem.core.Post.Dto;
+package com.dasolsystem.core.post.Dto;
 
 
-import jdk.jfr.DataAmount;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

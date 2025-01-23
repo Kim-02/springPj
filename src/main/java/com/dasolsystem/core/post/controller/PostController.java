@@ -1,7 +1,7 @@
-package com.dasolsystem.core.Post.Controller;
+package com.dasolsystem.core.post.controller;
 
-import com.dasolsystem.core.Post.Dto.*;
-import com.dasolsystem.core.Post.Service.PostService;
+import com.dasolsystem.core.post.Dto.*;
+import com.dasolsystem.core.post.service.PostService;
 import jdk.jfr.Description;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +13,17 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
     private final PostService postService;
 
+    @GetMapping("/test/testpost")
+    public ResponseEntity<ResponseJson<Object>> testPost(){
+
+        return ResponseEntity.ok(
+                ResponseJson.builder()
+                        .status(200)
+                        .message("OK")
+                        .result("testPost")
+                        .build()
+        );
+    }
     @PostMapping
     public ResponseEntity<ResponseJson<Object>> registerPost(@RequestBody RequestRegisterPostDto requsetDto){
         ResponseSavedIdDto responseSavedIdDto = postService.write(requsetDto);
