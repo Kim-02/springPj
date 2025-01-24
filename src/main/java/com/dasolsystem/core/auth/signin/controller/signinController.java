@@ -26,7 +26,7 @@ public class signinController {
         if(response.getState().value){
             jwtToken = jwtBuilder.generateAccessToken(response.getName());
             res.setHeader("Content-Type", "application/json");
-            res.setHeader("Authorization", jwtToken);
+            res.setHeader("Authorization", "Bearer " + jwtToken);
         }
         return ResponseEntity.ok(
                 ResponseJson.builder()

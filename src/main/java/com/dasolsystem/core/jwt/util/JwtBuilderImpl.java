@@ -45,6 +45,9 @@ public class JwtBuilderImpl implements JwtBuilder {
     }
 
     public JwtCode validateToken(String token) {
+        if (token == null || token.trim().isEmpty()) {
+            return JwtCode.DENIED; // 토큰이 유효하지 않음
+        }
         try {
             Jwts.parserBuilder().setSigningKey(SecretKey).build().parseClaimsJws(token);
             return JwtCode.ACCESS;
