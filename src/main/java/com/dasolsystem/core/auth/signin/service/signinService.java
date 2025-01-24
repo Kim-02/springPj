@@ -18,14 +18,12 @@ public class signinService {
     public ResponseSignincheckDto loginCheck(RequestSignincheckDto dto) {
         String id = dto.getId();
         String pw = dto.getPw();
-        System.out.println(id);
-        System.out.println(pw);
         SignUp valid = repo.findByEmailID(id);
-        System.out.println(valid);
         if(valid!=null){
             if(valid.getPassword().equals(pw)){
                 return ResponseSignincheckDto.builder()
                         .state(State.OK)
+                        .name(valid.getUserName())
                         .build();
             }
         }

@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ResponseSignincheckDto {
     private State state;
+    private String name;
 }
