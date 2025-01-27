@@ -2,103 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JWT Signin Test</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        .container {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 8px;
-            box-sizing: border-box;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .response {
-            margin-top: 20px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #f1f1f1;
-            word-wrap: break-word;
-        }
-    </style>
+    <title>Title</title>
 </head>
 <body>
-<div class="container">
-    <h2>JWT Signin Test</h2>
-    <div class="form-group">
-        <label for="username">Username</label>
-        <input type="text" id="username" placeholder="Enter your username">
-    </div>
-    <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" placeholder="Enter your password">
-    </div>
-    <button id="signinButton">Sign In</button>
-
-    <div id="response" class="response" style="display: none;"></div>
-</div>
-
-<script>
-    document.getElementById('signinButton').addEventListener('click', async () => {
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-        const responseDiv = document.getElementById('response');
-
-        if (!username || !password) {
-            alert('Please fill in both fields.');
-            return;
-        }
-
-        try {
-            const response = await fetch('http://localhost:8080/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    id: username,
-                    pw: password
-                })
-            });
-
-            const data = await response.json();
-            responseDiv.style.display = 'block';
-            responseDiv.innerHTML = `<strong>Status:</strong> ${data.status}<br>
-                                         <strong>Message:</strong> ${data.message}<br>
-                                         <strong>JWT Token:</strong> ${data.result}`;
-        } catch (error) {
-            responseDiv.style.display = 'block';
-            responseDiv.innerHTML = `<strong>Error:</strong> ${error.message}`;
-        }
-    });
-</script>
+<a href="/auth/login">로그인</a>
+<a href="/signup/sign-up-page">회원가입</a>
 </body>
 </html>
