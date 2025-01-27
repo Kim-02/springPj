@@ -1,8 +1,8 @@
 package com.dasolsystem.core.auth.signup.controller;
 
 import com.dasolsystem.core.post.Dto.ResponseJson;
-import com.dasolsystem.core.auth.signup.Dto.RequestSignupPostDto;
-import com.dasolsystem.core.auth.signup.Dto.ResponseSavedNameDto;
+import com.dasolsystem.core.auth.signup.dto.RequestSignupPostDto;
+import com.dasolsystem.core.auth.signup.dto.ResponseSavedNameDto;
 import com.dasolsystem.core.auth.signup.service.signupService;
 import jdk.jfr.Description;
 import lombok.RequiredArgsConstructor;
