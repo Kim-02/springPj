@@ -1,4 +1,4 @@
-package com.dasolsystem.core.auth.signin.Dto;
+package com.dasolsystem.core.auth.signin.dto;
 
 import com.dasolsystem.core.auth.Enum.State;
 import lombok.AllArgsConstructor;
