@@ -1,10 +1,16 @@
 package com.dasolsystem.core.jwt.util;
 
 import com.dasolsystem.core.auth.Enum.JwtCode;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.dasolsystem.core.entity.SignUpJwt;
+import com.dasolsystem.core.jwt.dto.ResponsesignInJwtDto;
+import com.dasolsystem.core.jwt.dto.signInJwtBuilderDto;
+import com.dasolsystem.core.jwt.repository.JwtRepository;
+import io.jsonwebtoken.*;
 
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +19,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
+@RequiredArgsConstructor
 public class JwtBuilderImpl implements JwtBuilder {
+
+    @Autowired
+    private JwtRepository jwtRepository;
+
     @Value("${jwt.secret.key}")
     private String SecretKey; //키값임.
     private static final Long AccessTokenExpTime = 1000*60L*3L;
@@ -33,7 +44,7 @@ public class JwtBuilderImpl implements JwtBuilder {
                 .setClaims(payload)
                 .setSubject("test")
                 .setExpiration(ext)
-                .signWith(SignatureAlgorithm.HS256,SecretKey.getBytes())
+                .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(SecretKey)), SignatureAlgorithm.HS256)
                 .compact();
         return jwt;
     }
@@ -45,16 +56,36 @@ public class JwtBuilderImpl implements JwtBuilder {
     }
 
     public JwtCode validateToken(String token) {
-        if (token == null || token.trim().isEmpty()) {
-            return JwtCode.DENIED; // 토큰이 유효하지 않음
-        }
         try {
-            Jwts.parserBuilder().setSigningKey(SecretKey).build().parseClaimsJws(token);
-            return JwtCode.ACCESS;
-        } catch (ExpiredJwtException e) { // 기한 만료
-            return JwtCode.EXPIRED;
-        } catch (Exception e) {
-            return JwtCode.DENIED;
+            Jwts.parserBuilder()
+                    .setSigningKey(Keys.hmacShaKeyFor(Decoders.BASE64.decode(SecretKey)))
+                    .build()
+                    .parseClaimsJws(token);
+            return JwtCode.OK;
+        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+            return JwtCode.WRONG;
+        } catch (ExpiredJwtException e) {
+            return JwtCode.EXPIRE;
+        } catch (UnsupportedJwtException e) {
+            return JwtCode.NOT_SUPPORT;
+        } catch (IllegalArgumentException e) {
+            return JwtCode.NOT_EXIST_CLAIMS;
         }
+    }
+
+    public void saveRefreshToken(signInJwtBuilderDto builderDto) {
+        SignUpJwt jwt = SignUpJwt.builder()
+                .username(builderDto.getUserName())
+                .rtoken(builderDto.getRtoken())
+                .build();
+        jwtRepository.save(jwt);
+    }
+
+    //DB의 RToken과 비교하기 위해 username으로 RToken을 가져옴
+    public ResponsesignInJwtDto getRefreshTokenByName(String username) {
+        SignUpJwt responsejwt = jwtRepository.findByusername(username);
+        return ResponsesignInJwtDto.builder()
+                .rtoken(responsejwt.getRtoken())
+                .build();
     }
 }

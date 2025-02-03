@@ -1,6 +1,6 @@
 package com.dasolsystem.core.auth.signin.dto;
 
-import com.dasolsystem.core.auth.Enum.State;
+import com.dasolsystem.core.enums.ApiState;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class ResponseSignincheckDto {
-    private State state;
+    private ApiState state;
     private String name;
+    private String message;
 }

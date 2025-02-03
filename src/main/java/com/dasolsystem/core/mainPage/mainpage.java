@@ -19,7 +19,7 @@ public class mainpage {
         System.out.println("Authorization Header: " + token); // 디버깅용 출력
         JwtCode code = jwtBuilder.validateToken(token);
         System.out.println("JwtCode: " + code); // 결과 확인
-        if (code == JwtCode.ACCESS) {
+        if (code == JwtCode.OK) {
             return ResponseEntity.ok(
                     ResponseJson.builder()
                             .status(200)

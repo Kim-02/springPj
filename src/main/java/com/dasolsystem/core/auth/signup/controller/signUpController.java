@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/signup")
-public class signUpController extends MvcConfiguration {
+public class signUpController{
 
     private final signupService service;
 
