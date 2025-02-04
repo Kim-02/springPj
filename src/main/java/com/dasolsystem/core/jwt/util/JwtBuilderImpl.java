@@ -1,10 +1,15 @@
 package com.dasolsystem.core.jwt.util;
 
+import com.dasolsystem.config.excption.AuthFailException;
 import com.dasolsystem.core.auth.Enum.JwtCode;
+import com.dasolsystem.core.entity.RedisJwtId;
 import com.dasolsystem.core.entity.SignUpJwt;
+import com.dasolsystem.core.enums.ApiState;
 import com.dasolsystem.core.jwt.dto.ResponsesignInJwtDto;
-import com.dasolsystem.core.jwt.dto.signInJwtBuilderDto;
+import com.dasolsystem.core.jwt.dto.TokenAccesserDto;
+import com.dasolsystem.core.jwt.dto.TokenIdAccesserDto;
 import com.dasolsystem.core.jwt.repository.JwtRepository;
+import com.dasolsystem.core.jwt.repository.RedisJwtRepository;
 import io.jsonwebtoken.*;
 
 import io.jsonwebtoken.io.Decoders;
@@ -17,6 +22,7 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -24,6 +30,9 @@ public class JwtBuilderImpl implements JwtBuilder {
 
     @Autowired
     private JwtRepository jwtRepository;
+
+    @Autowired
+    private RedisJwtRepository redisJwtRepository;
 
     @Value("${jwt.secret.key}")
     private String SecretKey; //키값임.
@@ -51,10 +60,37 @@ public class JwtBuilderImpl implements JwtBuilder {
     public String generateAccessToken(String name){
         return generateJWT(name,AccessTokenExpTime);
     }
-    public String generateRefreshToken(String name){
-        return generateJWT(name,RefreshTokenExpTime);
+    //refresh 토큰 조회용 id만 반환
+    public Long getRefreshTokenId(String name){
+        TokenAccesserDto tokenAccesserDto = TokenAccesserDto.builder()
+                .token(generateJWT(name,RefreshTokenExpTime))
+                .build();
+        RedisJwtId redisid = RedisJwtId.builder()
+                .jwtToken(tokenAccesserDto.getToken())
+                .expiration(RefreshTokenExpTime)
+                .build();
+        redisJwtRepository.save(redisid);
+        return redisid.getId();
     }
+    public String getNewAccessToken(TokenIdAccesserDto tokenIdAccesserDto){
+        //ID로 Redis에서 객체 조회
+        Optional<RedisJwtId> optionalRedisJwtId = redisJwtRepository.findById(Long.parseLong(tokenIdAccesserDto.getTokenId()));
+            if(optionalRedisJwtId.isPresent()){
+                RedisJwtId redisid = optionalRedisJwtId.get();
+                //만료기간
+                if(redisid.getExpiration().equals(0L)) throw new AuthFailException(ApiState.ERROR_602,"Expired Refresh Token");
+                if(validateToken(redisid.getJwtToken()).equals(JwtCode.OK)){
+                    return generateAccessToken(tokenIdAccesserDto.getName());
+                }
+                else{
+                    throw new AuthFailException(ApiState.ERROR_602,"validate Error"+validateToken(redisid.getJwtToken()));
+                }
+            }
+            else{
+                throw new AuthFailException(ApiState.ERROR_602,"None id in Redis");
+            }
 
+    }
     public JwtCode validateToken(String token) {
         try {
             Jwts.parserBuilder()
@@ -73,13 +109,13 @@ public class JwtBuilderImpl implements JwtBuilder {
         }
     }
 
-    public void saveRefreshToken(signInJwtBuilderDto builderDto) {
-        SignUpJwt jwt = SignUpJwt.builder()
-                .username(builderDto.getUserName())
-                .rtoken(builderDto.getRtoken())
-                .build();
-        jwtRepository.save(jwt);
-    }
+//    public void saveRefreshToken(signInJwtBuilderDto builderDto) {
+//        SignUpJwt jwt = SignUpJwt.builder()
+//                .username(builderDto.getUserName())
+//                .rtoken(builderDto.getRtoken())
+//                .build();
+//        jwtRepository.save(jwt);
+//    }
 
     //DB의 RToken과 비교하기 위해 username으로 RToken을 가져옴
     public ResponsesignInJwtDto getRefreshTokenByName(String username) {

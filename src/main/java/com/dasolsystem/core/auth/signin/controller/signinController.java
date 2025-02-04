@@ -3,10 +3,8 @@ package com.dasolsystem.core.auth.signin.controller;
 import com.dasolsystem.core.auth.signin.dto.RequestSignincheckDto;
 import com.dasolsystem.core.auth.signin.dto.ResponseSignincheckDto;
 import com.dasolsystem.core.auth.signin.service.signinService;
-import com.dasolsystem.core.auth.signin.service.signinServiceImpl;
 import com.dasolsystem.core.enums.ApiState;
 import com.dasolsystem.core.jwt.dto.signInJwtBuilderDto;
-import com.dasolsystem.core.jwt.repository.JwtRepository;
 import com.dasolsystem.core.jwt.util.JwtBuilder;
 import com.dasolsystem.core.post.Dto.ResponseJson;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,18 +24,18 @@ public class signinController {
             HttpServletResponse res
             ){
         String jwtToken = null;
-        String refresh=null;
+        Long refreshTokenId =null;
         ResponseSignincheckDto response = service.loginCheck(signincheckDto);
         if(response.getState()== ApiState.OK){
             jwtToken = jwtBuilder.generateAccessToken(response.getName());
-            refresh = jwtBuilder.generateRefreshToken(response.getName());
+            refreshTokenId = jwtBuilder.getRefreshTokenId(response.getName());
             res.setHeader("Content-Type", "application/json");
             res.setHeader("Authorization", "Bearer " + jwtToken);
-            res.setHeader("rAuthorization", "Bearer " + refresh);
+            res.setHeader("rAuthorization", "Bearer " + refreshTokenId);
             res.setHeader("User-Name",response.getName());
-            jwtBuilder.saveRefreshToken(signInJwtBuilderDto.builder() //DB에 이름을 키로 한 리프레시 토큰 저장
-                    .userName(response.getName())
-                    .rtoken(refresh).build());
+//            jwtBuilder.saveRefreshToken(signInJwtBuilderDto.builder() //DB에 이름을 키로 한 리프레시 토큰 저장
+//                    .userName(response.getName())
+//                    .rtoken(refreshTokenId).build());
         }
         else if(response.getState()==ApiState.ERROR_901){
             res.setHeader("Authorization", response.getMessage() );

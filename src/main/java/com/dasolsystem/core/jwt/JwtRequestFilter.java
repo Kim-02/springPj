@@ -3,9 +3,8 @@ package com.dasolsystem.core.jwt;
 import com.dasolsystem.config.excption.AuthFailException;
 import com.dasolsystem.core.auth.Enum.JwtCode;
 import com.dasolsystem.core.enums.ApiState;
-import com.dasolsystem.core.jwt.dto.ResponsesignInJwtDto;
+import com.dasolsystem.core.jwt.dto.TokenIdAccesserDto;
 import com.dasolsystem.core.jwt.util.JwtBuilder;
-import com.dasolsystem.core.post.Dto.ResponseJson;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,19 +32,19 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String accessToken = request.getHeader(AUTHORIZATION_HEADER);
-        String refreshToken = request.getHeader(REFRESH_AUTHORIZATION_HEADER);
+        String refreshTokenId = request.getHeader(REFRESH_AUTHORIZATION_HEADER);
         String username = request.getHeader(USER_NAME);
-        String DBrefreshToken;
+//        String DBrefreshToken;
         String accessTokenGoodHeader;
-        String refreshTokenGoodHeader;
+        String refreshToken;
         try {
             log.info(" ■ JWT filter : accessToken " + accessToken);
             log.info(" ■ JWT filter : accessToken " + accessToken.startsWith(BEARER_PREFIX));
         } catch (Exception e) {
         }
         try {
-            log.info(" ■ JWT filter : refreshToken " + refreshToken);
-            log.info(" ■ JWT filter : refreshToken " + refreshToken.startsWith(BEARER_PREFIX));
+            log.info(" ■ JWT filter : refreshToken " + refreshTokenId);
+            log.info(" ■ JWT filter : refreshToken " + refreshTokenId.startsWith(BEARER_PREFIX));
         } catch (Exception e) {
         }
         try {
@@ -55,39 +54,29 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         try {
             //만약 토큰이 있다면
-            if ((StringUtils.hasText(accessToken) && accessToken.startsWith(BEARER_PREFIX)) && (username != null) && (StringUtils.hasText(refreshToken) && refreshToken.startsWith(BEARER_PREFIX))) {
+            if (StringUtils.hasText(accessToken) && accessToken.startsWith(BEARER_PREFIX)) {
                 log.info(" ■ JWT filter : refreshToken, accessToken 전송");
                 //실제 토큰만 추출
                 accessTokenGoodHeader = accessToken.substring(BEARER_PREFIX.length());
-                refreshTokenGoodHeader = refreshToken.substring(BEARER_PREFIX.length());
+                refreshToken = refreshTokenId.substring(BEARER_PREFIX.length());
                 log.info(" ■ JWT filter : accessTokenHeader - " + accessTokenGoodHeader);
-                log.info(" ■ JWT filter : refreshTokenHeader - " + refreshTokenGoodHeader);
+                log.info(" ■ JWT filter : refreshTokenHeader - " + refreshToken);
                 //유요성 검증
                 JwtCode accessTokenStatus = jwtBuilder.validateToken(accessTokenGoodHeader);
-                JwtCode refreshTokenStatus = jwtBuilder.validateToken(refreshTokenGoodHeader);
                 log.info(" ■ JWT filter : accessTokenStatus - " + accessTokenStatus);
-                log.info(" ■ JWT filter : refreshTokenStatus - " + refreshTokenStatus);
                 //잘못된 토큰
-                if (refreshTokenStatus.equals(JwtCode.WRONG) || accessTokenStatus.equals(JwtCode.WRONG))
+                if (accessTokenStatus.equals(JwtCode.WRONG))
                     throw new AuthFailException(ApiState.ERROR_602, "Wrong Token");
-                //refresh 토큰이 만료됨
-                if (refreshTokenStatus.equals(JwtCode.EXPIRE))
-                    throw new AuthFailException(ApiState.ERROR_602, "refresh token Expired");
 
-                //refresh는 괜찮고 access토큰이 만료됨.
-                if (refreshTokenStatus.equals(JwtCode.OK) && accessTokenStatus.equals(JwtCode.EXPIRE)) {
-                    ResponsesignInJwtDto responsesignInJwtDto = jwtBuilder.getRefreshTokenByName(username);
-                    DBrefreshToken = responsesignInJwtDto.getRtoken();
-                    log.info(DBrefreshToken);
-                    log.info(" ■ JWT filter : refreshTokenEquals - " + DBrefreshToken.equals(refreshTokenGoodHeader));
-                    //DB에 있는 리프레시 토큰과 동일하면 새로운 AccessToken 발급
-                    if (DBrefreshToken.equals(refreshTokenGoodHeader)) {
-                        String newAccessToken = jwtBuilder.generateAccessToken(username);
-                        response.setHeader(AUTHORIZATION_HEADER, BEARER_PREFIX + newAccessToken);
-                        log.info("■ 새로운 Access Token 발급");
-                    } else {
-                        throw new AuthFailException(ApiState.ERROR_602, "refresh token is not equals");
-                    }
+                //access토큰이 만료됨.
+                if (accessTokenStatus.equals(JwtCode.EXPIRE)) {
+                    TokenIdAccesserDto accesserDto = TokenIdAccesserDto.builder()
+                            .tokenId(refreshToken)
+                            .name(username)
+                            .build();
+                    String newAccessToken = jwtBuilder.getNewAccessToken(accesserDto);
+                    response.setHeader(AUTHORIZATION_HEADER, BEARER_PREFIX + newAccessToken);
+                    log.info("■ 새로운 Access Token 발급");
                 }
             }
             else {
