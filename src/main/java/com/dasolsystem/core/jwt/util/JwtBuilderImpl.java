@@ -118,10 +118,10 @@ public class JwtBuilderImpl implements JwtBuilder {
 //    }
 
     //DB의 RToken과 비교하기 위해 username으로 RToken을 가져옴
-    public ResponsesignInJwtDto getRefreshTokenByName(String username) {
-        SignUpJwt responsejwt = jwtRepository.findByusername(username);
-        return ResponsesignInJwtDto.builder()
-                .rtoken(responsejwt.getRtoken())
-                .build();
-    }
+//    public ResponsesignInJwtDto getRefreshTokenByName(String username) {
+//        SignUpJwt responsejwt = jwtRepository.findByusername(username);
+//        return ResponsesignInJwtDto.builder()
+//                .rtoken(responsejwt.getRtoken())
+//                .build();
+//    }
 }

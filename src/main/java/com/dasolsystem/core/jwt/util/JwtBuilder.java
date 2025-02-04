@@ -13,5 +13,5 @@ public interface JwtBuilder {
     Long getRefreshTokenId(String name);
     JwtCode validateToken(String token);
 //    void saveRefreshToken(signInJwtBuilderDto builderDto);
-    ResponsesignInJwtDto getRefreshTokenByName(String username);
+//    ResponsesignInJwtDto getRefreshTokenByName(String username);
 }

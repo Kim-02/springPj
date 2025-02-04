@@ -36,13 +36,7 @@
 //    @Test
 //    @DisplayName("회원 로그인 -jwt발급")
 //    void login(){
-//        String refresh = jwtBuilder.getRefreshTokenId("testUser");
-//        jwtBuilder.saveRefreshToken(signInJwtBuilderDto.builder() //DB에 이름을 키로 한 리프레시 토큰 저장
-//                .userName("testUser")
-//                .rtoken(refresh).build());
-//        ResponsesignInJwtDto responsesignInJwtDto = jwtBuilder.getRefreshTokenByName("testUser");
-//        String DBrefreshToken = responsesignInJwtDto.getRtoken();
-//        assertThat(DBrefreshToken).isEqualTo(refresh);
+//        Long refreshId = jwtBuilder.getRefreshTokenId("testUser");
 //    }
 //    @DisplayName("정상적인 토큰 발급 테스트")
 //    @Test
