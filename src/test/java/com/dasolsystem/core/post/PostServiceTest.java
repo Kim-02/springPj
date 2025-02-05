@@ -1,7 +1,7 @@
 //package com.dasolsystem.core.post;
 //
 //import com.dasolsystem.core.auth.repository.authRepository;
-//import com.dasolsystem.core.auth.signup.controller.signUpController;
+//import com.dasolsystem.core.auth.signup.controller.SignUpController;
 //import com.dasolsystem.core.auth.signup.dto.RequestSignupPostDto;
 //import com.dasolsystem.core.auth.signup.service.signupService;
 //import com.dasolsystem.core.jwt.util.JwtBuilder;

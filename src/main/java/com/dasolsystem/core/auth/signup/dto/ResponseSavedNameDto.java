@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class ResponseSavedNameDto {
 
     private String userName;
+    private String message;
 }

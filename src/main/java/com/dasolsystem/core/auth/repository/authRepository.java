@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface authRepository extends JpaRepository<SignUp,Long> {
     SignUp findByEmailID(String id);
+    boolean existsByEmailID(String id);
 }

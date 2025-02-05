@@ -1,4 +1,4 @@
-package com.dasolsystem.core.jwt;
+package com.dasolsystem.core.jwt.filter;
 
 import com.dasolsystem.config.excption.AuthFailException;
 import com.dasolsystem.core.auth.Enum.JwtCode;
@@ -11,11 +11,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -29,6 +35,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     private final JwtBuilder jwtBuilder;
 
+    private static final List<String> WHITE_LIST = Arrays.asList(
+            "/",
+            "/test/**"
+    );
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String accessToken = request.getHeader(AUTHORIZATION_HEADER);
@@ -37,6 +48,12 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 //        String DBrefreshToken;
         String accessTokenGoodHeader;
         String refreshToken;
+        String requestURI = request.getRequestURI();
+
+        if(WHITE_LIST.stream().anyMatch(requestURI::startsWith)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         try {
             log.info(" ■ JWT filter : accessToken " + accessToken);
             log.info(" ■ JWT filter : accessToken " + accessToken.startsWith(BEARER_PREFIX));
@@ -76,8 +93,24 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                             .build();
                     String newAccessToken = jwtBuilder.getNewAccessToken(accesserDto);
                     response.setHeader(AUTHORIZATION_HEADER, BEARER_PREFIX + newAccessToken);
+                    accessToken = newAccessToken;
                     log.info("■ 새로운 Access Token 발급");
                 }
+                if(SecurityContextHolder.getContext().getAuthentication() == null){
+                    UsernamePasswordAuthenticationToken authenticationToken =
+                            new UsernamePasswordAuthenticationToken(username, accessToken,
+                                    Collections.singletonList(new SimpleGrantedAuthority(jwtBuilder.getAccessTokenPayload(accessToken))));
+                    try {
+                        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                    } catch (Exception e) {
+                        log.error("❗ JWT 인증 실패: {}", e.getMessage());
+                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        response.getWriter().write("❌ JWT 인증 실패: " + e.getMessage());
+                        return;
+                    }
+                }
+
+
             }
             else {
                 throw new AuthFailException(ApiState.ERROR_602, "null token or username");

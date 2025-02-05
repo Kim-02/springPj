@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+<input type="text" name="email" id="email" placeholder="Email">
+<input type="password" name="password" id="password" placeholder="Password">
+<button id="login">로그인</button>
+<button onclick="location.href='/test/main'">Go to Main</button>
+<script>
+    document.querySelector("#login").addEventListener("click", async () => {
+        // email, password 가져오기
+        const id = document.querySelector("#email").value.trim();
+        const pw = document.querySelector("#password").value.trim();
+
+        if (!id || !pw) {
+            alert("이메일과 비밀번호를 모두 입력하세요.");
+            return;
+        }
+
+        const RequestSignincheckDto = {
+            id: id,
+            pw: pw
+        };
+
+        try {
+            const response = await fetch("/api/signin", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(RequestSignincheckDto)
+            });
+
+            if (!response.ok) {
+                throw new Error("서버 오류: " + response.status);
+            }
+            // ✅ JWT 토큰과 리프레시 토큰 가져오기
+            const accessToken = response.headers.get("Authorization").replace("Bearer ","");        // Access Token
+            const refreshToken = response.headers.get("rAuthorization").replace("Bearer ","");      // Refresh Token
+            const username = response.headers.get("User-Name");
+            // ✅ 토큰 저장 (localStorage 또는 sessionStorage)
+            if (accessToken && refreshToken) {
+                localStorage.setItem("accessToken", accessToken);
+                localStorage.setItem("refreshToken", refreshToken);
+                localStorage.setItem("userName", username);
+
+                console.log("Access Token:", accessToken);
+                console.log("Refresh Token:", refreshToken);
+                console.log("UserName: ",username);
+            } else {
+                console.warn("토큰이 전달되지 않았습니다.");
+            }
+
+            const result = await response.json();
+            alert(result.message);
+        } catch (error) {
+            console.error("로그인 오류:", error);
+            alert(error);
+        }
+    });
+</script>
+</body>
+</html>

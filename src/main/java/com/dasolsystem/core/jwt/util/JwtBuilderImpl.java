@@ -3,9 +3,7 @@ package com.dasolsystem.core.jwt.util;
 import com.dasolsystem.config.excption.AuthFailException;
 import com.dasolsystem.core.auth.Enum.JwtCode;
 import com.dasolsystem.core.entity.RedisJwtId;
-import com.dasolsystem.core.entity.SignUpJwt;
 import com.dasolsystem.core.enums.ApiState;
-import com.dasolsystem.core.jwt.dto.ResponsesignInJwtDto;
 import com.dasolsystem.core.jwt.dto.TokenAccesserDto;
 import com.dasolsystem.core.jwt.dto.TokenIdAccesserDto;
 import com.dasolsystem.core.jwt.repository.JwtRepository;
@@ -38,7 +36,8 @@ public class JwtBuilderImpl implements JwtBuilder {
     private String SecretKey; //키값임.
     private static final Long AccessTokenExpTime = 1000*60L*3L;
     private static final Long RefreshTokenExpTime = 60L * 1000 * 60L;
-    public String generateJWT(String name,Long exptime){
+    private static final String Defult_Role = "ROLE_USER";
+    public String generateJWT(String name,Long exptime,String role){
         Map<String,Object> header = new HashMap<>();
         header.put("typ", "JWT"); //토큰 헤더 설정
 
@@ -47,7 +46,7 @@ public class JwtBuilderImpl implements JwtBuilder {
 
         Map<String,Object> payload = new HashMap<>();
         payload.put("user_name",name);//토큰 페이로드설정
-
+        payload.put("role", role);
         String jwt = Jwts.builder()
                 .setHeader(header)
                 .setClaims(payload)
@@ -58,12 +57,12 @@ public class JwtBuilderImpl implements JwtBuilder {
         return jwt;
     }
     public String generateAccessToken(String name){
-        return generateJWT(name,AccessTokenExpTime);
+        return generateJWT(name,AccessTokenExpTime, Defult_Role);
     }
     //refresh 토큰 조회용 id만 반환
     public Long getRefreshTokenId(String name){
         TokenAccesserDto tokenAccesserDto = TokenAccesserDto.builder()
-                .token(generateJWT(name,RefreshTokenExpTime))
+                .token(generateJWT(name,RefreshTokenExpTime, Defult_Role))
                 .build();
         RedisJwtId redisid = RedisJwtId.builder()
                 .jwtToken(tokenAccesserDto.getToken())
@@ -71,6 +70,14 @@ public class JwtBuilderImpl implements JwtBuilder {
                 .build();
         redisJwtRepository.save(redisid);
         return redisid.getId();
+    }
+    public String getAccessTokenPayload(String token){
+        return Jwts.parserBuilder()
+                .setSigningKey(SecretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("role").toString();
     }
     public String getNewAccessToken(TokenIdAccesserDto tokenIdAccesserDto){
         //ID로 Redis에서 객체 조회

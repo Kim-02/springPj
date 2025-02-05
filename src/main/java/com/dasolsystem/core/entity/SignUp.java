@@ -19,7 +19,7 @@ public class SignUp {
     @Column(length = 20)
     private String emailID;
 
-    @Column(length = 10)
+    @Column(length = 100)
     private String password;
 
     @Column(length = 10)
@@ -28,5 +28,7 @@ public class SignUp {
     @CreatedDate
     private LocalDateTime signInDate;
 
+    @Column(length = 10)
+    private String role;
 
 }

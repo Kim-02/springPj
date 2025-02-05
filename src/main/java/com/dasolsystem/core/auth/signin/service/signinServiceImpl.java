@@ -7,10 +7,12 @@ import com.dasolsystem.core.entity.SignUp;
 import com.dasolsystem.core.enums.ApiState;
 import jdk.jfr.Description;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class signinServiceImpl implements signinService {
     private final authRepository repo;
 
@@ -18,6 +20,8 @@ public class signinServiceImpl implements signinService {
     public ResponseSignincheckDto loginCheck(RequestSignincheckDto dto) {
         String id = dto.getId();
         String pw = dto.getPw();
+        log.info("id: "+id);
+        log.info("pw: "+pw);
         SignUp valid = repo.findByEmailID(id);
         if(valid!=null){
             if(valid.getPassword().equals(pw)){

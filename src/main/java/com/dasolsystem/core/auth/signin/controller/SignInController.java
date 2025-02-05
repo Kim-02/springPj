@@ -4,21 +4,28 @@ import com.dasolsystem.core.auth.signin.dto.RequestSignincheckDto;
 import com.dasolsystem.core.auth.signin.dto.ResponseSignincheckDto;
 import com.dasolsystem.core.auth.signin.service.signinService;
 import com.dasolsystem.core.enums.ApiState;
-import com.dasolsystem.core.jwt.dto.signInJwtBuilderDto;
 import com.dasolsystem.core.jwt.util.JwtBuilder;
 import com.dasolsystem.core.post.Dto.ResponseJson;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Collections;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/login") //loaclhost:8080/login
-public class signinController {
+@RequestMapping("/api") //loaclhost:8080/login
+@Slf4j
+public class SignInController {
     private final signinService service;
     private final JwtBuilder jwtBuilder;
-    @PostMapping("/api/vo/signin")
+    @PostMapping("/signin")
     public ResponseEntity<ResponseJson<Object>> signin(
             @RequestBody RequestSignincheckDto signincheckDto,
             HttpServletResponse res
@@ -33,9 +40,21 @@ public class signinController {
             res.setHeader("Authorization", "Bearer " + jwtToken);
             res.setHeader("rAuthorization", "Bearer " + refreshTokenId);
             res.setHeader("User-Name",response.getName());
-//            jwtBuilder.saveRefreshToken(signInJwtBuilderDto.builder() //DB에 이름을 키로 한 리프레시 토큰 저장
-//                    .userName(response.getName())
-//                    .rtoken(refreshTokenId).build());
+            UsernamePasswordAuthenticationToken authenticationToken =
+                    new UsernamePasswordAuthenticationToken(
+                            response.getName(),
+                            jwtToken.replace("Bearer ", ""),
+                            Collections.singletonList(
+                                    new SimpleGrantedAuthority(
+                                            jwtBuilder.getAccessTokenPayload(jwtToken.replace("Bearer ", "")))));
+
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            log.info("✅ 인증 객체 등록 확인: {}", auth);
+            log.info("▶ 사용자 이름: {}", auth.getName());
+            log.info("▶ 권한 목록: {}", auth.getAuthorities());
+            log.info("▶ 인증 여부: {}", auth.isAuthenticated());
+
         }
         else if(response.getState()==ApiState.ERROR_901){
             res.setHeader("Authorization", response.getMessage() );
@@ -47,7 +66,7 @@ public class signinController {
                 ResponseJson.builder()
                         .status(200)
                         .message("JWT")
-                        .result(res.getHeader("Authorization"))
+                        .result(res.getHeader("User-Name"))
                         .build()
         );
     }

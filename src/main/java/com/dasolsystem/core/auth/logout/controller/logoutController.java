@@ -6,12 +6,12 @@ import com.dasolsystem.core.jwt.repository.RedisJwtRepository;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/logout")
+@RequestMapping("/api")
 public class logoutController {
 
     private final RedisJwtRepository redisJwtRepository;
 
-    @PostMapping("/api/vo/logout")
+    @PostMapping("/logout")
     public String logout(@RequestBody Long refreshTokenId){
         redisJwtRepository.deleteById(refreshTokenId);
         return "logout";
