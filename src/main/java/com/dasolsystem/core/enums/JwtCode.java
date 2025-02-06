@@ -1,4 +1,4 @@
-package com.dasolsystem.core.auth.Enum;
+package com.dasolsystem.core.enums;
 
 import lombok.RequiredArgsConstructor;
 

@@ -1,6 +1,6 @@
 package com.dasolsystem.core.auth.signup.controller;
 
-import com.dasolsystem.core.post.Dto.ResponseJson;
+import com.dasolsystem.handler.ResponseJson;
 import com.dasolsystem.core.auth.signup.dto.RequestSignupPostDto;
 import com.dasolsystem.core.auth.signup.dto.ResponseSavedNameDto;
 import com.dasolsystem.core.auth.signup.service.signupService;

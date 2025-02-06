@@ -1,20 +1,20 @@
 package com.dasolsystem.core.mainPage;
 
 import com.dasolsystem.core.jwt.util.JwtBuilder;
-import com.dasolsystem.core.post.Dto.ResponseJson;
+import com.dasolsystem.handler.ResponseJson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
 @Slf4j
 public class MainPage {
-    private JwtBuilder jwtBuilder;
     @GetMapping("/api/main")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<ResponseJson<Object>> mainpage() {
         log.info("✅ mainpage 접근");
         return ResponseEntity.ok(

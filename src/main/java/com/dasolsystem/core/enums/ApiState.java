@@ -12,9 +12,10 @@ public enum ApiState {
 
 
     //로그인 에러
-    ERROR_901(901); //
+    ERROR_901(901) //
 
-
+    //예상치 못한 에러
+    ,ERROR_UNKNOWN(100);
 
     private final Integer num;
     public int getNum(){return num;}

@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ResponseSignincheckDto {
     private ApiState state;
+    private String emailId;
     private String name;
     private String message;
 }

@@ -1,7 +1,7 @@
 package com.dasolsystem.core.jwt.util;
 
 import com.dasolsystem.config.excption.AuthFailException;
-import com.dasolsystem.core.auth.Enum.JwtCode;
+import com.dasolsystem.core.enums.JwtCode;
 import com.dasolsystem.core.entity.RedisJwtId;
 import com.dasolsystem.core.enums.ApiState;
 import com.dasolsystem.core.jwt.dto.TokenAccesserDto;
@@ -25,7 +25,6 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class JwtBuilderImpl implements JwtBuilder {
-
     @Autowired
     private JwtRepository jwtRepository;
 
@@ -37,7 +36,7 @@ public class JwtBuilderImpl implements JwtBuilder {
     private static final Long AccessTokenExpTime = 1000*60L*3L;
     private static final Long RefreshTokenExpTime = 60L * 1000 * 60L;
     private static final String Defult_Role = "ROLE_USER";
-    public String generateJWT(String name,Long exptime,String role){
+    public String generateJWT(String emailId,Long exptime,String role){
         Map<String,Object> header = new HashMap<>();
         header.put("typ", "JWT"); //토큰 헤더 설정
 
@@ -45,7 +44,7 @@ public class JwtBuilderImpl implements JwtBuilder {
         ext.setTime(ext.getTime()+exptime); //유효시간 설정
 
         Map<String,Object> payload = new HashMap<>();
-        payload.put("user_name",name);//토큰 페이로드설정
+        payload.put("EmailId",emailId);//토큰 페이로드설정
         payload.put("role", role);
         String jwt = Jwts.builder()
                 .setHeader(header)
@@ -56,13 +55,13 @@ public class JwtBuilderImpl implements JwtBuilder {
                 .compact();
         return jwt;
     }
-    public String generateAccessToken(String name){
-        return generateJWT(name,AccessTokenExpTime, Defult_Role);
+    public String generateAccessToken(String emailId){
+        return generateJWT(emailId,AccessTokenExpTime, Defult_Role);
     }
     //refresh 토큰 조회용 id만 반환
-    public Long getRefreshTokenId(String name){
+    public Long getRefreshTokenId(String emailId){
         TokenAccesserDto tokenAccesserDto = TokenAccesserDto.builder()
-                .token(generateJWT(name,RefreshTokenExpTime, Defult_Role))
+                .token(generateJWT(emailId,RefreshTokenExpTime, Defult_Role))
                 .build();
         RedisJwtId redisid = RedisJwtId.builder()
                 .jwtToken(tokenAccesserDto.getToken())
@@ -71,26 +70,39 @@ public class JwtBuilderImpl implements JwtBuilder {
         redisJwtRepository.save(redisid);
         return redisid.getId();
     }
-    public String getAccessTokenPayload(String token){
+    //payload 에서 정보를 얻기 위함
+    public Claims getAccessTokenPayload(String token){
         return Jwts.parserBuilder()
                 .setSigningKey(SecretKey)
                 .build()
                 .parseClaimsJws(token)
-                .getBody()
-                .get("role").toString();
+                .getBody();
+    }
+    public String getRefreshTokenEmailId(String tokenId){
+        Optional<RedisJwtId> optionalRedisJwtId = redisJwtRepository.findById(Long.parseLong(tokenId));
+        if(optionalRedisJwtId.isPresent()){
+            RedisJwtId redisid = optionalRedisJwtId.get();
+            if(validateToken(redisid.getJwtToken()).equals(JwtCode.OK)){ //refresh 토큰의 유효성 검사
+                return getAccessTokenPayload(redisid.getJwtToken()).get("EmailId").toString();
+            }
+            else{
+                throw new AuthFailException(ApiState.ERROR_602,"validate Error.ErrorCode."+validateToken(redisid.getJwtToken()));
+            }
+        }
+        else{
+            throw new AuthFailException(ApiState.ERROR_602,"None id in Redis. Login");
+        }
     }
     public String getNewAccessToken(TokenIdAccesserDto tokenIdAccesserDto){
         //ID로 Redis에서 객체 조회
         Optional<RedisJwtId> optionalRedisJwtId = redisJwtRepository.findById(Long.parseLong(tokenIdAccesserDto.getTokenId()));
             if(optionalRedisJwtId.isPresent()){
                 RedisJwtId redisid = optionalRedisJwtId.get();
-                //만료기간
-                if(redisid.getExpiration().equals(0L)) throw new AuthFailException(ApiState.ERROR_602,"Expired Refresh Token");
-                if(validateToken(redisid.getJwtToken()).equals(JwtCode.OK)){
-                    return generateAccessToken(tokenIdAccesserDto.getName());
+                if(validateToken(redisid.getJwtToken()).equals(JwtCode.OK)){ //refresh 토큰의 유효성 검사
+                    return generateAccessToken(tokenIdAccesserDto.getEmailId());
                 }
                 else{
-                    throw new AuthFailException(ApiState.ERROR_602,"validate Error"+validateToken(redisid.getJwtToken()));
+                    throw new AuthFailException(ApiState.ERROR_602,"validate Error.ErrorCode."+validateToken(redisid.getJwtToken()));
                 }
             }
             else{
@@ -116,19 +128,4 @@ public class JwtBuilderImpl implements JwtBuilder {
         }
     }
 
-//    public void saveRefreshToken(signInJwtBuilderDto builderDto) {
-//        SignUpJwt jwt = SignUpJwt.builder()
-//                .username(builderDto.getUserName())
-//                .rtoken(builderDto.getRtoken())
-//                .build();
-//        jwtRepository.save(jwt);
-//    }
-
-    //DB의 RToken과 비교하기 위해 username으로 RToken을 가져옴
-//    public ResponsesignInJwtDto getRefreshTokenByName(String username) {
-//        SignUpJwt responsejwt = jwtRepository.findByusername(username);
-//        return ResponsesignInJwtDto.builder()
-//                .rtoken(responsejwt.getRtoken())
-//                .build();
-//    }
 }

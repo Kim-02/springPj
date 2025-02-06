@@ -8,5 +8,39 @@
 <a href="/test/login">로그인</a>
 <a href="/test/signup">회원가입</a>
 <button onclick="location.href='/test/main'">Go to Main</button>
+<button id= "logout">로그아웃</button>
+<script>
+    // ✅ 페이지 로드 시 자동 호출
+    document.querySelector("#logout").addEventListener("click", () => {
+        try {
+            // ✅ 로컬 스토리지에서 토큰 가져오기
+            const refreshToken = localStorage.getItem("refreshToken");
+
+            if (!refreshToken) {
+                throw new Error("토큰이 존재하지 않습니다. 로그인하세요.");
+            }
+
+            // ✅ API 요청 보내기
+            const response = fetch("/api/logout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "rAuthorization": `Bearer ${refreshToken}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error("서버 오류: " + response.status);
+            }
+
+            const data = response.json();
+            document.getElementById("result").innerText = data.result; // ✅ 결과 표시
+        } catch (error) {
+            console.error("API 호출 오류:", error);
+            document.getElementById("result").innerText = "API 호출 실패: " + error.message;
+        }
+    });
+</script>
+
 </body>
 </html>

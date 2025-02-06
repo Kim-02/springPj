@@ -1,4 +1,4 @@
-package com.dasolsystem.core.jwt.dto;
+package com.dasolsystem.core.auth.user.dto;
 
 
 import lombok.AllArgsConstructor;
@@ -6,11 +6,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class TokenIdAccesserDto {
+@Data
+public class UserinfoDto {
+
     private String emailId;
-    private String tokenId;
+    private String password;
+    private String username;
+    private String role;
 }
