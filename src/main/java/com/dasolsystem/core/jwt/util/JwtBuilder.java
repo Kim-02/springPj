@@ -14,4 +14,5 @@ public interface JwtBuilder {
     JwtCode validateToken(String token);
     Claims getAccessTokenPayload(String token);
     String getRefreshTokenEmailId(String tokenId);
+    boolean isEnableJwtRedis(String token);
 }

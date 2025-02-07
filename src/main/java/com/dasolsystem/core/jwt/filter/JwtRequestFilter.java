@@ -45,30 +45,28 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        log.info("✅ doFilterInternal");
-        log.info(""+WHITE_LIST);
+//        log.info("✅ doFilterInternal");
         String accessToken = request.getHeader(AUTHORIZATION_HEADER);
         String refreshTokenId = request.getHeader(REFRESH_AUTHORIZATION_HEADER);
         String username = request.getHeader(USER_NAME);
-        log.info("✅ accessToken "+accessToken);
-        log.info("✅ refreshTokenId "+refreshTokenId);
-        log.info("✅ username "+username);
-//        String DBrefreshToken;
+//        log.info("✅ accessToken "+accessToken);
+//        log.info("✅ refreshTokenId "+refreshTokenId);
+//        log.info("✅ username "+username);
         String accessTokenGoodHeader;
         String refreshToken;
         String requestURI = request.getRequestURI();
-        log.info("✅ requestURI "+ requestURI);
+//        log.info("✅ requestURI "+ requestURI);
         if (WHITE_LIST.contains(requestURI)) {
             filterChain.doFilter(request, response);
             return;
         }
         try {
-            log.info(" ■ JWT filter : accessToken " + accessToken);
+//            log.info(" ■ JWT filter : accessToken " + accessToken);
             log.info(" ■ JWT filter : accessToken " + accessToken.startsWith(BEARER_PREFIX));
         } catch (Exception e) {
         }
         try {
-            log.info(" ■ JWT filter : refreshToken " + refreshTokenId);
+//            log.info(" ■ JWT filter : refreshToken " + refreshTokenId);
             log.info(" ■ JWT filter : refreshToken " + refreshTokenId.startsWith(BEARER_PREFIX));
         } catch (Exception e) {
         }
@@ -88,8 +86,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                         .accessToken(accessTokenGoodHeader)
                         .refreshTokenId(refreshToken)
                         .build();
-                log.info(" ■ JWT filter : accessTokenHeader - " + accessTokenGoodHeader);
-                log.info(" ■ JWT filter : refreshTokenHeader - " + refreshToken);
+//                log.info(" ■ JWT filter : accessTokenHeader - " + accessTokenGoodHeader);
+//                log.info(" ■ JWT filter : refreshTokenHeader - " + refreshToken);
 
                 //유효성 검증
                 JwtCode accessTokenStatus = jwtBuilder.validateToken(accessTokenGoodHeader);
@@ -107,14 +105,14 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                         String newAccessToken = jwtBuilder.getNewAccessToken(accesserDto);
                         response.setHeader(AUTHORIZATION_HEADER, BEARER_PREFIX + newAccessToken);
                         jwtTokenStrogeDto.setAccessToken(newAccessToken);
-                        log.info("✅ 새로운 Access Token 발급");
+                        log.info("■ 새로운 Access Token 발급");
                         break;
                     case NOT_SUPPORT:
                         throw new AuthFailException(ApiState.ERROR_602, "Not Support Token");
                     case NOT_EXIST_CLAIMS:
                         throw new AuthFailException(ApiState.ERROR_602, "Not Exist Claims");
                     case OK:
-                        log.info("✅ JWT AccessToken success");
+                        log.info("■ JWT AccessToken success");
                         break;
                     default:
                         throw new AuthFailException(ApiState.ERROR_602, "Unknown Token");
@@ -124,6 +122,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(
                         jwtBuilder.getAccessTokenPayload(jwtTokenStrogeDto.getAccessToken())
                         .get("EmailId").toString());
+                log.info(userDetails.getUsername());
+                log.info(userDetails.getAuthorities().toString());
                 if(userDetails!=null) {
 
                     //security 접근 토큰 생성
@@ -133,15 +133,15 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                                     null,
                                     userDetails.getAuthorities()
                             );
-                    log.info("✅ 접근 토큰 생성 완료");
+                    log.info("■ 접근 토큰 생성 완료");
                     //접근 토큰 활성화
                     SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-                    log.info("✅ 접근 토큰 활성화: "+usernamePasswordAuthenticationToken.getAuthorities());
+                    log.info("■ 접근 토큰 활성화: "+usernamePasswordAuthenticationToken.getAuthorities());
                 }
 
             }
             else {
-                throw new AuthFailException(ApiState.ERROR_602, "null token or username");
+                throw new AuthFailException(ApiState.ERROR_602, "None AccessToken Please Login");
             }
         } catch (AuthFailException e) {
             log.error("인증실패");

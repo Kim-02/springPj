@@ -55,31 +55,22 @@ public class signinServiceImpl implements signinService {
 
     @Description("로그인 check")
     public ResponseSignincheckDto loginCheck(RequestSignincheckDto dto) {
-        try{
-            String id = dto.getId();
-            String pw = dto.getPw();
-            SignUp valid = repo.findByEmailID(id);
-            if(valid == null){
-                throw new UsernameNotFoundException("존재하지 않는 id");
-            }
-            if(!passwordEncoder.matches(pw, valid.getPassword())){
-                throw new BadCredentialsException("비밀번호 불일치");
-            }
-            return ResponseSignincheckDto.builder()
-                    .state(ApiState.OK)
-                    .emailId(valid.getEmailID())
-                    .message("login success")
-                    .name(valid.getUserName())
-                    .build();
-        }catch(UsernameNotFoundException | BadCredentialsException e){
-            log.error(e.getMessage());
-            return ResponseSignincheckDto.builder()
-                    .message(e.getMessage())
-                    .emailId("Anonymous Email")
-                    .state(ApiState.ERROR_901)
-                    .name("Anonymous User")
-                    .build();
+        String id = dto.getId();
+        String pw = dto.getPw();
+        SignUp valid = repo.findByEmailID(id);
+        if(valid == null){
+            throw new UsernameNotFoundException("Not Found id");
         }
+        if(!passwordEncoder.matches(pw, valid.getPassword())){
+            throw new BadCredentialsException("Wrong password");
+        }
+        return ResponseSignincheckDto.builder()
+                .state(ApiState.OK)
+                .emailId(valid.getEmailID())
+                .message("login success")
+                .name(valid.getUserName())
+                .build();
+
 
 
     }

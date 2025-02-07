@@ -3,25 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="shortcut" href="#">
 </head>
 <body>
 <a href="/test/login">로그인</a>
 <a href="/test/signup">회원가입</a>
 <button onclick="location.href='/test/main'">Go to Main</button>
-<button id= "logout">로그아웃</button>
+<button id="logout">로그아웃</button>
+
 <script>
-    // ✅ 페이지 로드 시 자동 호출
-    document.querySelector("#logout").addEventListener("click", () => {
+    document.querySelector("#logout").addEventListener("click", async () => {
         try {
-            // ✅ 로컬 스토리지에서 토큰 가져오기
+            localStorage.removeItem("accessToken");  // ✅ accessToken 삭제
             const refreshToken = localStorage.getItem("refreshToken");
 
             if (!refreshToken) {
-                throw new Error("토큰이 존재하지 않습니다. 로그인하세요.");
+                alert("토큰이 존재하지 않습니다. 로그인하세요.");
+                return;
             }
 
             // ✅ API 요청 보내기
-            const response = fetch("/api/logout", {
+            const response = await fetch("/api/logout", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -29,18 +31,30 @@
                 }
             });
 
-            if (!response.ok) {
-                throw new Error("서버 오류: " + response.status);
+            // ✅ 응답이 JSON인지 확인
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error("서버 응답이 JSON이 아닙니다.");
             }
 
-            const data = response.json();
-            document.getElementById("result").innerText = data.result; // ✅ 결과 표시
+            const data = await response.json();
+
+            if (response.ok && data.status === 200) {
+                alert("로그아웃 완료: " + data.message);
+            } else {
+                throw new Error("로그아웃 실패: " + data.message);
+            }
+
+            // ✅ refreshToken 삭제 및 페이지 이동
+            localStorage.removeItem("refreshToken");
+            localStorage.removeItem("userName")
+            window.location.href = "/test/login"; // 로그인 페이지로 이동
+
         } catch (error) {
             console.error("API 호출 오류:", error);
-            document.getElementById("result").innerText = "API 호출 실패: " + error.message;
+            alert(error.message || "로그아웃 중 오류 발생");
         }
     });
 </script>
-
 </body>
 </html>

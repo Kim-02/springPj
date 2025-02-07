@@ -3,24 +3,27 @@ package com.dasolsystem.core.auth.user.service;
 import com.dasolsystem.core.auth.repository.authRepository;
 import com.dasolsystem.core.auth.user.controller.CustomUserDetailsController;
 import com.dasolsystem.core.auth.user.dto.UserinfoDto;
+import com.dasolsystem.core.entity.RedisJwtId;
 import com.dasolsystem.core.entity.SignUp;
+import com.dasolsystem.core.jwt.repository.RedisJwtRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
     private final authRepository authRepository;
-
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        SignUp users = authRepository.findByEmailID(username);
+    public UserDetails loadUserByUsername(String emailId) throws UsernameNotFoundException {
+        SignUp users = authRepository.findByEmailID(emailId);
         if(users == null) {
-            throw new UsernameNotFoundException("해당유저가 없습니다.");
+            throw new UsernameNotFoundException("Cannot find user with email id " + emailId);
         }
         UserinfoDto userinfoDto = UserinfoDto.builder()
                 .emailId(users.getEmailID())
@@ -32,4 +35,5 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
                 .userinfo(userinfoDto)
                 .build();
     }
+
 }

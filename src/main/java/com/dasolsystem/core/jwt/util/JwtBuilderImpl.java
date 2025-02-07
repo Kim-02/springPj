@@ -128,4 +128,12 @@ public class JwtBuilderImpl implements JwtBuilder {
         }
     }
 
+    public boolean isEnableJwtRedis(String token){
+        Optional<RedisJwtId> optionalRedisJwtId = redisJwtRepository.findById(Long.valueOf(token));
+        if(optionalRedisJwtId.isPresent()) {
+            return true;
+        }
+        return false;
+    }
+
 }

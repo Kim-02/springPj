@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -32,7 +34,7 @@ public class SignInController {
             res.setHeader("rAuthorization",headers.get("rAuthorization"));
             res.setHeader("User-Name",headers.get("User-Name"));
             res.setHeader("Message",headers.get("Message"));
-        }catch(AuthFailException e){
+        }catch(AuthFailException | UsernameNotFoundException | BadCredentialsException e){
             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             res.setHeader("Message", e.getMessage());
         }
