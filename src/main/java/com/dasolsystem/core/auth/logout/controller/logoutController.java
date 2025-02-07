@@ -1,7 +1,6 @@
 package com.dasolsystem.core.auth.logout.controller;
 
 import com.dasolsystem.core.entity.RedisJwtId;
-import com.dasolsystem.core.jwt.dto.TokenAccesserDto;
 import com.dasolsystem.handler.ResponseJson;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import com.dasolsystem.core.jwt.repository.RedisJwtRepository;
+import com.dasolsystem.core.redis.reopsitory.RedisJwtRepository;
 
 import java.util.Optional;
 

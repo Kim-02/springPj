@@ -3,16 +3,12 @@ package com.dasolsystem.core.auth.user.service;
 import com.dasolsystem.core.auth.repository.authRepository;
 import com.dasolsystem.core.auth.user.controller.CustomUserDetailsController;
 import com.dasolsystem.core.auth.user.dto.UserinfoDto;
-import com.dasolsystem.core.entity.RedisJwtId;
 import com.dasolsystem.core.entity.SignUp;
-import com.dasolsystem.core.jwt.repository.RedisJwtRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

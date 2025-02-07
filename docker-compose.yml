@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:latest
+    container_name: redis-container
+    ports:
+      - "6379:6379"
+    networks:
+      - my-network
+
+  springboot1:
+    image: my-springboot-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
+    environment:
+      SPRING_REDIS_HOST: redis-container
+    ports:
+      - "8081:8080"
+    networks:
+      - my-network
+
+  springboot2:
+    image: my-springboot-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
+    environment:
+      SPRING_REDIS_HOST: redis-container
+    ports:
+      - "8082:8080"
+    networks:
+      - my-network
+
+  springboot3:
+    image: my-springboot-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
+    environment:
+      SPRING_REDIS_HOST: redis-container
+    ports:
+      - "8083:8080"
+    networks:
+      - my-network
+
+  nginx:
+    image: my-nginx
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    depends_on:
+      - springboot1
+      - springboot2
+      - springboot3
+    ports:
+      - "80:80"
+    networks:
+      - my-network
+
+networks:
+  my-network:

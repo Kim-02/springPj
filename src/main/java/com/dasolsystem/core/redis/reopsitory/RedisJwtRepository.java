@@ -1,4 +1,4 @@
-package com.dasolsystem.core.jwt.repository;
+package com.dasolsystem.core.redis.reopsitory;
 
 import com.dasolsystem.core.entity.RedisJwtId;
 import org.springframework.data.repository.CrudRepository;

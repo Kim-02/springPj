@@ -1,0 +1,11 @@
+# 최신 Nginx 이미지를 사용
+FROM nginx:latest
+
+# Nginx 설정 파일을 올바른 디렉토리에 복사 (마지막에 `/` 추가)
+COPY nginx.conf /etc/nginx/
+
+# 80번 포트 개방
+EXPOSE 80
+
+# Nginx 실행
+CMD ["nginx", "-g", "daemon off;"]

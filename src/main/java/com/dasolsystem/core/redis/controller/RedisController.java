@@ -1,10 +1,8 @@
-package com.dasolsystem.tests;
+package com.dasolsystem.core.redis.controller;
 
 import com.dasolsystem.core.entity.RedisJwtId;
 import com.dasolsystem.core.jwt.dto.TokenIdAccesserDto;
-import com.dasolsystem.core.jwt.repository.RedisJwtRepository;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import com.dasolsystem.core.redis.reopsitory.RedisJwtRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +12,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/test")
 @RequiredArgsConstructor
-public class RedisTestController {
+public class RedisController {
 
     @Autowired
     private RedisJwtRepository redisJwtRepository;
