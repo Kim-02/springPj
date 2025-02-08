@@ -1,6 +1,20 @@
 version: '3.8'
 
 services:
+  h2-db:
+    image: oscarfonts/h2:latest
+    container_name: h2-container
+    restart: always
+    ports:
+      - "1521:1521"  # H2 TCP 포트
+      - "81:81"  # H2 웹 콘솔 포트
+    networks:
+      - my-network
+    environment:
+      - H2_OPTIONS=-tcp -tcpAllowOthers -ifNotExists
+    volumes:
+      - h2-data:/opt/h2-data
+
   redis:
     image: redis:latest
     container_name: redis-container
@@ -16,8 +30,11 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - redis
+      - h2-db
     environment:
-      SPRING_REDIS_HOST: redis-container
+      SPRING_DATASOURCE_URL: jdbc:h2:tcp://h2-db:1521/opt/h2-data/demo-db
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.h2.Driver
+      SPRING_DATA_REDIS_HOST: redis-container
     ports:
       - "8081:8080"
     networks:
@@ -30,8 +47,11 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - redis
+      - h2-db
     environment:
-      SPRING_REDIS_HOST: redis-container
+      SPRING_DATASOURCE_URL: jdbc:h2:tcp://h2-db:1521/opt/h2-data/demo-db
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.h2.Driver
+      SPRING_DATA_REDIS_HOST: redis-container
     ports:
       - "8082:8080"
     networks:
@@ -44,8 +64,11 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - redis
+      - h2-db
     environment:
-      SPRING_REDIS_HOST: redis-container
+      SPRING_DATASOURCE_URL: jdbc:h2:tcp://h2-db:1521/opt/h2-data/demo-db
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.h2.Driver
+      SPRING_DATA_REDIS_HOST: redis-container
     ports:
       - "8083:8080"
     networks:
@@ -67,3 +90,6 @@ services:
 
 networks:
   my-network:
+
+volumes:
+  h2-data:
