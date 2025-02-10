@@ -66,7 +66,7 @@
 //        HttpHeaders headers = new HttpHeaders();
 //        headers.set("Authorization", "Bearer invalid");
 //        headers.set("rAuthorization","Bearer invalid");
-//        headers.set("User-Name","testUser");
+//        headers.set("Users-Name","testUser");
 //        ResponseEntity<String> response = restTemplate.exchange(
 //                getBaseUrl(),
 //                HttpMethod.GET,
@@ -89,7 +89,7 @@
 //        //유효기간 만료 토큰
 //        headers.set("Authorization", "Bearer "+ atoken);
 //        headers.set("rAuthorization","Bearer "+ refreshToken);
-//        headers.set("User-Name","testUser");
+//        headers.set("Users-Name","testUser");
 //        ResponseEntity<String> response = restTemplate.exchange(
 //                getBaseUrl(),
 //                HttpMethod.GET,
@@ -113,7 +113,7 @@
 //        headers.set("Authorization", "Bearer "+ atoken);
 //        //유효기간 만료 토큰
 //        headers.set("rAuthorization","Bearer "+ rtoken);
-//        headers.set("User-Name","testUser");
+//        headers.set("Users-Name","testUser");
 //        ResponseEntity<String> response = restTemplate.exchange(
 //                getBaseUrl(),
 //                HttpMethod.GET,

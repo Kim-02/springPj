@@ -17,6 +17,7 @@ public class WhiteListVO {
             "/test/signup",
             "/test/main",
             "/test/login",
-            "/index.html"
+            "/index.html",
+            "/test/print"
     };
 }

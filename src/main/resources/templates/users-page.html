@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <link rel="shortcut" href="#">
+</head>
+<body>
+
+<h1>test</h1>
+<div id="result" style="margin-top: 20px; font-size: 20px; color: green;">Loading...</div>
+<script>
+  document.addEventListener("DOMContentLoaded", async () => {
+    try {
+      // ✅ 로컬 스토리지에서 토큰 가져오기
+      const accessToken = localStorage.getItem("accessToken");
+      const refreshToken = localStorage.getItem("refreshToken");
+      const username = localStorage.getItem("userName");
+
+      if (!accessToken || !refreshToken) {
+        throw new Error("토큰이 존재하지 않습니다. 다시 로그인하세요.");
+      }
+
+      // ✅ API 요청 보내기
+      const response = await fetch("/api/print", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${accessToken}`,
+          "rAuthorization": `Bearer ${refreshToken}`,
+          "User-Name": username
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error("서버 오류: " + response.status);
+      }
+
+      const data = await response.json();
+      document.getElementById("result").innerText = data.result; // ✅ 결과 표시
+    } catch (error) {
+      console.error("API 호출 오류:", error);
+      document.getElementById("result").innerText = "API 호출 실패: " + error.message;
+    }
+  });
+</script>
+</body>
+</html>

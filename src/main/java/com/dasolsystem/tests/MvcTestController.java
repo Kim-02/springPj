@@ -21,4 +21,7 @@ public class MvcTestController {
     public String login() {
         return "login-page";
     }
+
+    @GetMapping("/test/print")
+    public String printing() {return "users-page";}
 }

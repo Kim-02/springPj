@@ -11,7 +11,7 @@ public enum ApiState {
     ERROR_602(602), //RefreshToken만료
 
     //회원가입 에러
-    ERROR_701(701), //Exist User
+    ERROR_701(701), //Exist Users
     //로그인 에러
     ERROR_901(901) //
 
