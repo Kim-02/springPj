@@ -18,7 +18,8 @@ public class ManagementServiceImpl implements ManagementService {
 
 
     public void printAllCourseWithUsers(){
-        List<Course> courses = managementRepository.findAll();
+//        List<Course> courses = managementRepository.findAll();
+        List<Course> courses = managementRepository.findAllWithUsers();
         for (Course course : courses) {
             log.info("course name: "+course.getName());
             for(Users users : course.getUsers()){
