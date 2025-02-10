@@ -1,6 +1,5 @@
-package com.dasolsystem.core.mainPage;
+package com.dasolsystem.core.mainpage;
 
-import com.dasolsystem.core.jwt.util.JwtBuilder;
 import com.dasolsystem.handler.ResponseJson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

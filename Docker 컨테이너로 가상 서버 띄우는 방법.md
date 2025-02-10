@@ -9,7 +9,27 @@ build/libs/아래에 가보면 jar파일이 여러개가 만들어져 있을건�
 
 .jar파일만 남겨놔야한다. 모두 지우고 boot jar를 먼저 하자
 
+### application.properties
 
+- H2
+
+  - nginx 사용
+
+    spring.datasource.url=jdbc:h2:tcp://h2-db:1521/opt/h2-data/demo-db
+
+  - 8080포트
+
+    spring.datasource.url=jdbc:h2:~/local;AUTO_SERVER=TRUE
+
+- Redis
+
+  - nginx 사용
+
+    spring.data.redis.host=redis-container
+
+  - :8080포트
+
+    spring.data.redis.host=localhost
 
 ### docker build -t my-springboot-app .
 파일 docker파일을 이용해서 컨테이너에 이미지를 추가한다. my-springboot-app이라는 이미지가 추가되게 된다.

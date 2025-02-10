@@ -81,6 +81,8 @@ public class SecurityConfig {
                         "/api/login",
                         "/api/sign-up",
                         "/",
+                        "/api/press",
+                        "/api/likes",
                         "/test/**",
                         "/index.html"
                         ,"/api/logout"

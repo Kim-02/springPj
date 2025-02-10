@@ -10,6 +10,10 @@
 <h1>Main Page</h1>
 <div id="result" style="margin-top: 20px; font-size: 20px; color: green;">Loading...</div>
 
+<h2>get Likes</h2>
+<button id="like">like</button>
+<div id="results" style="margin-top: 40px; font-size: 20px; color: indianred;">Loading...</div>
+
 <script>
     // ✅ 페이지 로드 시 자동 호출
     document.addEventListener("DOMContentLoaded", async () => {
@@ -43,6 +47,48 @@
         } catch (error) {
             console.error("API 호출 오류:", error);
             document.getElementById("result").innerText = "API 호출 실패: " + error.message;
+        }
+    });
+</script>
+
+<script>
+    // ✅ 페이지 로드 시 자동 호출
+    document.addEventListener("DOMContentLoaded", async () => {
+        try {
+
+            // ✅ API 요청 보내기
+            const response = await fetch("/api/likes", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error("서버 오류: " + response.status);
+            }
+
+            const data = await response.json();
+            document.getElementById("results").innerText = data.result; // ✅ 결과 표시
+        } catch (error) {
+            console.error("API 호출 오류:", error);
+            document.getElementById("results").innerText = "API 호출 실패: " + error.message;
+        }
+    });
+</script>
+
+<script>
+    document.querySelector("#like").addEventListener("click", async () => {
+        try {
+            const response = await fetch("/api/press", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+        } catch (error) {
+            console.error("로그인 오류:", error);
+            alert(error);
         }
     });
 </script>

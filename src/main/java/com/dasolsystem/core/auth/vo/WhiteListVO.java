@@ -11,6 +11,8 @@ public class WhiteListVO {
             "/api/logout",
             "/api/sign-up",
             "/",
+            "/api/press",
+            "/api/likes",
 
             "/favicon.ico",
 
