@@ -37,7 +37,20 @@ public class LikeServiceImpl implements LikeService {
 
         }
     }
-
+    public void makeLikesRedisson() {
+        for(int i=0;i<100;i+=1){
+                UserLike old = likeRepository.findByAuthor("test");
+                countingDto count = countingDto.builder()
+                        .count(old.getLiked()+1)
+                        .build();
+                UserLike res = UserLike.builder()
+                        .author(old.getAuthor())
+                        .id(old.getId())
+                        .liked(count.getCount())
+                        .build();
+                likeRepository.save(res);
+        }
+    }
     public String getCurrnetLikes(){
         return "Current Likes : "+likeRepository.findByAuthor("test").getLiked();
     }

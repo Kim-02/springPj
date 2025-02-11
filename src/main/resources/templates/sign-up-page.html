@@ -9,6 +9,13 @@
 <input type="text" name="email" id="email" placeholder="email">
 <input type="password" name="password" id="password" placeholder="password">
 <input type="text" name="username" id="username" placeholder="username">
+<label for="options">역할 지정</label>
+<select id="options" name="options">
+    <option value="1">ADMIN</option>
+    <option value="2">USER</option>
+    <option value="3">MANAGER</option>
+</select>
+
 <button id="sign-up">회원가입</button>
 <script>
     document.querySelector("#sign-up").addEventListener("click", () => {
@@ -16,11 +23,19 @@
         const email = document.querySelector("#email").value;
         const password = document.querySelector("#password").value;
         const username = document.querySelector("#username").value;
+        const roleValue = document.querySelector("#options");
+        const roleMap = {
+            "1": "ADMIN",   // 관리자
+            "2": "USER",    // 사용자
+            "3": "MANAGER"    // 게스트
+        };
+        const role = roleMap[roleValue] || "USER"; // 기본값: USER
         // email, password를 JSON으로 만든다.
         const reqDTO = {
             email: email,
             password: password,
-            userName: username
+            userName: username,
+            role:role
         };
 
         // ApiController에서 작성한 회원가입 API를 호출한다.

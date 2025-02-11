@@ -20,8 +20,6 @@ public class signupService {
 
     @Description("회원 가입")
     public ResponseSavedNameDto signup(RequestSignupPostDto request) {
-        //TODO 어떻게 null검증을 할지 생각해서 id pw Null검증을 해야함.
-        if(request.getEmail() == null || request.getEmail().trim().equals("")) {}
         if(signInRepo.existsByEmailID(request.getEmail())) {//중복검사
             throw new AuthFailException(ApiState.ERROR_701,"Exist User");
         }
@@ -29,11 +27,12 @@ public class signupService {
                 .emailID(request.getEmail())
                 .password(bCryptPasswordEncoder.encode(request.getPassword()))
                 .userName(request.getUserName())
+                .role(request.getRole())
                 .build();
         SignUp savedSignUp = signInRepo.save(signUp);
         return ResponseSavedNameDto.builder()
                 .userName(savedSignUp.getUserName())
-                .message("OK")
+                .message("Signup Success")
                 .build();
 
     }

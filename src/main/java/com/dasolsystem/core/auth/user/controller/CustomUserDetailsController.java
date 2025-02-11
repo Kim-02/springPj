@@ -21,7 +21,6 @@ public class CustomUserDetailsController implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<String> roles = new ArrayList<>();
-        //TODO 회원가입에서 역할을 넣는 부분 추가해야함.
         roles.add("ROLE_"+userinfo.getRole());
 
         return roles.stream()

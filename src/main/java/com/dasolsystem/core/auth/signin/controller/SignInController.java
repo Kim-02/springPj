@@ -36,7 +36,7 @@ public class SignInController {
             res.setHeader("Message",headers.get("Message"));
         }catch(AuthFailException | UsernameNotFoundException | BadCredentialsException e){
             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            res.setHeader("Message", e.getMessage());
+            res.setHeader("Error.", e.getMessage());
         }
         return ResponseEntity.ok(
                 ResponseJson.builder()

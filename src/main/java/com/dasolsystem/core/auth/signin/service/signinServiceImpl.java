@@ -41,7 +41,7 @@ public class signinServiceImpl implements signinService {
             headerMap.put("rAuthorization", "Bearer " + refreshTokenId);
             headerMap.put("User-Name",responseDto.getName());
             headerMap.put("Message",responseDto.getMessage());
-            log.info("✅ Api state Ok");
+            log.info("✅ Login Success");
             log.info("Username: "+headerMap.get("User-Name"));
         }
         else if(responseDto.getState()==ApiState.ERROR_901){

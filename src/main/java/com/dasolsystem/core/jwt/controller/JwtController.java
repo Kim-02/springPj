@@ -5,13 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController("/jwt")
+@RestController()
 @RequiredArgsConstructor
 public class JwtController {
-    private final JwtBuilder jwtBuilder;
-    @PostMapping("/generate")
-    public String jwtTokenGenerate(){
-
-        return "";
-    }
 }

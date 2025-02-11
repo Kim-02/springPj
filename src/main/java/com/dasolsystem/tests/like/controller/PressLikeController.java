@@ -2,6 +2,7 @@ package com.dasolsystem.tests.like.controller;
 
 import com.dasolsystem.handler.ResponseJson;
 import com.dasolsystem.tests.like.service.LikeService;
+import com.dasolsystem.tests.like.service.RedissonLockStockFacade;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class PressLikeController {
     private final LikeService likeService;
-
+    private final RedissonLockStockFacade lockStockFacade;
     @GetMapping("/likes")
     public ResponseEntity<ResponseJson<Object>> Likes(){
         String likes = likeService.getCurrnetLikes();
@@ -27,7 +28,8 @@ public class PressLikeController {
     }
     @GetMapping("/press")
     public void press() throws InterruptedException {
-        likeService.makeLikes();
+//        likeService.makeLikes();
+        lockStockFacade.makeLike();
     }
 
 }
