@@ -1,6 +1,6 @@
 package com.dasolsystem.core.mainpage;
 
-import com.dasolsystem.handler.ResponseJson;
+import com.dasolsystem.core.handler.ResponseJson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

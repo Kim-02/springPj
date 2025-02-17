@@ -1,7 +1,7 @@
 package com.dasolsystem.core.auth.signup.controller;
 
 import com.dasolsystem.config.excption.AuthFailException;
-import com.dasolsystem.handler.ResponseJson;
+import com.dasolsystem.core.handler.ResponseJson;
 import com.dasolsystem.core.auth.signup.dto.RequestSignupPostDto;
 import com.dasolsystem.core.auth.signup.dto.ResponseSavedNameDto;
 import com.dasolsystem.core.auth.signup.service.signupService;
@@ -10,10 +10,7 @@ import jdk.jfr.Description;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-
-import java.lang.reflect.Method;
 
 @RestController
 @RequiredArgsConstructor

@@ -1,7 +1,7 @@
 package com.dasolsystem.core.auth.logout.controller;
 
 import com.dasolsystem.core.entity.RedisJwtId;
-import com.dasolsystem.handler.ResponseJson;
+import com.dasolsystem.core.handler.ResponseJson;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

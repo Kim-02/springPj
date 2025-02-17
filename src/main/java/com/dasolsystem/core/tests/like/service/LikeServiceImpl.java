@@ -1,10 +1,10 @@
-package com.dasolsystem.tests.like.service;
+package com.dasolsystem.core.tests.like.service;
 
 
 import com.dasolsystem.core.entity.UserLike;
 import com.dasolsystem.core.redis.reopsitory.RedisLockRepository;
-import com.dasolsystem.tests.like.dto.countingDto;
-import com.dasolsystem.tests.like.reopsitory.LikeRepository;
+import com.dasolsystem.core.tests.like.dto.countingDto;
+import com.dasolsystem.core.tests.like.reopsitory.LikeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

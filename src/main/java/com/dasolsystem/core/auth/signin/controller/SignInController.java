@@ -3,7 +3,7 @@ package com.dasolsystem.core.auth.signin.controller;
 import com.dasolsystem.config.excption.AuthFailException;
 import com.dasolsystem.core.auth.signin.dto.RequestSignincheckDto;
 import com.dasolsystem.core.auth.signin.service.signinService;
-import com.dasolsystem.handler.ResponseJson;
+import com.dasolsystem.core.handler.ResponseJson;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

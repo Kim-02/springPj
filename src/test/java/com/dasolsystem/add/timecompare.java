@@ -1,7 +1,7 @@
 package com.dasolsystem.add;
 
-import com.dasolsystem.tests.like.service.LikeService;
-import com.dasolsystem.tests.like.service.RedissonLockStockFacade;
+import com.dasolsystem.core.tests.like.service.LikeService;
+import com.dasolsystem.core.tests.like.service.RedissonLockStockFacade;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

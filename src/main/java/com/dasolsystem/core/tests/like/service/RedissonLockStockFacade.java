@@ -1,4 +1,4 @@
-package com.dasolsystem.tests.like.service;
+package com.dasolsystem.core.tests.like.service;
 
 
 import lombok.RequiredArgsConstructor;

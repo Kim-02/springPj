@@ -1,4 +1,4 @@
-package com.dasolsystem.tests.like.dto;
+package com.dasolsystem.core.tests.like.dto;
 
 
 import lombok.*;

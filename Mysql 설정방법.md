@@ -20,3 +20,8 @@
     SET liked =0
     WHERE author = 'test';
    ```
+   
+## mysql을 docker에 서버 띄우기
+```docker run -d -p {PORT}:3306 --name {DB_NAME} -e MYSQL_ROOT_PASSWORD={DB_PASSWORD} -d mysql```
+
+만들고 나서 DB생성하고 테이블 생성해줘야 한다.

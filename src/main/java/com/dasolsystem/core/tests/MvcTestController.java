@@ -1,4 +1,4 @@
-package com.dasolsystem.tests;
+package com.dasolsystem.core.tests;
 
 
 import org.springframework.stereotype.Controller;

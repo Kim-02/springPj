@@ -1,34 +1,23 @@
 package com.dasolsystem.config;
 
 import com.dasolsystem.core.auth.user.service.CustomUserDetailsService;
-import com.dasolsystem.core.auth.user.service.CustomUserDetailsServiceImpl;
-import com.dasolsystem.core.auth.vo.WhiteListVO;
 import com.dasolsystem.core.jwt.filter.JwtRequestFilter;
 import com.dasolsystem.core.jwt.util.JwtBuilder;
-import com.dasolsystem.handler.CustomAccessDeniedHandler;
-import com.dasolsystem.handler.CustomAuthenticationEntryPoint;
-import jakarta.servlet.http.HttpServletResponse;
+import com.dasolsystem.core.handler.CustomAccessDeniedHandler;
+import com.dasolsystem.core.handler.CustomAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
-
-import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity

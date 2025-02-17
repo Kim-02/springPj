@@ -1,7 +1,7 @@
-package com.dasolsystem.handler;
+package com.dasolsystem.core.handler;
 
 
-import com.dasolsystem.handler.dto.ErrorResponseDto;
+import com.dasolsystem.core.handler.dto.ErrorResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

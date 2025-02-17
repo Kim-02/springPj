@@ -1,8 +1,8 @@
-package com.dasolsystem.tests.like.controller;
+package com.dasolsystem.core.tests.like.controller;
 
-import com.dasolsystem.handler.ResponseJson;
-import com.dasolsystem.tests.like.service.LikeService;
-import com.dasolsystem.tests.like.service.RedissonLockStockFacade;
+import com.dasolsystem.core.handler.ResponseJson;
+import com.dasolsystem.core.tests.like.service.LikeService;
+import com.dasolsystem.core.tests.like.service.RedissonLockStockFacade;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
