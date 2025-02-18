@@ -76,7 +76,8 @@ public class SecurityConfig {
                         "/index.html"
                         ,"/api/logout"
                         ,"/favicon.ico",
-                        "/test/print"
+                        "/test/print",
+                        "/account/api/test"
                         ).permitAll()
                 .anyRequest().authenticated()
         );

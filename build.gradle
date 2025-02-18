@@ -35,6 +35,9 @@ dependencies {
 	//thymeleaf
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
+	//elastic
+	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+
 	//mysql
 	implementation 'mysql:mysql-connector-java:8.0.33'
 

@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+    environment:
+      - discovery.type=single-node
+    ports:
+      - "9200:9200"
+    networks:
+      - elk
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.10.1
+    volumes:
+      - ./logstash/pipeline/:/usr/share/logstash/pipeline/
+      # Logstash가 MySQL에 접속할 수 있도록 JDBC 드라이버도 마운트합니다.
+      - ./mysql-connector-java.jar:/usr/share/logstash/mysql-connector-java.jar
+    ports:
+      - "5000:5000"
+    depends_on:
+      - elasticsearch
+      - mysql
+    networks:
+      - elk
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: logs
+      MYSQL_USER: logstash
+      MYSQL_PASSWORD: 1234
+    ports:
+      - "3310:3306"
+    networks:
+      - elk
+
+networks:
+  elk:
