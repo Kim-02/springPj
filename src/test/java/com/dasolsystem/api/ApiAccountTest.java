@@ -1,6 +1,6 @@
 //package com.dasolsystem.api;
 //
-//import com.dasolsystem.core.tests.account.repository.AccountRepository;
+//import com.dasolsystem.core.jparepository.AccountRepository;
 //import org.junit.jupiter.api.Test;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.boot.test.context.SpringBootTest;

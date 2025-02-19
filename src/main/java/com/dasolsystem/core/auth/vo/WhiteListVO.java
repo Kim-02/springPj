@@ -21,6 +21,7 @@ public class WhiteListVO {
             "/test/login",
             "/index.html",
             "/test/print",
-            "/account/api/test"
+            "/account/api/test",
+            "/account/api/elktest"
     };
 }

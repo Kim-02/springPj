@@ -3,7 +3,7 @@ package com.dasolsystem.core.management.service;
 
 import com.dasolsystem.core.entity.Course;
 import com.dasolsystem.core.entity.Users;
-import com.dasolsystem.core.management.repository.ManagementRepository;
+import com.dasolsystem.core.jparepository.ManagementRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

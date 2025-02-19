@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import com.dasolsystem.core.redis.reopsitory.RedisJwtRepository;
+import com.dasolsystem.core.jparepository.RedisJwtRepository;
 
 import java.util.Optional;
 

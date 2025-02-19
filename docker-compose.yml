@@ -1,16 +1,27 @@
 version: '3.8'
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.2
     environment:
       - discovery.type=single-node
+      - xpack.security.enabled=false
     ports:
       - "9200:9200"
     networks:
       - elk
 
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.8.2
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - elk
   logstash:
-    image: docker.elastic.co/logstash/logstash:7.10.1
+    image: docker.elastic.co/logstash/logstash:8.8.2
     volumes:
       - ./logstash/pipeline/:/usr/share/logstash/pipeline/
       # Logstash가 MySQL에 접속할 수 있도록 JDBC 드라이버도 마운트합니다.
@@ -34,6 +45,10 @@ services:
       - "3310:3306"
     networks:
       - elk
-
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 networks:
   elk:

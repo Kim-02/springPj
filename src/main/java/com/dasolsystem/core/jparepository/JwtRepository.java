@@ -1,4 +1,4 @@
-package com.dasolsystem.core.jwt.repository;
+package com.dasolsystem.core.jparepository;
 
 import com.dasolsystem.core.entity.SignUpJwt;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -2,9 +2,12 @@ package com.dasolsystem.core.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Date;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Entity
 @Getter
@@ -13,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Table(name = "account", indexes = {
-        @Index(name = "idx_account_name",columnList = "name")
+        @Index(name = "idx_account_message",columnList = "message")
 })
 public class Account {
 
@@ -27,5 +30,6 @@ public class Account {
 
     private String message;
 
-    private LocalDateTime updated_at;
+    @UpdateTimestamp
+    private OffsetDateTime updated_at;
 }

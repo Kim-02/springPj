@@ -6,8 +6,8 @@ import com.dasolsystem.core.entity.RedisJwtId;
 import com.dasolsystem.core.enums.ApiState;
 import com.dasolsystem.core.jwt.dto.TokenAccesserDto;
 import com.dasolsystem.core.jwt.dto.TokenIdAccesserDto;
-import com.dasolsystem.core.jwt.repository.JwtRepository;
-import com.dasolsystem.core.redis.reopsitory.RedisJwtRepository;
+import com.dasolsystem.core.jparepository.JwtRepository;
+import com.dasolsystem.core.jparepository.RedisJwtRepository;
 import io.jsonwebtoken.*;
 
 import io.jsonwebtoken.io.Decoders;

@@ -1,7 +1,7 @@
 package com.dasolsystem.core.auth.signin.service;
 
 import com.dasolsystem.config.excption.AuthFailException;
-import com.dasolsystem.core.auth.repository.authRepository;
+import com.dasolsystem.core.jparepository.authRepository;
 import com.dasolsystem.core.auth.signin.dto.RequestSignincheckDto;
 import com.dasolsystem.core.auth.signin.dto.ResponseSignincheckDto;
 import com.dasolsystem.core.entity.SignUp;

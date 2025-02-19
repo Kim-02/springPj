@@ -1,4 +1,4 @@
-package com.dasolsystem.core.management.repository;
+package com.dasolsystem.core.jparepository;
 
 
 import com.dasolsystem.core.entity.Course;

@@ -1,4 +1,4 @@
-package com.dasolsystem.core.file.repository;
+package com.dasolsystem.core.jparepository;
 
 import com.dasolsystem.core.entity.Image;
 import org.springframework.data.jpa.repository.JpaRepository;

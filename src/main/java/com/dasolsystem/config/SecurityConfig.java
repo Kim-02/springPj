@@ -77,7 +77,8 @@ public class SecurityConfig {
                         ,"/api/logout"
                         ,"/favicon.ico",
                         "/test/print",
-                        "/account/api/test"
+                        "/account/api/test",
+                        "/account/api/elktest"
                         ).permitAll()
                 .anyRequest().authenticated()
         );

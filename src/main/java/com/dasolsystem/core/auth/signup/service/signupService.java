@@ -4,7 +4,7 @@ import com.dasolsystem.config.excption.AuthFailException;
 import com.dasolsystem.core.entity.SignUp;
 import com.dasolsystem.core.auth.signup.dto.RequestSignupPostDto;
 import com.dasolsystem.core.auth.signup.dto.ResponseSavedNameDto;
-import com.dasolsystem.core.auth.repository.authRepository;
+import com.dasolsystem.core.jparepository.authRepository;
 import com.dasolsystem.core.enums.ApiState;
 import jdk.jfr.Description;
 import lombok.RequiredArgsConstructor;

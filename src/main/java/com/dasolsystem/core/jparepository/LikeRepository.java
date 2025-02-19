@@ -1,4 +1,4 @@
-package com.dasolsystem.core.tests.like.reopsitory;
+package com.dasolsystem.core.jparepository;
 
 import com.dasolsystem.core.entity.UserLike;
 import org.springframework.data.jpa.repository.JpaRepository;

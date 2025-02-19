@@ -1,6 +1,6 @@
 package com.dasolsystem.core.auth.user.service;
 
-import com.dasolsystem.core.auth.repository.authRepository;
+import com.dasolsystem.core.jparepository.authRepository;
 import com.dasolsystem.core.auth.user.controller.CustomUserDetailsController;
 import com.dasolsystem.core.auth.user.dto.UserinfoDto;
 import com.dasolsystem.core.entity.SignUp;

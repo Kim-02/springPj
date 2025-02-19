@@ -13,10 +13,14 @@ public enum ApiState {
     //회원가입 에러
     ERROR_701(701), //Exist Users
     //로그인 에러
-    ERROR_901(901) //
+    ERROR_901(901), //
+
+
+    //Json 오류
+    ERROR_1001(1001),
 
     //예상치 못한 에러
-    ,ERROR_UNKNOWN(100);
+    ERROR_UNKNOWN(100);
 
     private final Integer num;
     public int getNum(){return num;}
