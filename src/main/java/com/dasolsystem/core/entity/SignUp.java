@@ -1,5 +1,6 @@
 package com.dasolsystem.core.entity;
 
+import com.dasolsystem.core.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
@@ -33,6 +34,7 @@ public class SignUp {
     private LocalDateTime signInDate;
 
     @Column(length = 10)
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
 }

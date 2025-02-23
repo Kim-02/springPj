@@ -4,6 +4,7 @@ import com.dasolsystem.config.excption.AuthFailException;
 import com.dasolsystem.core.enums.JwtCode;
 import com.dasolsystem.core.entity.RedisJwtId;
 import com.dasolsystem.core.enums.ApiState;
+import com.dasolsystem.core.enums.Role;
 import com.dasolsystem.core.jwt.dto.TokenAccesserDto;
 import com.dasolsystem.core.jwt.dto.TokenIdAccesserDto;
 import com.dasolsystem.core.jwt.repository.JwtRepository;
@@ -36,7 +37,8 @@ public class JwtBuilderImpl implements JwtBuilder {
     private static final Long AccessTokenExpTime = 1000*60L*3L;
     private static final Long RefreshTokenExpTime = 60L * 1000 * 60L;
     private static final String Defult_Role = "ROLE_USER";
-    public String generateJWT(String emailId,Long exptime,String role){
+    private static final String Defult_User = "anonymous";
+    public String generateJWT(String emailId,Long exptime,String role,String username){
         Map<String,Object> header = new HashMap<>();
         header.put("typ", "JWT"); //토큰 헤더 설정
 
@@ -46,6 +48,7 @@ public class JwtBuilderImpl implements JwtBuilder {
         Map<String,Object> payload = new HashMap<>();
         payload.put("EmailId",emailId);//토큰 페이로드설정
         payload.put("role", role);
+        payload.put("User-Name",username);
         String jwt = Jwts.builder()
                 .setHeader(header)
                 .setClaims(payload)
@@ -56,12 +59,15 @@ public class JwtBuilderImpl implements JwtBuilder {
         return jwt;
     }
     public String generateAccessToken(String emailId){
-        return generateJWT(emailId,AccessTokenExpTime, Defult_Role);
+        return generateJWT(emailId,AccessTokenExpTime, Defult_Role,Defult_User);
+    }
+    public String generateAccessToken(String emailId, Role role,String username){
+        return generateJWT(emailId,AccessTokenExpTime, "ROLE_"+role,username);
     }
     //refresh 토큰 조회용 id만 반환
     public Long getRefreshTokenId(String emailId){
         TokenAccesserDto tokenAccesserDto = TokenAccesserDto.builder()
-                .token(generateJWT(emailId,RefreshTokenExpTime, Defult_Role))
+                .token(generateJWT(emailId,RefreshTokenExpTime, Defult_Role,Defult_User))
                 .build();
         RedisJwtId redisid = RedisJwtId.builder()
                 .jwtToken(tokenAccesserDto.getToken())

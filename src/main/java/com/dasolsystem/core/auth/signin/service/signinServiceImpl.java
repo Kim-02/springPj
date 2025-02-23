@@ -34,7 +34,7 @@ public class signinServiceImpl implements signinService {
         ResponseSignincheckDto responseDto = loginCheck(dto);
         Map<String,String> headerMap = new HashMap<>();
         if(responseDto.getState()== ApiState.OK){
-            jwtToken = jwtBuilder.generateAccessToken(responseDto.getEmailId());
+            jwtToken = jwtBuilder.generateAccessToken(responseDto.getEmailId(),responseDto.getRole(), responseDto.getName());
             refreshTokenId = jwtBuilder.getRefreshTokenId(responseDto.getEmailId());
             headerMap.put("Content-Type", "application/json");
             headerMap.put("Authorization", "Bearer " + jwtToken);
@@ -67,6 +67,7 @@ public class signinServiceImpl implements signinService {
         return ResponseSignincheckDto.builder()
                 .state(ApiState.OK)
                 .emailId(valid.getEmailID())
+                .role(valid.getRole())
                 .message("login success")
                 .name(valid.getUserName())
                 .build();

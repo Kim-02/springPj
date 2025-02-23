@@ -1,14 +1,15 @@
 package com.dasolsystem.core.jwt.util;
 
 import com.dasolsystem.core.enums.JwtCode;
+import com.dasolsystem.core.enums.Role;
 import com.dasolsystem.core.jwt.dto.TokenIdAccesserDto;
 import io.jsonwebtoken.Claims;
 import org.springframework.stereotype.Component;
 
 @Component
 public interface JwtBuilder {
-    String generateJWT(String emailId, Long exptime, String role);
     String generateAccessToken(String emailId);
+    String generateAccessToken(String emailId, Role role,String username);
     String getNewAccessToken(TokenIdAccesserDto tokenIdAccesserDto);
     Long getRefreshTokenId(String emailId);
     JwtCode validateToken(String token);

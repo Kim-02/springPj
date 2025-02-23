@@ -8,29 +8,33 @@ import com.dasolsystem.core.handler.ResponseJson;
 import com.dasolsystem.core.jwt.util.JwtBuilder;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.dasolsystem.core.jwt.filter.JwtRequestFilter.BEARER_PREFIX;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/announce")
+@Slf4j
 public class PostController {
     private final PostService postService;
     private final JwtBuilder jwtBuilder;
 
     
     
-    
-    //TODO 테스트 코드 작성
+
     @PostMapping("/create")
     public ResponseEntity<ResponseJson<Object>> create(@RequestBody PostRequestDto requestDto,
                                                        HttpServletRequest servletRequest) {
 
         try{
             String token = servletRequest.getHeader("Authorization");
+            token = token.substring(BEARER_PREFIX.length());
             String username = jwtBuilder.getAccessTokenPayload(token).get("User-Name").toString();
             requestDto.setUsername(username);
             PostResponseDto responseDto = postService.addPost(requestDto);

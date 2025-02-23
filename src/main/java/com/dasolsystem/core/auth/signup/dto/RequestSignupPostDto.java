@@ -1,7 +1,9 @@
 package com.dasolsystem.core.auth.signup.dto;
 
+import com.dasolsystem.core.enums.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,6 +25,6 @@ public class RequestSignupPostDto {
     @NotBlank(message = "유저 이름을 입력하세요")
     private String userName;
 
-    @NotBlank(message = "역할을 지정해주세요")
-    private String role;
+    @NotNull(message = "역할을 지정해주세요")
+    private Role role;
 }

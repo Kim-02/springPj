@@ -27,7 +27,7 @@ public class PostServiceImpl implements PostService{
                         .createdAt(LocalDate.now())
                         .build());
         return PostResponseDto.builder()
-                .response(responsePost.getUsername())
+                .response(responsePost.getTitle())
                 .build();
     }
 
