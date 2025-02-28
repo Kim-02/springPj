@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.beans.Transient;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,4 +33,18 @@ public class PostServiceImpl implements PostService{
                 .build();
     }
 
+    @Transactional
+    public List<Post> getAllPosts(){
+        return postRepository.findAll();
+    }
+
+    @Transactional
+    public Optional<Post> getPostById(Long id) {
+        return postRepository.findById(id);
+    }
+
+    @Transactional
+    public void deletePostById(Long id) {
+        postRepository.deleteById(id);
+    }
 }
