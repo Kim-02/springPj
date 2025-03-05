@@ -1,6 +1,6 @@
 package com.dasolsystem.config;
 
-import com.dasolsystem.core.auth.user.service.CustomUserDetailsService;
+import com.dasolsystem.core.auth.userdetail.service.CustomUserDetailsService;
 import com.dasolsystem.core.jwt.filter.JwtRequestFilter;
 import com.dasolsystem.core.jwt.util.JwtBuilder;
 import com.dasolsystem.core.handler.CustomAccessDeniedHandler;
@@ -76,7 +76,8 @@ public class SecurityConfig {
                         "/index.html"
                         ,"/api/logout"
                         ,"/favicon.ico",
-                        "/test/print"
+                        "/test/print",
+                        "/api/users/upload"
                         ).permitAll()
                 .anyRequest().authenticated()
         );

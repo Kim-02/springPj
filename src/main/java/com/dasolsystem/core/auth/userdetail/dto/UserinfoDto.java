@@ -1,4 +1,4 @@
-package com.dasolsystem.core.auth.user.dto;
+package com.dasolsystem.core.auth.userdetail.dto;
 
 
 import com.dasolsystem.core.enums.Role;

@@ -13,7 +13,10 @@ public enum ApiState {
     //회원가입 에러
     ERROR_701(701), //Exist Users
     //로그인 에러
-    ERROR_901(901) //
+    ERROR_901(901), //
+
+    //DB 관련 오류
+    ERROR_501(501) //DB접근 오류
 
     //예상치 못한 에러
     ,ERROR_UNKNOWN(100);

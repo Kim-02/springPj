@@ -1,6 +1,6 @@
-package com.dasolsystem.core.auth.user.controller;
+package com.dasolsystem.core.auth.userdetail.controller;
 
-import com.dasolsystem.core.auth.user.dto.UserinfoDto;
+import com.dasolsystem.core.auth.userdetail.dto.UserinfoDto;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

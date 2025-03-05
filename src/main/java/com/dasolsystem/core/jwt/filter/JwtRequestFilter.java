@@ -3,7 +3,7 @@ package com.dasolsystem.core.jwt.filter;
 import com.dasolsystem.config.excption.AuthFailException;
 import com.dasolsystem.core.auth.vo.WhiteListVO;
 import com.dasolsystem.core.enums.JwtCode;
-import com.dasolsystem.core.auth.user.service.CustomUserDetailsService;
+import com.dasolsystem.core.auth.userdetail.service.CustomUserDetailsService;
 import com.dasolsystem.core.enums.ApiState;
 import com.dasolsystem.core.jwt.dto.TokenIdAccesserDto;
 import com.dasolsystem.core.jwt.filter.dto.JwtTokenStrogeDto;

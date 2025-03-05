@@ -20,6 +20,7 @@ public class WhiteListVO {
             "/test/main",
             "/test/login",
             "/index.html",
-            "/test/print"
+            "/test/print",
+            "/api/users/upload"
     };
 }

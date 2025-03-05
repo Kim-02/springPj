@@ -1,4 +1,4 @@
-package com.dasolsystem.core.auth.user.service;
+package com.dasolsystem.core.auth.userdetail.service;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
 

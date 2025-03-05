@@ -7,6 +7,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Builder
 @Entity
@@ -15,17 +18,19 @@ import lombok.NoArgsConstructor;
 public class Users {
 
     @Id
-    @Column(length = 20)
-    private String emailID;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Column(length = 10)
-    private String userName;
+    @Column(unique = true)
+    private String studentId;
 
-    @Column(length = 10)
-    private String role;
+    @Column(nullable = false)
+    private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id")
-    private Course course;
+    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Deposit> deposits = new ArrayList<>();
+
+
+
 
 }
