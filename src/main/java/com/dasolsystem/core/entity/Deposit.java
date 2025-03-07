@@ -26,7 +26,7 @@ public class Deposit {
     private String depositType;
 
     @Column(nullable = false)
-    private BigDecimal amount;
+    private Integer amount;
 
     @Column(nullable = false)
     private LocalDateTime depositedAt;

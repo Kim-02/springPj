@@ -1,12 +1,13 @@
 package com.dasolsystem.core.auth.user.service;
 
 import com.dasolsystem.config.excption.DBFaillException;
+import com.dasolsystem.core.auth.user.dto.StudentSaveRequestDto;
 import com.dasolsystem.core.auth.user.dto.StudentSaveResponseDto;
-import com.dasolsystem.core.auth.user.repository.DepositRepository;
+import com.dasolsystem.core.auth.user.dto.StudentSearchRequestDto;
+import com.dasolsystem.core.auth.user.dto.StudentSearchResponseDto;
 import com.dasolsystem.core.auth.user.repository.UserRepository;
 import com.dasolsystem.core.entity.Users;
 import com.dasolsystem.core.enums.ApiState;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -14,19 +15,18 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final DepositRepository depositRepository;
 
     @Transactional
     public StudentSaveResponseDto saveStudent(MultipartFile file) throws IOException {
@@ -67,11 +67,7 @@ public class UserServiceImpl implements UserService {
                 .result("success")
                 .build();
     }
-
-    /**
-     * 셀의 값을 문자열로 안전하게 변환하는 헬퍼 메서드.
-     * 숫자 타입은 BigDecimal을 사용해 과학적 표기법 없이 변환합니다.
-     */
+    //변환 메서드
     private String getCellValueAsString(Cell cell) {
         if (cell == null) {
             return null;
@@ -91,4 +87,44 @@ public class UserServiceImpl implements UserService {
                 return "";
         }
     }
+
+    @Transactional
+    public StudentSaveResponseDto savePersonalStudent(StudentSaveRequestDto requestDto){
+        userRepository.findByStudentIdAndName(requestDto.getStudentId(), requestDto.getName())
+                .ifPresentOrElse(user -> {
+                    // 이미 존재하는 경우 예외 발생
+                    throw new DBFaillException(ApiState.ERROR_503, "Exist Users: "+user.getName());
+                }, () -> {
+                    // 존재하지 않으면 새 유저 생성 후 저장
+                    Users newUser = Users.builder()
+                            .name(requestDto.getName())
+                            .studentId(requestDto.getStudentId())
+                            .build();
+                    userRepository.save(newUser);
+                });
+
+        return StudentSaveResponseDto.builder()
+                .result("success save user "+requestDto.getName())
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public StudentSearchResponseDto searchStudent(StudentSearchRequestDto requestDto) {
+        return userRepository.findByStudentIdAndName(requestDto.getStudentId(), requestDto.getName())
+                .map(user -> StudentSearchResponseDto.builder()
+                        .studentId(user.getStudentId())
+                        .name(user.getName())
+                        .deposits(user.getDeposits()) // 필요하면 deposit 목록도 반환 가능
+                        .build())
+                .orElseThrow(() -> new DBFaillException(ApiState.ERROR_502,"No such user"));
+    }
+
+    public String deleteStudent(StudentSearchRequestDto requestDto) {
+            if(!userRepository.findByStudentId(requestDto.getStudentId()).isPresent()){
+                throw new DBFaillException(ApiState.ERROR_502,"No such user");
+            }
+        userRepository.deleteByStudentId(requestDto.getStudentId());
+        return "success delete user "+requestDto.getStudentId();
+    }
+
 }

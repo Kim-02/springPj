@@ -77,7 +77,14 @@ public class SecurityConfig {
                         ,"/api/logout"
                         ,"/favicon.ico",
                         "/test/print",
-                        "/api/users/upload"
+
+
+
+                        "/api/users/upload",
+                        "/api/amount/update",
+                        "/api/users/personal_upload",
+                        "/api/users/userdata",
+                        "/api/users/deleteuser"
                         ).permitAll()
                 .anyRequest().authenticated()
         );
