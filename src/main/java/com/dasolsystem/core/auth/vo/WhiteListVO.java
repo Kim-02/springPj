@@ -28,6 +28,7 @@ public class WhiteListVO {
             "/api/amount/update",
             "/api/users/personal_upload",
             "/api/users/userdata",
-            "/api/users/deleteuser"
+            "/api/users/deleteuser",
+            "/api/amount/download"
     };
 }

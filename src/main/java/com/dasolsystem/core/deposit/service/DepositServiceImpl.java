@@ -4,13 +4,13 @@ package com.dasolsystem.core.deposit.service;
 import com.dasolsystem.config.excption.AuthFailException;
 import com.dasolsystem.config.excption.DBFaillException;
 import com.dasolsystem.core.auth.user.repository.UserRepository;
+import com.dasolsystem.core.deposit.dto.DepositUsersDto;
 import com.dasolsystem.core.deposit.dto.DepositUsersRequestDto;
 import com.dasolsystem.core.deposit.dto.DepositUsersResponseDto;
 import com.dasolsystem.core.deposit.repository.DepositRepository;
 import com.dasolsystem.core.entity.Deposit;
 import com.dasolsystem.core.entity.Users;
 import com.dasolsystem.core.enums.ApiState;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
@@ -18,12 +18,15 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -89,4 +92,47 @@ public class DepositServiceImpl implements DepositService {
             throw new DBFaillException(ApiState.ERROR_UNKNOWN,e.getMessage());
         }
     }
+
+    @Transactional(readOnly = true)
+    public List<DepositUsersDto> findDepositUsers(String depositType) {
+        List<Users> usersList = depositRepository.findUsersByDepositType(depositType);
+
+        return usersList.stream()
+                .flatMap(user -> user.getDeposits().stream()
+                        .filter(deposit -> deposit.getDepositType().equals(depositType))
+                        .map(deposit -> DepositUsersDto.builder()
+                                .name(user.getName())
+                                .studentId(user.getStudentId())
+                                .amount(deposit.getAmount())
+                                .build()))
+                .collect(Collectors.toList());
+    }
+
+    public ByteArrayOutputStream generateExcelFile(List<DepositUsersDto> depositUsers) throws IOException {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Users Deposit Data");
+
+        // 헤더 생성
+        Row headerRow = sheet.createRow(0);
+        headerRow.createCell(0).setCellValue("이름");
+        headerRow.createCell(1).setCellValue("학번");
+        headerRow.createCell(2).setCellValue("납부 금액");
+
+        // 데이터 추가
+        int rowNum = 1;
+        for (DepositUsersDto user : depositUsers) {
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(user.getName());
+            row.createCell(1).setCellValue(user.getStudentId());
+            row.createCell(2).setCellValue(user.getAmount());
+        }
+
+        // ByteArrayOutputStream으로 변환
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+
+        return outputStream;
+    }
+
 }

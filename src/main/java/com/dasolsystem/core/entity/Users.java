@@ -1,6 +1,7 @@
 package com.dasolsystem.core.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,6 +28,7 @@ public class Users {
     @Column(nullable = false)
     private String name;
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Deposit> deposits = new ArrayList<>();
 
