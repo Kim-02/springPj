@@ -7,6 +7,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DepositUsersResponseDto {
-    private String result;
+public class DepositUsersResponseDto<T> {
+    private T result;
 }

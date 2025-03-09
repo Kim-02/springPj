@@ -66,9 +66,8 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(
-                        "/api/signin",
-                        "/api/login",
-                        "/api/sign-up",
+                        "/api/auth/login",
+                        "/api/auth/signup",
                         "/",
                         "/api/press",
                         "/api/likes",

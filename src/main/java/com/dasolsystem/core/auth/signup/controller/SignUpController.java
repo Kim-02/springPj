@@ -2,9 +2,9 @@ package com.dasolsystem.core.auth.signup.controller;
 
 import com.dasolsystem.config.excption.AuthFailException;
 import com.dasolsystem.core.handler.ResponseJson;
-import com.dasolsystem.core.auth.signup.dto.RequestSignupPostDto;
+import com.dasolsystem.core.auth.signup.dto.RequestSignupDto;
 import com.dasolsystem.core.auth.signup.dto.ResponseSavedNameDto;
-import com.dasolsystem.core.auth.signup.service.signupService;
+import com.dasolsystem.core.auth.signup.service.SignupService;
 import jakarta.validation.Valid;
 import jdk.jfr.Description;
 import lombok.RequiredArgsConstructor;
@@ -14,31 +14,31 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/auth")
 @Validated
 public class SignUpController {
 
-    private final signupService signupService;
+    private final SignupService signupService;
 
     @Description("회원가입 - 인증이 필요하지 않은 페이지")
-    @PostMapping("/sign-up")
-    public ResponseEntity<ResponseJson<Object>> signUp(@RequestBody @Valid RequestSignupPostDto requestSignupPostDto){
+    @PostMapping("/signup")
+    public ResponseEntity<ResponseJson<Object>> signUp(@RequestBody @Valid RequestSignupDto requestSignupDto){
         try{
-            ResponseSavedNameDto response = signupService.signup(requestSignupPostDto);
+            ResponseSavedNameDto response = signupService.signup(requestSignupDto);
 
             return ResponseEntity.ok(
                     ResponseJson.builder()
                             .status(200)
-                            .message(response.getMessage())
-                            .result(response)
+                            .message("success")
+                            .result(response.getMessage())
                             .build()
             );
         }catch (AuthFailException e){
             return ResponseEntity.ok(
                     ResponseJson.builder()
                             .status(701)
-                            .message("Error."+e.getMessage())
-                            .result("Error.")
+                            .message("Error.")
+                            .result("Error."+e.getMessage())
                             .build()
             );
         }

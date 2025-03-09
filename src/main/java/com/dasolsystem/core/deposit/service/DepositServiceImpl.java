@@ -4,6 +4,7 @@ package com.dasolsystem.core.deposit.service;
 import com.dasolsystem.config.excption.AuthFailException;
 import com.dasolsystem.config.excption.DBFaillException;
 import com.dasolsystem.core.auth.user.repository.UserRepository;
+import com.dasolsystem.core.deposit.dto.DepositResultDto;
 import com.dasolsystem.core.deposit.dto.DepositUsersDto;
 import com.dasolsystem.core.deposit.dto.DepositUsersRequestDto;
 import com.dasolsystem.core.deposit.dto.DepositUsersResponseDto;
@@ -35,8 +36,8 @@ public class DepositServiceImpl implements DepositService {
     private final DepositRepository depositRepository;
     private final UserRepository userRepository;
 
-
-    public DepositUsersResponseDto updateDeposit(DepositUsersRequestDto requestDto) throws IOException {
+    @Transactional
+    public DepositUsersResponseDto<Object> updateDeposit(DepositUsersRequestDto requestDto) throws IOException {
         List<Deposit> newDeposits = new ArrayList<>();
         List<Map<String, Integer>> noneFindUsers = new ArrayList<>();
         List<Map<String,String>> duplicateUsers = new ArrayList<>();
@@ -57,6 +58,9 @@ public class DepositServiceImpl implements DepositService {
                         Users user = usersList.get(0);
                         boolean exists = depositRepository.findByUsersAndDepositTypeAndAmount(user, depositType, amount).isPresent();
                         if(!exists){
+                            if(Objects.equals(depositType, "학생회비") && !user.getPaidUser()){
+                                user.setPaidUser(true);
+                            }
                             Deposit deposit = Deposit.builder()
                                     .users(user)
                                     .depositType(depositType)
@@ -81,9 +85,11 @@ public class DepositServiceImpl implements DepositService {
             depositRepository.saveAll(newDeposits);
             if(!noneFindUsers.isEmpty()){
                 return DepositUsersResponseDto.builder()
-                        .result("Not exist Users: "+Arrays.toString(noneFindUsers.toArray())+"\n"+
-                                "DuplicateUsers: "+duplicateUsers)
-                        .build();
+                        .result(DepositResultDto.builder()
+                                .noneFinds(Arrays.toString(noneFindUsers.toArray()))
+                                .duplicated(Arrays.toString(duplicateUsers.toArray()))
+                                .build()
+                        ).build();
             }
             return DepositUsersResponseDto.builder()
                     .result("success")
@@ -92,7 +98,24 @@ public class DepositServiceImpl implements DepositService {
             throw new DBFaillException(ApiState.ERROR_UNKNOWN,e.getMessage());
         }
     }
-
+    @Transactional
+    public String updatePersonalDeposit(String studentId, String depositType, Integer amount ) throws IOException {
+        userRepository.findByStudentId(studentId).ifPresentOrElse(
+                users -> {
+                    Deposit deposit = Deposit.builder()
+                            .users(users)
+                            .depositType(depositType)
+                            .amount(amount)
+                            .depositedAt(LocalDateTime.now())
+                            .build();
+                    depositRepository.save(deposit);
+                },
+                () -> {
+                    throw new DBFaillException(ApiState.ERROR_502, "None fine user");
+                }
+        );
+        return "success";
+    }
     @Transactional(readOnly = true)
     public List<DepositUsersDto> findDepositUsers(String depositType) {
         List<Users> usersList = depositRepository.findUsersByDepositType(depositType);

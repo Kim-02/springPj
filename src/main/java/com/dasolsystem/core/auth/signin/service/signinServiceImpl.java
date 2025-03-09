@@ -1,10 +1,10 @@
 package com.dasolsystem.core.auth.signin.service;
 
 import com.dasolsystem.config.excption.AuthFailException;
-import com.dasolsystem.core.auth.repository.authRepository;
 import com.dasolsystem.core.auth.signin.dto.RequestSignincheckDto;
 import com.dasolsystem.core.auth.signin.dto.ResponseSignincheckDto;
-import com.dasolsystem.core.entity.SignUp;
+import com.dasolsystem.core.auth.user.repository.UserRepository;
+import com.dasolsystem.core.entity.Users;
 import com.dasolsystem.core.enums.ApiState;
 import com.dasolsystem.core.jwt.util.JwtBuilder;
 import jdk.jfr.Description;
@@ -22,7 +22,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 public class signinServiceImpl implements signinService {
-    private final authRepository repo;
+    private final UserRepository repo;
     private final JwtBuilder jwtBuilder;
     private final PasswordEncoder passwordEncoder;
 
@@ -57,7 +57,7 @@ public class signinServiceImpl implements signinService {
     public ResponseSignincheckDto loginCheck(RequestSignincheckDto dto) {
         String id = dto.getId();
         String pw = dto.getPw();
-        SignUp valid = repo.findByEmailID(id);
+        Users valid = repo.findByEmailID(id);
         if(valid == null){
             throw new UsernameNotFoundException("Not Found id");
         }
@@ -69,7 +69,7 @@ public class signinServiceImpl implements signinService {
                 .emailId(valid.getEmailID())
                 .role(valid.getRole())
                 .message("login success")
-                .name(valid.getUserName())
+                .name(valid.getName())
                 .build();
 
 

@@ -1,8 +1,11 @@
 package com.dasolsystem.core.auth.user.repository;
 
 import com.dasolsystem.core.entity.Users;
+import com.dasolsystem.core.enums.Role;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,8 +17,16 @@ public interface UserRepository extends JpaRepository<Users, Long> {
 
     List<Users> findByName(String name);
 
+    Users findByEmailID(String emailID);
+
+    @Modifying
+    @Query("UPDATE Users u SET u.role = :role WHERE u.emailID = :emailID")
+    int updateUserRole(@Param("emailID") String emailID, @Param("role") Role role);
+
 //    @Query("SELECT u FROM Users u LEFT JOIN FETCH u.deposits WHERE u.studentId = :studentId AND u.name = :name")
     Optional<Users> findByStudentIdAndName(@Param("studentId") String studentId, @Param("name") String name);
 
     void deleteByStudentId(String studentId);
+    boolean existsByEmailID(String studentId);
+    boolean existsBystudentId(String studentId);
 }

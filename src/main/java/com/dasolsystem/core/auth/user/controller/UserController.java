@@ -2,10 +2,7 @@ package com.dasolsystem.core.auth.user.controller;
 
 
 import com.dasolsystem.config.excption.DBFaillException;
-import com.dasolsystem.core.auth.user.dto.StudentSaveRequestDto;
-import com.dasolsystem.core.auth.user.dto.StudentSaveResponseDto;
-import com.dasolsystem.core.auth.user.dto.StudentSearchRequestDto;
-import com.dasolsystem.core.auth.user.dto.StudentSearchResponseDto;
+import com.dasolsystem.core.auth.user.dto.*;
 import com.dasolsystem.core.auth.user.service.UserService;
 import com.dasolsystem.core.handler.ResponseJson;
 import lombok.RequiredArgsConstructor;
@@ -108,5 +105,26 @@ public class UserController {
             );
         }
     }
+    @PostMapping("/updateuser")
+    public ResponseEntity<ResponseJson<?>> updateUser(@RequestBody StudentUpdateRequestDto studentUpdateRequestDto) {
+        try{
+            String result = userService.updateStudentRoles(studentUpdateRequestDto.getEmailID(),studentUpdateRequestDto.getRole());
+            return ResponseEntity.ok(
+                    ResponseJson.builder()
+                            .status(200)
+                            .message("success")
+                            .result(result)
+                            .build()
+            );
+        }catch(DBFaillException e){
+            return ResponseEntity.ok(
+                    ResponseJson.builder()
+                            .status(e.getCode())
+                            .message("error")
+                            .result(e.getMessage())
+                            .build()
+            );
+        }
 
+    }
 }

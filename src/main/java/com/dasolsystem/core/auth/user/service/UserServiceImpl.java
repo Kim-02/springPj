@@ -8,6 +8,8 @@ import com.dasolsystem.core.auth.user.dto.StudentSearchResponseDto;
 import com.dasolsystem.core.auth.user.repository.UserRepository;
 import com.dasolsystem.core.entity.Users;
 import com.dasolsystem.core.enums.ApiState;
+import com.dasolsystem.core.enums.Role;
+import jdk.jfr.Description;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -127,4 +129,13 @@ public class UserServiceImpl implements UserService {
         return "success delete user "+requestDto.getStudentId();
     }
 
+    @Transactional
+    @Description("API요청을 보내기 위한 메서드 외부사용 x")
+    public String updateStudentRoles(String emailID, Role role) {
+        int affectedRows = userRepository.updateUserRole(emailID,role);
+        if(affectedRows == 0){
+            throw new DBFaillException(ApiState.ERROR_502,"No such user");
+        }
+        return "User Role Update Success"+role;
+    }
 }

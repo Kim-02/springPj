@@ -7,9 +7,9 @@ import lombok.*;
 public class WhiteListVO {
     private final String[] WhiteList={
             "/api/signin",
-            "/api/login",
+            "/api/auth/login",
             "/api/logout",
-            "/api/sign-up",
+            "/api/auth/signup",
             "/",
             "/api/press",
             "/api/likes",

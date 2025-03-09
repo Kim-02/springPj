@@ -16,12 +16,12 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api") //loaclhost:8080/login
+@RequestMapping("/api/auth") //loaclhost:8080/login
 @Slf4j
 public class SignInController {
 
     private final signinService signinService;
-    @PostMapping("/signin")
+    @PostMapping("/login")
     public ResponseEntity<ResponseJson<Object>> signin(
             @RequestBody RequestSignincheckDto signincheckDto,
             HttpServletResponse res
