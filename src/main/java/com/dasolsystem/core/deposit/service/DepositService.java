@@ -13,4 +13,5 @@ public interface DepositService {
     DepositUsersResponseDto updateDeposit(DepositUsersRequestDto requestDto) throws IOException;
     ByteArrayOutputStream generateExcelFile(List<DepositUsersDto> depositUsers) throws IOException;
     List<DepositUsersDto> findDepositUsers(String depositType);
+    String updatePersonalDeposit(String studentId, String depositType, Integer amount );
 }

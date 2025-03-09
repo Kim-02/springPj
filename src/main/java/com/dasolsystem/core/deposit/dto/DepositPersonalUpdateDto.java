@@ -7,10 +7,8 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class DepositUsersDto {
-    private String name;
+public class DepositPersonalUpdateDto {
     private String studentId;
+    private String depositType;
     private Integer amount;
-    private String paidUser;
-
 }

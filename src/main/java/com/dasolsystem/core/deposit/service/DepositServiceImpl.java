@@ -99,9 +99,12 @@ public class DepositServiceImpl implements DepositService {
         }
     }
     @Transactional
-    public String updatePersonalDeposit(String studentId, String depositType, Integer amount ) throws IOException {
+    public String updatePersonalDeposit(String studentId, String depositType, Integer amount ){
         userRepository.findByStudentId(studentId).ifPresentOrElse(
                 users -> {
+                    if(Objects.equals(depositType, "학생회비") && !users.getPaidUser()){
+                        users.setPaidUser(true);
+                    }
                     Deposit deposit = Deposit.builder()
                             .users(users)
                             .depositType(depositType)
@@ -126,6 +129,7 @@ public class DepositServiceImpl implements DepositService {
                         .map(deposit -> DepositUsersDto.builder()
                                 .name(user.getName())
                                 .studentId(user.getStudentId())
+                                .paidUser(user.getPaidUser() != null && user.getPaidUser() ? "Y" : "N")
                                 .amount(deposit.getAmount())
                                 .build()))
                 .collect(Collectors.toList());
@@ -139,7 +143,8 @@ public class DepositServiceImpl implements DepositService {
         Row headerRow = sheet.createRow(0);
         headerRow.createCell(0).setCellValue("이름");
         headerRow.createCell(1).setCellValue("학번");
-        headerRow.createCell(2).setCellValue("납부 금액");
+        headerRow.createCell(2).setCellValue("학회비 납부 여부");
+        headerRow.createCell(3).setCellValue("납부 금액");
 
         // 데이터 추가
         int rowNum = 1;
@@ -147,7 +152,8 @@ public class DepositServiceImpl implements DepositService {
             Row row = sheet.createRow(rowNum++);
             row.createCell(0).setCellValue(user.getName());
             row.createCell(1).setCellValue(user.getStudentId());
-            row.createCell(2).setCellValue(user.getAmount());
+            row.createCell(2).setCellValue(user.getPaidUser());
+            row.createCell(3).setCellValue(user.getAmount());
         }
 
         // ByteArrayOutputStream으로 변환
