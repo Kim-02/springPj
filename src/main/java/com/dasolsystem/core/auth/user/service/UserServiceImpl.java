@@ -56,6 +56,7 @@ public class UserServiceImpl implements UserService {
 
                 Users user = Users.builder()
                         .name(name)
+                        .role(Role.User)
                         .studentId(studentId)
                         .build();
                 newUsers.add(user);

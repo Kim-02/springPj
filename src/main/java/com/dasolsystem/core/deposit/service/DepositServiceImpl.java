@@ -14,6 +14,7 @@ import com.dasolsystem.core.entity.Users;
 import com.dasolsystem.core.enums.ApiState;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.math3.random.HaltonSequenceGenerator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -40,25 +41,26 @@ public class DepositServiceImpl implements DepositService {
     public DepositUsersResponseDto<Object> updateDeposit(DepositUsersRequestDto requestDto) throws IOException {
         List<Deposit> newDeposits = new ArrayList<>();
         List<Map<String, Integer>> noneFindUsers = new ArrayList<>();
-        List<Map<String,String>> duplicateUsers = new ArrayList<>();
+        Map<String, String> duplicateUsers = new HashMap<>();
 
-        try (Workbook workbook = new XSSFWorkbook(requestDto.getFile().getInputStream())){
+        try (Workbook workbook = new XSSFWorkbook(requestDto.getFile().getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0);
 
             for (Row row : sheet) {
-                if(row.getRowNum() == 0){
+                if (row.getRowNum() == 0) {
                     continue;
                 }
                 Integer amount = (int) row.getCell(4).getNumericCellValue();
                 String name = row.getCell(6).getStringCellValue();
                 String depositType = requestDto.getDepositType();
-                if(amount.equals(requestDto.getSelectAmount())){
+
+                if (amount.equals(requestDto.getSelectAmount())) {
                     List<Users> usersList = userRepository.findByName(name);
-                    if(usersList.size()==1){
+                    if (usersList.size() == 1) {
                         Users user = usersList.get(0);
                         boolean exists = depositRepository.findByUsersAndDepositTypeAndAmount(user, depositType, amount).isPresent();
-                        if(!exists){
-                            if(Objects.equals(depositType, "학생회비") && !user.getPaidUser()){
+                        if (!exists) {
+                            if (Objects.equals(depositType, "학생회비") && !user.getPaidUser()) {
                                 user.setPaidUser(true);
                             }
                             Deposit deposit = Deposit.builder()
@@ -68,34 +70,35 @@ public class DepositServiceImpl implements DepositService {
                                     .depositedAt(LocalDateTime.now())
                                     .build();
                             newDeposits.add(deposit);
+                        } else {
+                            // 존재하는 deposit인 경우 로그에 기록
+                            log.info("exist deposit: user={}, depositType={}, amount={}", user.getName(), depositType, amount);
                         }
-                    }else if (usersList.size() > 1){ //동명 이인 처리를 위한 예외
-                        for(Users user : usersList){
-                            Map<String, String> map = new HashMap<>();
-                            map.put(user.getName(),user.getStudentId());
-                            duplicateUsers.add(map);
+                    } else if (usersList.size() > 1) { // 동명이인 처리 예외
+                        for (Users user : usersList) {
+                            duplicateUsers.put(user.getName(), user.getStudentId());
                         }
-                    }else{
+                    } else {
                         Map<String, Integer> userNotFoundMap = new HashMap<>();
-                        userNotFoundMap.put(name,amount);
+                        userNotFoundMap.put(name, amount);
                         noneFindUsers.add(userNotFoundMap);
                     }
                 }
             }
             depositRepository.saveAll(newDeposits);
-            if(!noneFindUsers.isEmpty()){
+            if (!noneFindUsers.isEmpty()) {
                 return DepositUsersResponseDto.builder()
                         .result(DepositResultDto.builder()
                                 .noneFinds(Arrays.toString(noneFindUsers.toArray()))
-                                .duplicated(Arrays.toString(duplicateUsers.toArray()))
+                                .duplicated(duplicateUsers.toString())
                                 .build()
                         ).build();
             }
             return DepositUsersResponseDto.builder()
                     .result("success")
                     .build();
-        }catch (Exception e){
-            throw new DBFaillException(ApiState.ERROR_UNKNOWN,e.getMessage());
+        } catch (Exception e) {
+            throw new DBFaillException(ApiState.ERROR_UNKNOWN, e.getMessage());
         }
     }
     @Transactional
