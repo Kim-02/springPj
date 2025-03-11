@@ -41,7 +41,7 @@ public class DepositServiceImpl implements DepositService {
     public DepositUsersResponseDto<Object> updateDeposit(DepositUsersRequestDto requestDto) throws IOException {
         List<Deposit> newDeposits = new ArrayList<>();
         List<Map<String, Integer>> noneFindUsers = new ArrayList<>();
-        Map<String, String> duplicateUsers = new HashMap<>();
+        Map<String, List<String>> duplicateUsers = new HashMap<>();
 
         try (Workbook workbook = new XSSFWorkbook(requestDto.getFile().getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0);
@@ -56,11 +56,12 @@ public class DepositServiceImpl implements DepositService {
 
                 if (amount.equals(requestDto.getSelectAmount())) {
                     List<Users> usersList = userRepository.findByName(name);
-                    if (usersList.size() == 1) {
+                    if(usersList.size() == 1) {
+                        // 단일 사용자 처리
                         Users user = usersList.get(0);
                         boolean exists = depositRepository.findByUsersAndDepositTypeAndAmount(user, depositType, amount).isPresent();
-                        if (!exists) {
-                            if (Objects.equals(depositType, "학생회비") && !user.getPaidUser()) {
+                        if(!exists){
+                            if(Objects.equals(depositType, "학생회비") && !user.getPaidUser()){
                                 user.setPaidUser(true);
                             }
                             Deposit deposit = Deposit.builder()
@@ -71,12 +72,11 @@ public class DepositServiceImpl implements DepositService {
                                     .build();
                             newDeposits.add(deposit);
                         } else {
-                            // 존재하는 deposit인 경우 로그에 기록
                             log.info("exist deposit: user={}, depositType={}, amount={}", user.getName(), depositType, amount);
                         }
-                    } else if (usersList.size() > 1) { // 동명이인 처리 예외
-                        for (Users user : usersList) {
-                            duplicateUsers.put(user.getName(), user.getStudentId());
+                    } else if (usersList.size() > 1){ // 동명이인 처리
+                        for(Users user : usersList){
+                            duplicateUsers.computeIfAbsent(user.getName(), k -> new ArrayList<>()).add(user.getStudentId());
                         }
                     } else {
                         Map<String, Integer> userNotFoundMap = new HashMap<>();
