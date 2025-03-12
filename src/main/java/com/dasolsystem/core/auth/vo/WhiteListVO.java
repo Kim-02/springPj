@@ -16,6 +16,7 @@ public class WhiteListVO {
 
             "/favicon.ico",
 
+            "/deposit",
             "/test/signup",
             "/test/main",
             "/test/login",
@@ -32,6 +33,7 @@ public class WhiteListVO {
             "/api/amount/download",
             "/api/amount/personal/update",
             "/api/users/updateuser",
-            "/api/users/personal_upload"
+            "/api/users/personal_upload",
+            "/api/users/finduserid"
     };
 }

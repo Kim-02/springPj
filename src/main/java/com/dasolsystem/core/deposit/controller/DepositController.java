@@ -29,7 +29,7 @@ public class DepositController {
     @PostMapping("/update")
     public ResponseEntity<ResponseJson<Object>> update(@ModelAttribute DepositUsersRequestDto requestDto) throws IOException {
         try{
-            DepositUsersResponseDto res = depositService.updateDeposit(requestDto);
+            DepositUsersResponseDto<?> res = depositService.updateDeposit(requestDto);
             return ResponseEntity.ok(
                     ResponseJson.builder()
                             .status(200)

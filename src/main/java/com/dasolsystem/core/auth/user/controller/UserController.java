@@ -61,7 +61,7 @@ public class UserController {
         }
 
     }
-    @GetMapping("/userdata")
+    @PostMapping("/userdata")
     public ResponseEntity<ResponseJson<?>> getUserData(@RequestBody StudentSearchRequestDto requestDto) {
         try{
             StudentSearchResponseDto responseDto = userService.searchStudent(requestDto);
@@ -83,6 +83,17 @@ public class UserController {
         }
         
 
+    }
+    @PostMapping("/finduserid")
+    public ResponseEntity<ResponseJson<?>> getUserId(@RequestBody StudentNameDto dto) {
+        String studentId = userService.findStudentId(dto.getStudentName());
+        return ResponseEntity.ok(
+                ResponseJson.builder()
+                        .status(200)
+                        .message("success")
+                        .result(studentId)
+                .build()
+        );
     }
     @DeleteMapping("/deleteuser")
     public ResponseEntity<ResponseJson<Object>> deleteUser(@RequestBody StudentSearchRequestDto requestDto) {

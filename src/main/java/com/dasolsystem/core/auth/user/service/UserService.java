@@ -15,4 +15,5 @@ public interface UserService {
     StudentSearchResponseDto searchStudent(StudentSearchRequestDto requestDto);
     String deleteStudent(StudentSearchRequestDto requestDto);
     String updateStudentRoles(String emailID, Role role);
+    String findStudentId(String studentName);
 }

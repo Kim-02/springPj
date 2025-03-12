@@ -139,4 +139,23 @@ public class UserServiceImpl implements UserService {
         }
         return "User Role Update Success"+role;
     }
+
+    @Transactional(readOnly = true)
+    public String findStudentId(String studentName) {
+        List<Users> userid = userRepository.findByName(studentName);
+        //찾지 못하였다면
+        if(userid.isEmpty()){
+            return "none found";
+        } else if (userid.size()>1) {//동명이인
+            StringBuilder builder = new StringBuilder();
+            for(Users user : userid){
+                builder.append(user.getStudentId());
+                builder.append(", ");
+            }
+            return builder.toString().trim();
+        }
+        else{
+            return userid.get(0).getStudentId();
+        }
+    }
 }

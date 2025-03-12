@@ -72,7 +72,10 @@ public class SecurityConfig {
                         "/api/press",
                         "/api/likes",
                         "/test/**",
-                        "/index.html"
+
+                        "/index.html",
+                        "/deposit"
+
                         ,"/api/logout"
                         ,"/favicon.ico",
                         "/test/print",
@@ -87,7 +90,8 @@ public class SecurityConfig {
                         "/api/amount/download",
                         "/api/amount/personal/update",
                         "/api/users/updateuser",
-                        "/api/users/personal_upload"
+                        "/api/users/personal_upload",
+                        "/api/users/finduserid"
                         ).permitAll()
                 .anyRequest().authenticated()
         );

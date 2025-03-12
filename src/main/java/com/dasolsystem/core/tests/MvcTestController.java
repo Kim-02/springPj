@@ -24,4 +24,7 @@ public class MvcTestController {
 
     @GetMapping("/test/print")
     public String printing() {return "users-page";}
+
+    @GetMapping("/deposit")
+    public String deposit() {return "deposit-manage";}
 }

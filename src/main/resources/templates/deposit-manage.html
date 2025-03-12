@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>입금 업데이트 및 학생 조회</title>
+</head>
+<body>
+<h1>입금 업데이트 및 학생 조회</h1>
+<!-- 양옆 칼럼 컨테이너 -->
+<div style="display: flex;">
+    <!-- 왼쪽 칼럼: 기존 기능 -->
+    <div style="flex: 1; padding: 10px; border-right: 1px solid #ccc;">
+        <!-- 배치 업데이트 섹션 -->
+        <h2>배치 업데이트</h2>
+        <div>
+            <label for="excelFile">엑셀 파일:</label>
+            <input type="file" id="excelFile" accept=".xlsx, .xls">
+        </div>
+        <div>
+            <label for="depositDescription">입금 내역명:</label>
+            <input type="text" id="depositDescription">
+        </div>
+        <div>
+            <label for="depositAmount">금액:</label>
+            <input type="number" id="depositAmount">
+        </div>
+        <button id="executeBtn">실행</button>
+
+        <h2>업데이트 결과</h2>
+        <div id="result">Loading...</div>
+        <div id="failedUsers"></div>
+
+        <hr>
+        <!-- 개별 업데이트(수동) 섹션 -->
+        <h2>개별 입금 업데이트 (수동)</h2>
+        <div>
+            <label for="manualStudentId">학번:</label>
+            <input type="text" id="manualStudentId">
+        </div>
+        <div>
+            <label for="manualDepositType">입금 내역명:</label>
+            <input type="text" id="manualDepositType">
+        </div>
+        <div>
+            <label for="manualAmount">금액:</label>
+            <input type="number" id="manualAmount">
+        </div>
+        <button id="manualUpdateBtn">수동 업데이트 실행</button>
+        <div id="manualUpdateResult"></div>
+
+        <hr>
+        <!-- 학번 찾기 섹션 -->
+        <h2>학번 찾기</h2>
+        <div>
+            <label for="findStudentName">학생 이름:</label>
+            <input type="text" id="findStudentName">
+        </div>
+        <button id="findStudentIdBtn">학번 찾기</button>
+        <div id="findStudentResult"></div>
+    </div>
+
+    <!-- 오른쪽 칼럼: 학생 조회 및 엑셀 다운로드 섹션 -->
+    <div style="flex: 1; padding: 10px;">
+        <!-- 학생 조회 섹션 -->
+        <h2>학생 조회</h2>
+        <div>
+            <label for="searchStudentId">학번:</label>
+            <input type="text" id="searchStudentId">
+        </div>
+        <div>
+            <label for="searchStudentName">이름:</label>
+            <input type="text" id="searchStudentName">
+        </div>
+        <button id="findUserDataBtn">조회 실행</button>
+        <div id="studentDataResult" style="margin-top: 10px;">Loading...</div>
+
+        <hr>
+        <!-- 엑셀 다운로드 섹션 -->
+        <h2>입금 내역 엑셀 다운로드</h2>
+        <div>
+            <label for="downloadDepositType">입금 내역명:</label>
+            <input type="text" id="downloadDepositType">
+        </div>
+        <button id="downloadExcelBtn">다운로드</button>
+        <div id="downloadStatus"></div>
+    </div>
+</div>
+
+<script>
+    // 전역 변수: 배치 업데이트 시 입력한 입금 내역명과 금액 저장
+    let currentBatchDepositDescription = "";
+    let currentBatchDepositAmount = "";
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const resultDiv = document.getElementById("result");
+
+        // 배치 업데이트 실행
+        document.getElementById("executeBtn").addEventListener("click", async () => {
+            const fileInput = document.getElementById("excelFile");
+            const depositDescription = document.getElementById("depositDescription").value.trim();
+            const depositAmount = document.getElementById("depositAmount").value.trim();
+
+            if (!fileInput.files[0]) {
+                resultDiv.innerText = "엑셀 파일을 선택해주세요.";
+                return;
+            }
+            if (!depositDescription) {
+                resultDiv.innerText = "입금 내역명을 입력해주세요.";
+                return;
+            }
+            if (!depositAmount) {
+                resultDiv.innerText = "금액을 입력해주세요.";
+                return;
+            }
+
+            // 배치 업데이트에 사용한 값을 전역 변수에 저장
+            currentBatchDepositDescription = depositDescription;
+            currentBatchDepositAmount = depositAmount;
+
+            resultDiv.innerText = "업데이트 진행 중...";
+
+            // FormData 생성 (file, depositType, selectAmount)
+            const formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+            // 백엔드에서는 depositType과 selectAmount 필드명을 사용
+            formData.append("depositType", depositDescription);
+            formData.append("selectAmount", depositAmount);
+
+            try {
+                const response = await fetch("/api/amount/update", {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error("서버 응답 오류: " + response.status);
+                }
+
+                const data = await response.json();
+                if (data.status === 200) {
+                    resultDiv.innerText = "업데이트 완료!";
+                    displayFailedUsers(data.result);
+                } else {
+                    resultDiv.innerText = "업데이트 오류: " + data.result;
+                }
+            } catch (error) {
+                console.error("API 호출 오류:", error);
+                resultDiv.innerText = "업데이트 실패: " + error.message;
+            }
+        });
+
+        // 실패 사용자 결과 파싱 및 표시 (DB에 없는 사용자, 이름이 겹치는 사용자)
+        function displayFailedUsers(result) {
+            const failedDiv = document.getElementById("failedUsers");
+            failedDiv.innerHTML = "";
+
+            // 파싱: DB에 없는 사용자 (noneFinds)
+            let noneFindsList = [];
+            try {
+                const noneFindsStr = result.noneFinds;
+                // 예시 문자열: "[{장정우=10000}, {노범래=10000}, {김성훈=10000}, {고도형=10000}]"
+                const trimmed = noneFindsStr.substring(1, noneFindsStr.length - 1);
+                const items = trimmed.split("}, {");
+                noneFindsList = items.map(item => {
+                    item = item.replace(/^{/, "").replace(/}$/, "");
+                    const parts = item.split("=");
+                    return { name: parts[0].trim(), amount: parts[1].trim() };
+                });
+            } catch (e) {
+                console.error("noneFinds 파싱 실패", e);
+            }
+
+            // 파싱: 이름이 겹치는 사용자 (duplicated)
+            let duplicatedList = [];
+            try {
+                const duplicatedStr = result.duplicated;
+                // 예시 문자열: "{김민준=[2024100353, 2021136020, ...], 권대현=[2021136010, 2025100366], ...}"
+                const trimmed = duplicatedStr.substring(1, duplicatedStr.length - 1);
+                const entries = trimmed.split("], ");
+                duplicatedList = entries.map(entry => {
+                    if (!entry.endsWith("]")) {
+                        entry = entry + "]";
+                    }
+                    const [name, idsStr] = entry.split("=[");
+                    const idsClean = idsStr.substring(0, idsStr.length - 1);
+                    const ids = idsClean.split(",").map(id => id.trim());
+                    return { name: name.trim(), studentIds: ids };
+                });
+            } catch (e) {
+                console.error("duplicated 파싱 실패", e);
+            }
+
+            // DB에 없는 사용자 리스트 생성
+            const noneFindsHeader = document.createElement("h3");
+            noneFindsHeader.innerText = "DB에 없는 사용자";
+            failedDiv.appendChild(noneFindsHeader);
+
+            const noneFindsUl = document.createElement("ul");
+            noneFindsList.forEach(item => {
+                const li = document.createElement("li");
+                li.innerText = `${item.name} (금액: ${item.amount})`;
+                noneFindsUl.appendChild(li);
+            });
+            failedDiv.appendChild(noneFindsUl);
+
+            // 이름이 겹치는 사용자 리스트 생성 (학번 버튼 클릭 시 개별 업데이트 진행)
+            const duplicatedHeader = document.createElement("h3");
+            duplicatedHeader.innerText = "이름이 겹치는 사용자";
+            failedDiv.appendChild(duplicatedHeader);
+
+            duplicatedList.forEach(item => {
+                const groupDiv = document.createElement("div");
+                const nameHeader = document.createElement("strong");
+                nameHeader.innerText = item.name + ": ";
+                groupDiv.appendChild(nameHeader);
+
+                const idsDiv = document.createElement("span");
+                item.studentIds.forEach(studentId => {
+                    const btn = document.createElement("button");
+                    btn.style.marginRight = "5px";
+                    btn.textContent = studentId;
+                    btn.addEventListener("click", () => {
+                        updateIndividual(studentId, btn);
+                    });
+                    idsDiv.appendChild(btn);
+                });
+                groupDiv.appendChild(idsDiv);
+                failedDiv.appendChild(groupDiv);
+            });
+        }
+
+        // 개별 업데이트 함수: 학번 버튼 클릭 시 /api/amount/personal/update 호출
+        function updateIndividual(studentId, btnElement) {
+            const payload = {
+                studentId: studentId,
+                depositType: currentBatchDepositDescription,
+                amount: parseInt(currentBatchDepositAmount)
+            };
+
+            btnElement.textContent = "진행 중...";
+            btnElement.disabled = true;
+
+            fetch("/api/amount/personal/update", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("서버 응답 오류: " + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === 200) {
+                        btnElement.remove();
+                    } else {
+                        btnElement.textContent = studentId + " (실패)";
+                        btnElement.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error("개별 업데이트 오류:", error);
+                    btnElement.textContent = studentId + " (오류)";
+                    btnElement.disabled = false;
+                });
+        }
+
+        // ================================
+        // 수동 개별 업데이트 섹션
+        document.getElementById("manualUpdateBtn").addEventListener("click", async () => {
+            const studentId = document.getElementById("manualStudentId").value.trim();
+            const depositType = document.getElementById("manualDepositType").value.trim();
+            const amount = document.getElementById("manualAmount").value.trim();
+            const manualResultDiv = document.getElementById("manualUpdateResult");
+
+            if (!studentId || !depositType || !amount) {
+                manualResultDiv.innerText = "모든 필드를 입력해주세요.";
+                return;
+            }
+
+            manualResultDiv.innerText = "업데이트 진행 중...";
+
+            const payload = {
+                studentId: studentId,
+                depositType: depositType,
+                amount: parseInt(amount)
+            };
+
+            try {
+                const response = await fetch("/api/amount/personal/update", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error("서버 응답 오류: " + response.status);
+                }
+
+                const data = await response.json();
+                if (data.status === 200) {
+                    manualResultDiv.innerText = "업데이트 성공: " + data.result;
+                } else {
+                    manualResultDiv.innerText = "업데이트 실패: " + data.result;
+                }
+            } catch (error) {
+                console.error("수동 업데이트 오류:", error);
+                manualResultDiv.innerText = "업데이트 오류: " + error.message;
+            }
+        });
+
+        // ================================
+        // 학번 찾기 섹션
+        document.getElementById("findStudentIdBtn").addEventListener("click", async () => {
+            const studentName = document.getElementById("findStudentName").value.trim();
+            const findResultDiv = document.getElementById("findStudentResult");
+
+            if (!studentName) {
+                findResultDiv.innerText = "학생 이름을 입력해주세요.";
+                return;
+            }
+
+            findResultDiv.innerText = "학번 조회 중...";
+            const resultJson = { studentName: studentName };
+            try {
+                const response = await fetch("/api/users/finduserid", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(resultJson)
+                });
+
+                if (!response.ok) {
+                    throw new Error("서버 응답 오류: " + response.status);
+                }
+
+                const data = await response.json();
+                if (data.status === 200) {
+                    findResultDiv.innerText = "학생 ID: " + data.result;
+                } else {
+                    findResultDiv.innerText = "조회 실패: " + data.result;
+                }
+            } catch (error) {
+                console.error("학번 조회 오류:", error);
+                findResultDiv.innerText = "조회 오류: " + error.message;
+            }
+        });
+
+        // ================================
+        // 학생 조회 섹션 (오른쪽 칼럼)
+        document.getElementById("findUserDataBtn").addEventListener("click", async () => {
+            const studentId = document.getElementById("searchStudentId").value.trim();
+            const studentName = document.getElementById("searchStudentName").value.trim();
+            const studentDataDiv = document.getElementById("studentDataResult");
+
+            if (!studentId || !studentName) {
+                studentDataDiv.innerText = "학번과 학생 이름을 모두 입력해주세요.";
+                return;
+            }
+
+            studentDataDiv.innerText = "조회 진행 중...";
+
+            // 요청 본문에 학번과 이름 모두 포함
+            const requestBody = { studentId: studentId, studentName: studentName };
+            try {
+                const response = await fetch("/api/amount/userdata", {
+                    method: "GET",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (!response.ok) {
+                    throw new Error("서버 응답 오류: " + response.status);
+                }
+
+                const data = await response.json();
+                if (data.status === 200) {
+                    let html = `<p><strong>학생 이름:</strong> ${data.result.name}</p>`;
+                    html += `<p><strong>학번:</strong> ${data.result.studentId}</p>`;
+                    html += `<h3>입금 내역</h3>`;
+                    if (data.result.deposits && data.result.deposits.length > 0) {
+                        html += `<ul>`;
+                        data.result.deposits.forEach(deposit => {
+                            html += `<li>${deposit.depositType}: ${deposit.amount}</li>`;
+                        });
+                        html += `</ul>`;
+                    } else {
+                        html += `<p>입금 내역이 없습니다.</p>`;
+                    }
+                    studentDataDiv.innerHTML = html;
+                } else {
+                    studentDataDiv.innerText = "조회 실패: " + data.result;
+                }
+            } catch (error) {
+                console.error("학생 조회 오류:", error);
+                studentDataDiv.innerText = "조회 오류: " + error.message;
+            }
+        });
+
+        // ================================
+        // 엑셀 다운로드 섹션 (오른쪽 칼럼 하단)
+        document.getElementById("downloadExcelBtn").addEventListener("click", async () => {
+            const depositType = document.getElementById("downloadDepositType").value.trim();
+            const downloadStatusDiv = document.getElementById("downloadStatus");
+            if (!depositType) {
+                downloadStatusDiv.innerText = "입금 내역명을 입력해주세요.";
+                return;
+            }
+            downloadStatusDiv.innerText = "다운로드 진행 중...";
+            try {
+                const url = "/api/amount/download?amountType=" + encodeURIComponent(depositType);
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error("서버 응답 오류: " + response.status);
+                }
+                const blob = await response.blob();
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = downloadUrl;
+                a.download = depositType + "_deposit.xlsx";
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(downloadUrl);
+                downloadStatusDiv.innerText = "다운로드 완료!";
+            } catch (error) {
+                console.error("다운로드 오류:", error);
+                downloadStatusDiv.innerText = "다운로드 오류: " + error.message;
+            }
+        });
+    });
+</script>
+</body>
+</html>

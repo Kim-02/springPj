@@ -1,7 +1,6 @@
 package com.dasolsystem.core.deposit.service;
 
 
-import com.dasolsystem.config.excption.AuthFailException;
 import com.dasolsystem.config.excption.DBFaillException;
 import com.dasolsystem.core.auth.user.repository.UserRepository;
 import com.dasolsystem.core.deposit.dto.DepositResultDto;
@@ -14,18 +13,15 @@ import com.dasolsystem.core.entity.Users;
 import com.dasolsystem.core.enums.ApiState;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.math3.random.HaltonSequenceGenerator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -39,13 +35,16 @@ public class DepositServiceImpl implements DepositService {
 
     @Transactional
     public DepositUsersResponseDto<Object> updateDeposit(DepositUsersRequestDto requestDto) throws IOException {
+        log.info("update deposit");
         List<Deposit> newDeposits = new ArrayList<>();
         List<Map<String, Integer>> noneFindUsers = new ArrayList<>();
         Map<String, List<String>> duplicateUsers = new HashMap<>();
-
+        log.info(""+requestDto.getFile().getName());
+        log.info(""+requestDto.getSelectAmount());
         try (Workbook workbook = new XSSFWorkbook(requestDto.getFile().getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0);
-
+            log.info("workbook sheet name: {}", sheet.getSheetName());
+            log.info("workbook sheet number: {}", sheet.getPhysicalNumberOfRows());
             for (Row row : sheet) {
                 if (row.getRowNum() == 0) {
                     continue;
@@ -70,6 +69,7 @@ public class DepositServiceImpl implements DepositService {
                                     .amount(amount)
                                     .depositedAt(LocalDateTime.now())
                                     .build();
+                            log.info("save deposit: {}", deposit.getId());
                             newDeposits.add(deposit);
                         } else {
                             log.info("exist deposit: user={}, depositType={}, amount={}", user.getName(), depositType, amount);
@@ -102,26 +102,35 @@ public class DepositServiceImpl implements DepositService {
         }
     }
     @Transactional
-    public String updatePersonalDeposit(String studentId, String depositType, Integer amount ){
-        userRepository.findByStudentId(studentId).ifPresentOrElse(
-                users -> {
-                    if(Objects.equals(depositType, "학생회비") && !users.getPaidUser()){
-                        users.setPaidUser(true);
-                    }
-                    Deposit deposit = Deposit.builder()
-                            .users(users)
-                            .depositType(depositType)
-                            .amount(amount)
-                            .depositedAt(LocalDateTime.now())
-                            .build();
-                    depositRepository.save(deposit);
-                },
-                () -> {
-                    throw new DBFaillException(ApiState.ERROR_502, "None fine user");
-                }
-        );
-        return "success";
+    public String updatePersonalDeposit(String studentId, String depositType, Integer amount) {
+        // 사용자가 존재하는지 조회
+        Users user = userRepository.findByStudentId(studentId)
+                .orElseThrow(() -> new DBFaillException(ApiState.ERROR_502, "None find user"));
+
+        // 동일한 depositType과 amount를 가진 입금 내역이 이미 있는지 확인
+        Optional<Deposit> existingDeposit = depositRepository.findByUsersAndDepositTypeAndAmount(user, depositType, amount);
+        if (existingDeposit.isPresent()) {
+            // 이미 존재하는 경우, 해당 금액 정보를 반환
+            return "exist amount: " + existingDeposit.get().getAmount();
+        }
+
+        // "학생회비" 항목의 경우, 미납 상태이면 paidUser를 true로 변경
+        if (Objects.equals(depositType, "학생회비") && !user.getPaidUser()) {
+            user.setPaidUser(true);
+        }
+
+        // 새로운 Deposit 객체 생성 및 저장
+        Deposit deposit = Deposit.builder()
+                .users(user)
+                .depositType(depositType)
+                .amount(amount)
+                .depositedAt(LocalDateTime.now())
+                .build();
+        depositRepository.save(deposit);
+
+        return "success "+deposit.getUsers().getName();
     }
+
     @Transactional(readOnly = true)
     public List<DepositUsersDto> findDepositUsers(String depositType) {
         List<Users> usersList = depositRepository.findUsersByDepositType(depositType);
