@@ -361,10 +361,10 @@
             studentDataDiv.innerText = "조회 진행 중...";
 
             // 요청 본문에 학번과 이름 모두 포함
-            const requestBody = { studentId: studentId, studentName: studentName };
+            const requestBody = { studentId: studentId, name: studentName };
             try {
-                const response = await fetch("/api/amount/userdata", {
-                    method: "GET",
+                const response = await fetch("/api/users/userdata", {
+                    method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(requestBody)
                 });

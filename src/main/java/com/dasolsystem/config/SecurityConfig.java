@@ -88,6 +88,7 @@ public class SecurityConfig {
                         "/api/users/userdata",
                         "/api/users/deleteuser",
                         "/api/amount/download",
+                        "/api/amount/userdata",
                         "/api/amount/personal/update",
                         "/api/users/updateuser",
                         "/api/users/personal_upload",
