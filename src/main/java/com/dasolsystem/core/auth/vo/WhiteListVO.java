@@ -35,6 +35,8 @@ public class WhiteListVO {
             "/api/users/updateuser",
             "/api/users/personal_upload",
             "/api/users/finduserid",
-            "/api/amount/userdata"
+            "/api/amount/userdata",
+            "/api/amount/refund",
+            "/api/expend/update"
     };
 }

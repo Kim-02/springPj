@@ -1,10 +1,7 @@
 package com.dasolsystem.core.deposit.controller;
 
 import com.dasolsystem.config.excption.DBFaillException;
-import com.dasolsystem.core.deposit.dto.DepositPersonalUpdateDto;
-import com.dasolsystem.core.deposit.dto.DepositUsersDto;
-import com.dasolsystem.core.deposit.dto.DepositUsersRequestDto;
-import com.dasolsystem.core.deposit.dto.DepositUsersResponseDto;
+import com.dasolsystem.core.deposit.dto.*;
 import com.dasolsystem.core.deposit.service.DepositService;
 import com.dasolsystem.core.entity.Users;
 import com.dasolsystem.core.handler.ResponseJson;
@@ -78,6 +75,28 @@ public class DepositController {
                             .message("success")
                             .result(result)
                     .build()
+            );
+        }catch (DBFaillException e){
+            return ResponseEntity.ok(
+                    ResponseJson.builder()
+                            .status(e.getCode())
+                            .message("error")
+                            .result(e.getMessage())
+                            .build()
+            );
+        }
+    }
+
+    @PostMapping("/refund")
+    public ResponseEntity<ResponseJson<Object>> depositRefund(@RequestBody DepositRefundRequestDto requestDto){
+        try{
+            String result = depositService.depositRefund(requestDto);
+            return ResponseEntity.ok(
+                    ResponseJson.builder()
+                            .status(200)
+                            .message("success")
+                            .result(result)
+                            .build()
             );
         }catch (DBFaillException e){
             return ResponseEntity.ok(

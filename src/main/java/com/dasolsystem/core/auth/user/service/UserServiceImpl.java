@@ -45,6 +45,9 @@ public class UserServiceImpl implements UserService {
 
                 String name = getCellValueAsString(row.getCell(0));
                 String studentId = getCellValueAsString(row.getCell(1));
+                // 2번 셀: 전화번호, 3번 셀: 성별
+                String phone = getCellValueAsString(row.getCell(2));
+                String gender = getCellValueAsString(row.getCell(3));
 
                 // studentId가 없거나 이미 존재하는 경우 건너뛰기
                 if (studentId == null || studentId.isEmpty()) {
@@ -58,6 +61,8 @@ public class UserServiceImpl implements UserService {
                         .name(name)
                         .role(Role.User)
                         .studentId(studentId)
+                        .phone(phone)
+                        .gender(gender)
                         .build();
                 newUsers.add(user);
             }
@@ -70,6 +75,7 @@ public class UserServiceImpl implements UserService {
                 .result("success")
                 .build();
     }
+
     //변환 메서드
     private String getCellValueAsString(Cell cell) {
         if (cell == null) {

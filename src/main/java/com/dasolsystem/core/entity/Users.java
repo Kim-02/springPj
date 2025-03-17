@@ -34,6 +34,12 @@ public class Users {
     @Column(length = 100)
     private String password;
 
+    @Column(length = 15)
+    private String phone;
+
+    @Column(length = 5)
+    private String gender;
+
     @Column(length = 10)
     @Enumerated(EnumType.STRING)
     private Role role;

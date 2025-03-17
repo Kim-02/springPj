@@ -1,5 +1,6 @@
 package com.dasolsystem.core.deposit.service;
 
+import com.dasolsystem.core.deposit.dto.DepositRefundRequestDto;
 import com.dasolsystem.core.deposit.dto.DepositUsersDto;
 import com.dasolsystem.core.deposit.dto.DepositUsersRequestDto;
 import com.dasolsystem.core.deposit.dto.DepositUsersResponseDto;
@@ -13,4 +14,5 @@ public interface DepositService {
     ByteArrayOutputStream generateExcelFile(List<DepositUsersDto> depositUsers) throws IOException;
     List<DepositUsersDto> findDepositUsers(String depositType);
     String updatePersonalDeposit(String studentId, String depositType, Integer amount );
+    String depositRefund(DepositRefundRequestDto depositRefundRequestDto);
 }
