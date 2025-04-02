@@ -48,6 +48,8 @@ public class Users {
     @Column(columnDefinition = "CHAR(1) DEFAULT 'N'")
     private Boolean paidUser;
 
+    private String position;
+
     @JsonManagedReference
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Deposit> deposits = new ArrayList<>();
