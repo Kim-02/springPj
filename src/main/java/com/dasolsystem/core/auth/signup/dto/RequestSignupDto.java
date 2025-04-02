@@ -28,5 +28,7 @@ public class RequestSignupDto {
     @NotBlank(message = "비밀번호를 입력하세요")
     private String password;
 
+    private String phone;
+    private String gender;
     private Role role;
 }

@@ -30,6 +30,8 @@ public class SignupServiceImpl implements SignupService {
                 .studentId(request.getStudentId())
                 .name(request.getName())
                 .emailID(request.getEmail())
+                .phone(request.getPhone())
+                .gender(request.getGender())
                 .password(bCryptPasswordEncoder.encode(request.getPassword()))
                 .role(Role.User)
                 .build();
@@ -38,6 +40,5 @@ public class SignupServiceImpl implements SignupService {
                 .userName(savedUsers.getName())
                 .message("Signup Success")
                 .build();
-
     }
 }

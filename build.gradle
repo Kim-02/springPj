@@ -64,6 +64,10 @@ dependencies {
 	implementation 'org.apache.poi:poi:5.4.0'
 	implementation 'org.apache.poi:poi-ooxml:5.4.0'
 	implementation 'com.opencsv:opencsv:5.10'
+
+	//S3
+	implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.0.2")
+	implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
 }
 
 tasks.named('test') {

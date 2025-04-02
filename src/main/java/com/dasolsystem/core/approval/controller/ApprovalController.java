@@ -1,19 +1,42 @@
 package com.dasolsystem.core.approval.controller;
 
+import com.dasolsystem.config.excption.FileException;
+import com.dasolsystem.core.approval.dto.ApprovalPostDto;
+import com.dasolsystem.core.approval.service.ApprovalService;
 import com.dasolsystem.core.entity.Approval;
 import com.dasolsystem.core.handler.ResponseJson;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/approval")
 public class ApprovalController {
+    private final ApprovalService approvalService;
 
-//    @PostMapping("/post")
-//    public ResponseEntity<ResponseJson<Object>> post(@RequestBody Approval approval) {}
+    @PostMapping("/post")
+    public ResponseEntity<ResponseJson<Object>> post(@ModelAttribute ApprovalPostDto approvalPostDto) {
+        try{
+            Long returnId = approvalService.saveApprovePost(approvalPostDto);
+            return ResponseEntity.ok(
+                    ResponseJson.builder()
+                            .status(200)
+                            .message("success")
+                            .result(returnId)
+                            .build()
+            );
+        } catch (FileException | IOException e) {
+            return ResponseEntity.ok(
+                    ResponseJson.builder()
+                            .status(801)
+                            .message("file upload failed")
+                            .result("upload failed")
+                            .build()
+            );
+        }
+
+    }
 }

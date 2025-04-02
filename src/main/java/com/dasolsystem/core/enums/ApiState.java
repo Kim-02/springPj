@@ -13,7 +13,7 @@ public enum ApiState {
     //회원가입 에러
     ERROR_701(701), //Exist Users
 
-
+    ERROR_801(801), //fileupload error
 
     //로그인 에러
     ERROR_901(901), //

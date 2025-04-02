@@ -49,6 +49,9 @@ public class Approval {
     @Column(nullable = false,name="approvalcode")
     private String approvalCode;
 
+    @Column(name = "receipt_url") //영수증 처리를 위한 엔티티 필드
+    private String receiptUrl;
+
     @Convert(converter = BooleanToYNConverter.class)
     @Column(columnDefinition = "CHAR(1) DEFAULT 'N'")
     private Boolean approved;
