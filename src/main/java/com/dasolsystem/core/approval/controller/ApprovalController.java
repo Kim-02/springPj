@@ -14,6 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/approval")
 public class ApprovalController {
 
-    @PostMapping("/post")
-    public ResponseEntity<ResponseJson<Object>> post(@RequestBody Approval approval) {}
+//    @PostMapping("/post")
+//    public ResponseEntity<ResponseJson<Object>> post(@RequestBody Approval approval) {}
 }
