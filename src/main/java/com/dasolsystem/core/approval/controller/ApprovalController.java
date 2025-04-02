@@ -2,6 +2,7 @@ package com.dasolsystem.core.approval.controller;
 
 import com.dasolsystem.config.excption.FileException;
 import com.dasolsystem.core.approval.dto.ApprovalPostDto;
+import com.dasolsystem.core.approval.dto.ApprovalSummaryDto;
 import com.dasolsystem.core.approval.service.ApprovalService;
 import com.dasolsystem.core.entity.Approval;
 import com.dasolsystem.core.handler.ResponseJson;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,6 +36,29 @@ public class ApprovalController {
                             .status(801)
                             .message("file upload failed")
                             .result("upload failed")
+                            .build()
+            );
+        }
+
+    }
+
+    @GetMapping("/get")
+    public ResponseEntity<ResponseJson<Object>> getApprovalLists() {
+        try{
+            List<ApprovalSummaryDto> summaries = approvalService.getApprovalSummaries();
+            return ResponseEntity.ok(
+                    ResponseJson.builder()
+                            .status(200)
+                            .message("success")
+                            .result(summaries)
+                            .build()
+            );
+        }catch (Exception e){
+            return ResponseEntity.ok(
+                    ResponseJson.builder()
+                            .status(501)
+                            .message("error")
+                            .result(e.getMessage())
                             .build()
             );
         }

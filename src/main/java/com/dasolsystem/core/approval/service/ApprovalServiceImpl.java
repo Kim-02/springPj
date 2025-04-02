@@ -3,17 +3,22 @@ package com.dasolsystem.core.approval.service;
 import com.dasolsystem.config.S3Uploader;
 import com.dasolsystem.config.excption.FileException;
 import com.dasolsystem.core.approval.dto.ApprovalPostDto;
+import com.dasolsystem.core.approval.dto.ApprovalSummaryDto;
 import com.dasolsystem.core.approval.repository.ApprovalRepository;
 import com.dasolsystem.core.entity.Approval;
+import com.dasolsystem.core.entity.Users;
 import com.dasolsystem.core.enums.ApiState;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -54,5 +59,28 @@ public class ApprovalServiceImpl implements ApprovalService {
 
         approvalRepository.save(approval); // ✅ 저장
         return approval.getId();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ApprovalSummaryDto> getApprovalSummaries() {
+        return approvalRepository.findAll(Sort.by(Sort.Direction.ASC, "approvalDate"))
+                .stream()
+                .map(approval -> {
+                    List<String> approvers = approval.getApprovalUsers().stream()
+                            .map(Users::getName) // Users 엔티티에 getName()이 있다고 가정
+                            .toList();
+
+                    String status = Boolean.TRUE.equals(approval.getApproved()) ? "승인" : "기안중";
+
+                    return new ApprovalSummaryDto(
+                            approval.getApprovalDate(),
+                            approval.getDrafterName(),
+                            approvers.get(0),
+                            approval.getApprovalCode(),
+                            approval.getTitle(),
+                            status
+                    );
+                })
+                .collect(Collectors.toList());
     }
 }
