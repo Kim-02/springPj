@@ -31,14 +31,17 @@ public class Approval {
 
     @ManyToMany
     @JsonBackReference
-    @JoinColumn(name = "users_id",nullable = false)
-    @Column(name="approvaluser")
+    @JoinTable(
+            name = "approval_user",  // 중간 테이블의 이름
+            joinColumns = @JoinColumn(name = "approval_id"),  // 결재 테이블에서 참조하는 외래 키
+            inverseJoinColumns = @JoinColumn(name = "user_id")  // 사용자 테이블에서 참조하는 외래 키
+    )
     private List<Users> approvalUsers;
 
     @Column(nullable = false)
     private Integer deposit;
 
-    @Column(name="accountnumber",nullable = false)
+    @Column(name="accountNumber",nullable = false)
     private String accountNumber;
 
     @Column(nullable = false,columnDefinition = "CHAR(10) DEFAULT '학생회_흐름'")
@@ -46,10 +49,10 @@ public class Approval {
 
     private String description;
 
-    @Column(nullable = false,name="approvalcode")
+    @Column(nullable = false,name="approvalCode")
     private String approvalCode;
 
-    @Column(name = "receipt_url") //영수증 처리를 위한 엔티티 필드
+    @Column(name = "receiptUrl") //영수증 처리를 위한 엔티티 필드
     private String receiptUrl;
 
     @Convert(converter = BooleanToYNConverter.class)

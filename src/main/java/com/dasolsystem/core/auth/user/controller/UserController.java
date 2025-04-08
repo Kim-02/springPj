@@ -19,6 +19,7 @@ import java.io.IOException;
 public class UserController {
     private final UserService userService;
 
+    //파일을 통해 user을 추가하는 기능
     @PostMapping("/upload")
     public ResponseEntity<ResponseJson<?>> upload(@RequestParam("file") MultipartFile file) {
         try{

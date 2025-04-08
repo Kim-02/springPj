@@ -94,7 +94,8 @@ public class SecurityConfig {
                         "/api/users/personal_upload",
                         "/api/users/finduserid",
                         "/api/amount/refund",
-                        "/api/expend/update"
+                        "/api/expend/update",
+                        "/check_amount/findexpender"
                         ).permitAll()
                 .anyRequest().authenticated()
         );

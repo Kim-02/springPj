@@ -18,6 +18,7 @@ import java.util.List;
 public class ExpenditureController {
     private final ExpenditureService expenditureService;
 
+    //출금 내역 업데이트
     @PostMapping("/update")
     public ResponseEntity<ResponseJson<Object>> update(@ModelAttribute ExpenditureRequestDto expenditureRequestDto) {
         try{

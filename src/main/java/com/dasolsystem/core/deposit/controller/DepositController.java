@@ -22,7 +22,7 @@ import java.util.List;
 public class DepositController {
 
     private final DepositService depositService;
-
+    //입금 내역을 업데이트 하는 로직 파일, 업데이트 이름, 금액이 들어가면 업데이트가 진행된다.
     @PostMapping("/update")
     public ResponseEntity<ResponseJson<Object>> update(@ModelAttribute DepositUsersRequestDto requestDto) throws IOException {
         try{
@@ -47,6 +47,7 @@ public class DepositController {
 
     }
 
+    //타입 별로 deposit이 있는지 확인해서 명단 추출하는 용도
     @GetMapping("/download")
     public ResponseEntity<byte[]> downloadDepositExcel(@RequestParam("amountType") String depositType) throws IOException {
         // 데이터 조회
@@ -65,6 +66,7 @@ public class DepositController {
                 .body(excelStream.toByteArray());
     }
 
+    //개인 업데이트 로직
     @PostMapping("/personal/update")
     public ResponseEntity<ResponseJson<Object>> updatePersonal(@RequestBody DepositPersonalUpdateDto depositPersonalUpdateDto) {
         try{
@@ -87,6 +89,7 @@ public class DepositController {
         }
     }
 
+    //환불 관련 로직
     @PostMapping("/refund")
     public ResponseEntity<ResponseJson<Object>> depositRefund(@RequestBody DepositRefundRequestDto requestDto){
         try{
@@ -108,4 +111,6 @@ public class DepositController {
             );
         }
     }
+
+
 }
