@@ -9,4 +9,5 @@ import lombok.*;
 @Builder
 public class StudentIdDto {
     private String studentId;
+    private String extraUser;
 }

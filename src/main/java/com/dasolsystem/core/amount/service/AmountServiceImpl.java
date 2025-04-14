@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,15 +24,11 @@ public class AmountServiceImpl implements AmountService {
 
     @Transactional(readOnly = true)
     public List<AmountUsersResponseDto> checkFeeStatus(List<StudentIdDto> studentIdsDtoList, List<String> depositNames) {
-        log.info("checkFeeStatus: studentIdsDtoList={}", studentIdsDtoList);
-        log.info("checkFeeStatus: depositNames={}", depositNames);
         List<AmountUsersResponseDto> result = new ArrayList<>();
-
         // 학번에 해당하는 사용자 목록 조회
         List<Users> users = userRepository.findAllByStudentIdIn(
                 studentIdsDtoList.stream().map(StudentIdDto::getStudentId).collect(Collectors.toList())
         );
-        log.info("users count: {}", users.size());
         for (Users user : users) {
             // 입금내역이 목록에 있는지 확인
             for (String depositName : depositNames) {

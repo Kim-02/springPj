@@ -56,12 +56,13 @@ public class DepositServiceImpl implements DepositService {
 
                 if (amount.equals(requestDto.getSelectAmount())) {
                     List<Users> usersList = userRepository.findByName(name);
-                    if(usersList.size() == 1) {
+                    if (usersList.size() == 1) {
                         // 단일 사용자 처리
                         Users user = usersList.get(0);
-                        boolean exists = depositRepository.findByUsersAndDepositTypeAndAmount(user, depositType, amount).isPresent();
-                        if(!exists){
-                            if(Objects.equals(depositType, "학생회비") && !user.getPaidUser()){
+                        List<Deposit> flag = depositRepository.findByUsersAndDepositTypeAndAmount(user, depositType, amount);
+                        boolean exists = !flag.isEmpty();
+                        if (!exists) {
+                            if (Objects.equals(depositType, "학생회비") && !user.getPaidUser()) {
                                 user.setPaidUser(true);
                             }
                             Deposit deposit = Deposit.builder()
@@ -75,11 +76,13 @@ public class DepositServiceImpl implements DepositService {
                         } else {
                             log.info("exist deposit: user={}, depositType={}, amount={}", user.getName(), depositType, amount);
                         }
-                    } else if (usersList.size() > 1){ // 동명이인 처리
-                        for(Users user : usersList){
+                    } else if (usersList.size() > 1) { // 동명이인 처리
+                        log.warn("동명이인 발생: 이름={}에 대해 여러 명이 조회되었습니다.", name);
+                        for (Users user : usersList) {
                             duplicateUsers.computeIfAbsent(user.getName(), k -> new ArrayList<>()).add(user.getStudentId());
                         }
                     } else {
+                        // 사용자 미발견 처리
                         Map<String, Integer> userNotFoundMap = new HashMap<>();
                         userNotFoundMap.put(name, amount);
                         noneFindUsers.add(userNotFoundMap);
@@ -109,10 +112,10 @@ public class DepositServiceImpl implements DepositService {
                 .orElseThrow(() -> new DBFaillException(ApiState.ERROR_502, "None find user"));
 
         // 동일한 depositType과 amount를 가진 입금 내역이 이미 있는지 확인
-        Optional<Deposit> existingDeposit = depositRepository.findByUsersAndDepositTypeAndAmount(user, depositType, amount);
-        if (existingDeposit.isPresent()) {
+        List<Deposit> existingDeposit = depositRepository.findByUsersAndDepositTypeAndAmount(user, depositType, amount);
+        if (!existingDeposit.isEmpty()) {
             // 이미 존재하는 경우, 해당 금액 정보를 반환
-            return "exist amount: " + existingDeposit.get().getAmount();
+            return "exist amount: " + existingDeposit.get(0).getAmount();
         }
 
         // "학생회비" 항목의 경우, 미납 상태이면 paidUser를 true로 변경

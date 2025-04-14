@@ -13,4 +13,5 @@ public class AmountUsersResponseDto {
     private Integer amount;
     private String paidUser;
     private String depositName;
+    private String extraSize;
 }

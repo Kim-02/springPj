@@ -36,7 +36,7 @@ public class AmountController {
         List<AmountUsersResponseDto> results = amountService.checkFeeStatus(studentIdsDtoList, requestDto.getDepositNames());
 
         // 결과를 엑셀로 생성
-        ByteArrayOutputStream excelOutput = excelService.generateResultExcel(results);
+        ByteArrayOutputStream excelOutput = excelService.generateResultExcel(results,studentIdsDtoList);
 
         // 응답 헤더 설정 (파일 다운로드)
         HttpHeaders headers = new HttpHeaders();
