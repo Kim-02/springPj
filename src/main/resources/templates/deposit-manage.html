@@ -127,7 +127,7 @@
             formData.append("selectAmount", depositAmount);
 
             try {
-                const response = await fetch("/api/amount/update", {
+                const response = await fetch("/api/deposit/file/update", {
                     method: "POST",
                     body: formData
                 });

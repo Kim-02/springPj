@@ -28,10 +28,7 @@ public class PostController {
     private final PostService postService;
     private final JwtBuilder jwtBuilder;
 
-    
-    
-
-    @PostMapping("/create")
+    @PostMapping("/post")
     public ResponseEntity<ResponseJson<Object>> create(@RequestBody PostRequestDto requestDto,
                                                        HttpServletRequest servletRequest) {
 

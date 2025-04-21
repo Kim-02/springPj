@@ -22,12 +22,12 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/check_amount")
+@RequestMapping("/api/amount")
 public class AmountController {
     private final ExcelService excelService;
     private final AmountService amountService;
     //학번으로 입금 여부를 찾는 로직
-    @PostMapping("/findexpender")
+    @PostMapping("/download/amount_check")
     public ResponseEntity<byte[]> checkStudentFeeStatus(@ModelAttribute AmountCheckRequestDto requestDto) throws IOException {
         // 엑셀 파일에서 학번을 DTO로 추출
         List<StudentIdDto> studentIdsDtoList = excelService.extractStudentIdsFromExcel(requestDto.getFile());

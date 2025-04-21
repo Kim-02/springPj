@@ -95,7 +95,11 @@ public class SecurityConfig {
                         "/api/users/finduserid",
                         "/api/amount/refund",
                         "/api/expend/update",
-                        "/check_amount/findexpender"
+                        "/check_amount/findexpender",
+
+                        "/api/deposit/file/update",
+                        "/api/deposit/personal/update",
+                        "/api/amount/download/amount_check"
                         ).permitAll()
                 .anyRequest().authenticated()
         );

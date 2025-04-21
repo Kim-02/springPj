@@ -16,7 +16,7 @@ import static com.dasolsystem.core.jwt.filter.JwtRequestFilter.BEARER_PREFIX;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/auth")
 @Slf4j
 public class logoutController {
 

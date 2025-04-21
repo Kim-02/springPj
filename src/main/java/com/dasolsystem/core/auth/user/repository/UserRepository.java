@@ -20,8 +20,8 @@ public interface UserRepository extends JpaRepository<Users, Long> {
     Users findByEmailID(String emailID);
 
     @Modifying
-    @Query("UPDATE Users u SET u.role = :role WHERE u.emailID = :emailID")
-    int updateUserRole(@Param("emailID") String emailID, @Param("role") Role role);
+    @Query("UPDATE Users u SET u.role = :role WHERE u.studentId = :studentId")
+    int updateUserRole(@Param("studentId") String studentId, @Param("role") Role role);
 
 //    @Query("SELECT u FROM Users u LEFT JOIN FETCH u.deposits WHERE u.studentId = :studentId AND u.name = :name")
     Optional<Users> findByStudentIdAndName(@Param("studentId") String studentId, @Param("name") String name);

@@ -33,7 +33,7 @@ public class ExcelService {
             if (row.getRowNum() == 0) continue;  // 첫 번째 행 건너뛰기 (헤더)
 
             // 첫 번째 열이 학번이라고 가정
-            Cell cell_1 = row.getCell(1); //학번
+            Cell cell_1 = row.getCell(0); //학번
             String studentId = getCellValueAsString(cell_1);  // 셀 값을 문자열로 변환
             if (studentId != null && !studentId.isEmpty()) {
                 studentIdsDtoList.add(StudentIdDto.builder()

@@ -10,6 +10,6 @@ import lombok.*;
 @Setter
 public class StudentUpdateRequestDto {
     private Role role;
-    private String emailID;
+    private String studentId;
 
 }

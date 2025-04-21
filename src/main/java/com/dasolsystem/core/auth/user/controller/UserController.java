@@ -20,7 +20,7 @@ public class UserController {
     private final UserService userService;
 
     //파일을 통해 user을 추가하는 기능
-    @PostMapping("/upload")
+    @PostMapping("/file/upload")
     public ResponseEntity<ResponseJson<?>> upload(@RequestParam("file") MultipartFile file) {
         try{
             StudentSaveResponseDto responseDto = userService.saveStudent(file);
@@ -42,7 +42,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/personal_upload")
+    @PostMapping("/personal/upload")
     public ResponseEntity<ResponseJson<?>> uploadPersonal(@RequestBody StudentSaveRequestDto studentSaveRequestDto) {
         try{
             return ResponseEntity.ok(
@@ -62,7 +62,7 @@ public class UserController {
         }
 
     }
-    @PostMapping("/userdata")
+    @PostMapping("/personal/find/data")
     public ResponseEntity<ResponseJson<?>> getUserData(@RequestBody StudentSearchRequestDto requestDto) {
         try{
             StudentSearchResponseDto responseDto = userService.searchStudent(requestDto);
@@ -85,7 +85,7 @@ public class UserController {
         
 
     }
-    @PostMapping("/finduserid")
+    @PostMapping("/personal/find/id")
     public ResponseEntity<ResponseJson<?>> getUserId(@RequestBody StudentNameDto dto) {
         String studentId = userService.findStudentId(dto.getStudentName());
         return ResponseEntity.ok(
@@ -96,7 +96,7 @@ public class UserController {
                 .build()
         );
     }
-    @DeleteMapping("/deleteuser")
+    @DeleteMapping("/personal/delete/user")
     public ResponseEntity<ResponseJson<Object>> deleteUser(@RequestBody StudentSearchRequestDto requestDto) {
         try{
             String result = userService.deleteStudent(requestDto);
@@ -117,10 +117,10 @@ public class UserController {
             );
         }
     }
-    @PostMapping("/updateuser")
+    @PatchMapping("/personal/update/role")
     public ResponseEntity<ResponseJson<?>> updateUser(@RequestBody StudentUpdateRequestDto studentUpdateRequestDto) {
         try{
-            String result = userService.updateStudentRoles(studentUpdateRequestDto.getEmailID(),studentUpdateRequestDto.getRole());
+            String result = userService.updateStudentRoles(studentUpdateRequestDto.getStudentId(),studentUpdateRequestDto.getRole());
             return ResponseEntity.ok(
                     ResponseJson.builder()
                             .status(200)

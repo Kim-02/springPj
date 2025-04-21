@@ -138,8 +138,8 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Description("API요청을 보내기 위한 메서드 외부사용 x")
-    public String updateStudentRoles(String emailID, Role role) {
-        int affectedRows = userRepository.updateUserRole(emailID,role);
+    public String updateStudentRoles(String studentId, Role role) {
+        int affectedRows = userRepository.updateUserRole(studentId,role);
         if(affectedRows == 0){
             throw new DBFaillException(ApiState.ERROR_502,"No such user");
         }

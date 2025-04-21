@@ -17,13 +17,13 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/amount")
+@RequestMapping("/api/deposit")
 @RequiredArgsConstructor
 public class DepositController {
 
     private final DepositService depositService;
     //입금 내역을 업데이트 하는 로직 파일, 업데이트 이름, 금액이 들어가면 업데이트가 진행된다.
-    @PostMapping("/update")
+    @PostMapping("/file/update")
     public ResponseEntity<ResponseJson<Object>> update(@ModelAttribute DepositUsersRequestDto requestDto) throws IOException {
         try{
             DepositUsersResponseDto<?> res = depositService.updateDeposit(requestDto);
@@ -48,7 +48,7 @@ public class DepositController {
     }
 
     //타입 별로 deposit이 있는지 확인해서 명단 추출하는 용도
-    @GetMapping("/download")
+    @PostMapping("/find_deposit/download")
     public ResponseEntity<byte[]> downloadDepositExcel(@RequestParam("amountType") String depositType) throws IOException {
         // 데이터 조회
         List<DepositUsersDto> depositUsers = depositService.findDepositUsers(depositType);
@@ -90,7 +90,7 @@ public class DepositController {
     }
 
     //환불 관련 로직
-    @PostMapping("/refund")
+    @PostMapping("/personal/refund")
     public ResponseEntity<ResponseJson<Object>> depositRefund(@RequestBody DepositRefundRequestDto requestDto){
         try{
             String result = depositService.depositRefund(requestDto);
