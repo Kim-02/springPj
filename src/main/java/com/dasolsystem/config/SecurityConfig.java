@@ -99,7 +99,8 @@ public class SecurityConfig {
 
                         "/api/deposit/file/update",
                         "/api/deposit/personal/update",
-                        "/api/amount/download/amount_check"
+                        "/api/amount/download/amount_check",
+                        "/api/users/personal/find/data"
                         ).permitAll()
                 .anyRequest().authenticated()
         );
