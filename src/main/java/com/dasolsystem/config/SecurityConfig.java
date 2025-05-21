@@ -66,41 +66,23 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(
+                        "/",
+                        "/api/auth/logout",
                         "/api/auth/login",
                         "/api/auth/signup",
-                        "/",
-                        "/api/press",
-                        "/api/likes",
-                        "/test/**",
-
-                        "/index.html",
-                        "/deposit"
-
-                        ,"/api/logout"
-                        ,"/favicon.ico",
-                        "/test/print",
-
-
-
-                        "/api/users/upload",
-                        "/api/amount/update",
-                        "/api/users/personal_upload",
-                        "/api/users/userdata",
-                        "/api/users/deleteuser",
-                        "/api/amount/download",
-                        "/api/amount/userdata",
-                        "/api/amount/personal/update",
-                        "/api/users/updateuser",
-                        "/api/users/personal_upload",
-                        "/api/users/finduserid",
-                        "/api/amount/refund",
-                        "/api/expend/update",
-                        "/check_amount/findexpender",
-
-                        "/api/deposit/file/update",
+                        "/api/users/file/upload",
+                        "/api/users/personal/upload",
+                        "/api/users/personal/find/id",
+                        "/api/users/personal/find/data",
                         "/api/deposit/personal/update",
+                        "/api/users/personal/delete/user",
+                        "/api/users/personal/update/role",
+                        "/api/deposit/file/update",
+                        "/api/deposit/find_deposit/download",
+                        "/api/deposit/personal/refund",
+                        "/api/expend/post",
                         "/api/amount/download/amount_check",
-                        "/api/users/personal/find/data"
+                        "/api/announce/post"
                         ).permitAll()
                 .anyRequest().authenticated()
         );
