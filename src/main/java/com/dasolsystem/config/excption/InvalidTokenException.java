@@ -2,23 +2,23 @@ package com.dasolsystem.config.excption;
 
 import com.dasolsystem.core.enums.ApiState;
 
-public class FileException extends RuntimeException {
+public class InvalidTokenException extends RuntimeException {
     Integer code;
     String message;
 
-    public FileException(ApiState codeEnum) {
+    public InvalidTokenException(ApiState codeEnum) {
         super();
         this.code = codeEnum.getNum();
         this.message = "error." + this.code;
     }
 
-    public FileException(ApiState codeEnum,String message) {
+    public InvalidTokenException(ApiState codeEnum,String message) {
         super();
         this.code = codeEnum.getNum();
         this.message = "error." + message;
     }
 
-    public FileException(Integer codeEnum) {
+    public InvalidTokenException(Integer codeEnum) {
         super();
         this.code = codeEnum;
         this.message = "error." + this.code;

@@ -1,7 +1,7 @@
 package com.dasolsystem.core.auth.signin.controller;
 
 import com.dasolsystem.config.excption.AuthFailException;
-import com.dasolsystem.core.auth.signin.dto.RequestSignincheckDto;
+import com.dasolsystem.core.auth.signin.dto.RequestSigninCheckDto;
 import com.dasolsystem.core.auth.signin.service.signinService;
 import com.dasolsystem.core.handler.ResponseJson;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,11 +23,11 @@ public class SignInController {
     private final signinService signinService;
     @PostMapping("/login")
     public ResponseEntity<ResponseJson<Object>> signin(
-            @RequestBody RequestSignincheckDto signincheckDto,
+            @RequestBody RequestSigninCheckDto signinCheckDto,
             HttpServletResponse res
             ){
         try{
-            Map<String,String> headers = signinService.login(signincheckDto);
+            Map<String,String> headers = signinService.login(signinCheckDto);
             res.setStatus(HttpServletResponse.SC_OK);
             res.setHeader("Content-Type",headers.get("Content-Type"));
             res.setHeader("Authorization",headers.get("Authorization"));

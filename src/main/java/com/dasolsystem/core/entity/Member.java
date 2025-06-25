@@ -32,7 +32,7 @@ public class Member {
     private Gender gender;
 
     @Convert(converter = BooleanToYNConverter.class)
-    @Column(name = "paid_user", columnDefinition = "ENUM('Y','N') DEFAULT 'N'", nullable = false)
+    @Column(name = "paid_user", columnDefinition = "ENUM('Y','N') DEFAULT 'N'", nullable = false,insertable=false)
     private Boolean paidUser;
 
     @Column(name = "email", length = 50, nullable = false, unique = true)

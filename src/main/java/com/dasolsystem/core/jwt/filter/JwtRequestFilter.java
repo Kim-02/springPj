@@ -5,7 +5,6 @@ import com.dasolsystem.core.auth.vo.WhiteListVO;
 import com.dasolsystem.core.enums.JwtCode;
 import com.dasolsystem.core.auth.userdetail.service.CustomUserDetailsService;
 import com.dasolsystem.core.enums.ApiState;
-import com.dasolsystem.core.jwt.dto.TokenIdAccesserDto;
 import com.dasolsystem.core.jwt.filter.dto.JwtTokenStrogeDto;
 import com.dasolsystem.core.jwt.util.JwtBuilder;
 import jakarta.servlet.FilterChain;

@@ -1,7 +1,7 @@
 package com.dasolsystem.core.auth.signin.service;
 
 import com.dasolsystem.config.excption.AuthFailException;
-import com.dasolsystem.core.auth.signin.dto.RequestSignincheckDto;
+import com.dasolsystem.core.auth.signin.dto.RequestSigninCheckDto;
 import com.dasolsystem.core.auth.signin.dto.ResponseSignincheckDto;
 import com.dasolsystem.core.auth.user.repository.UserRepository;
 import com.dasolsystem.core.entity.Member;
@@ -22,13 +22,13 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 public class signinServiceImpl implements signinService {
-    private final UserRepository repo;
+    private final UserRepository userRepository;
     private final JwtBuilder jwtBuilder;
     private final PasswordEncoder passwordEncoder;
 
 
     @Description("로그인")
-    public Map<String, String> login(RequestSignincheckDto dto)  {
+    public Map<String, String> login(RequestSigninCheckDto dto)  {
         String jwtToken;
         Long refreshTokenId;
         ResponseSignincheckDto responseDto = loginCheck(dto);
@@ -54,10 +54,10 @@ public class signinServiceImpl implements signinService {
     }
 
     @Description("로그인 check")
-    public ResponseSignincheckDto loginCheck(RequestSignincheckDto dto) {
-        String id = dto.getId();
+    public ResponseSignincheckDto loginCheck(RequestSigninCheckDto dto) {
+        String id = dto.getStudent_id();
         String pw = dto.getPw();
-        Member valid = repo.findByEmailID(id);
+        Member valid = userRepository.findByStudentId(id);
         if(valid == null){
             throw new UsernameNotFoundException("Not Found id");
         }
@@ -66,14 +66,11 @@ public class signinServiceImpl implements signinService {
         }
         return ResponseSignincheckDto.builder()
                 .state(ApiState.OK)
-                .emailId(valid.getEmailID())
-                .role(valid.getRole())
+                .studentId(valid.getStudentId())
+                .roleCode(valid.getRole().getCode())
                 .message("login success")
                 .name(valid.getName())
                 .build();
-
-
-
     }
 
 }

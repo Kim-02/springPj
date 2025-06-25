@@ -36,7 +36,7 @@ public class SignUpController {
         }catch (AuthFailException e){
             return ResponseEntity.ok(
                     ResponseJson.builder()
-                            .status(701)
+                            .status(e.getCode())
                             .message("Error.")
                             .result("Error."+e.getMessage())
                             .build()

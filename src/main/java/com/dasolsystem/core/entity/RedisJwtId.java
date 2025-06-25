@@ -21,9 +21,10 @@ public class RedisJwtId {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String jti;
     private String jwtToken;
 
     @TimeToLive
-    private Long expiration;
+    private Long ttl;
 
 }

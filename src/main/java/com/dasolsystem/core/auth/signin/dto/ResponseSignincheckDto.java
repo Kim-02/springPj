@@ -1,5 +1,6 @@
 package com.dasolsystem.core.auth.signin.dto;
 
+import com.dasolsystem.core.entity.Role;
 import com.dasolsystem.core.enums.ApiState;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,8 +13,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ResponseSignincheckDto {
     private ApiState state;
-    private String emailId;
+    private String studentId;
     private String name;
     private String message;
-    private Role role;
+    private String roleCode;
 }

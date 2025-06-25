@@ -1,7 +1,8 @@
 package com.dasolsystem.core.auth.signup.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
+import com.dasolsystem.core.entity.Role;
+import com.dasolsystem.core.enums.Gender;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,22 +13,28 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class RequestSignupDto {
+    @NotNull
+    @Size(min=10)
+    private String student_id;
 
-
-    @NotBlank(message = "학번을 입력하세요")
-    private String studentId;
-
-    @NotBlank(message = "이름을 입력하세요")
-    private String name;
-
-    @NotBlank(message = "아이디를 입력하세요")
-    @Email(message = "이메일 형식을 확인하세요")
-    private String email;
-
-    @NotBlank(message = "비밀번호를 입력하세요")
+    @NotNull
     private String password;
 
+    @NotNull
+    @Pattern(regexp = "^[MF]$") //정규식으로 정의
+    @Size(min=1)
+    private Gender gender;
+
+    @NotNull
+    @Size(max=50)
+    private String email;
+
+    @NotNull
+    @Size(min=20)
     private String phone;
-    private String gender;
-    private Role role;
+
+    @NotNull
+    @Size(max=20)
+    private String name;
+
 }

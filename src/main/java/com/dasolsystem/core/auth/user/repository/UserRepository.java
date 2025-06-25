@@ -1,6 +1,7 @@
 package com.dasolsystem.core.auth.user.repository;
 
 import com.dasolsystem.core.entity.Member;
+import com.dasolsystem.core.entity.Role;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -17,7 +18,7 @@ public interface UserRepository extends JpaRepository<Member, Long> {
     List<Member> findByName(String name);
 
     Member findByEmailID(String emailID);
-
+    Member findByStudentId(String StudentId);
     @Modifying
     @Query("UPDATE Member u SET u.role = :role WHERE u.studentId = :studentId")
     int updateUserRole(@Param("studentId") String studentId, @Param("role") Role role);

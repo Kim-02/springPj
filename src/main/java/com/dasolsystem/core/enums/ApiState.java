@@ -7,9 +7,12 @@ public enum ApiState {
     OK(200),
 
     //인증 에러
+    ERROR_600(600),//인증관련 오류
     ERROR_601(601),
     ERROR_602(602), //RefreshToken만료
-
+    ERROR_603(603), //리프레시 토큰 식별자 불일치
+    ERROR_604(604), //새 Refresh 토큰 생성 실패
+    ERROR_605(605), //토큰 불일치
     //회원가입 에러
     ERROR_701(701), //Exist Users
 
