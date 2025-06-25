@@ -3,7 +3,7 @@ package com.dasolsystem.core.auth.userdetail.service;
 import com.dasolsystem.core.auth.user.repository.UserRepository;
 import com.dasolsystem.core.auth.userdetail.controller.CustomUserDetailsController;
 import com.dasolsystem.core.auth.userdetail.dto.UserinfoDto;
-import com.dasolsystem.core.entity.Users;
+import com.dasolsystem.core.entity.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -17,7 +17,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
     private final UserRepository userRepository;
     @Override
     public UserDetails loadUserByUsername(String emailId) throws UsernameNotFoundException {
-        Users users = userRepository.findByEmailID(emailId);
+        Member users = userRepository.findByEmailID(emailId);
         if(users == null) {
             throw new UsernameNotFoundException("Cannot find user with email id " + emailId);
         }

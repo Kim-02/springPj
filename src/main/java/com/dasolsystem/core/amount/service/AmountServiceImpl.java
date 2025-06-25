@@ -2,8 +2,7 @@ package com.dasolsystem.core.amount.service;
 
 import com.dasolsystem.core.amount.dto.AmountUsersResponseDto;
 import com.dasolsystem.core.auth.user.repository.UserRepository;
-import com.dasolsystem.core.deposit.dto.DepositUsersDto;
-import com.dasolsystem.core.entity.Users;
+import com.dasolsystem.core.entity.Member;
 import com.dasolsystem.core.file.dto.StudentIdDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,10 +24,10 @@ public class AmountServiceImpl implements AmountService {
     public List<AmountUsersResponseDto> checkFeeStatus(List<StudentIdDto> studentIdsDtoList, List<String> depositNames) {
         List<AmountUsersResponseDto> result = new ArrayList<>();
         // 학번에 해당하는 사용자 목록 조회
-        List<Users> users = userRepository.findAllByStudentIdIn(
+        List<Member> users = userRepository.findAllByStudentIdIn(
                 studentIdsDtoList.stream().map(StudentIdDto::getStudentId).collect(Collectors.toList())
         );
-        for (Users user : users) {
+        for (Member user : users) {
             // 입금내역이 목록에 있는지 확인
             for (String depositName : depositNames) {
                 boolean hasDeposit = user.getDeposits().stream()

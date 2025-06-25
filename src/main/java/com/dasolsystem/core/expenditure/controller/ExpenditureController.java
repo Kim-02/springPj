@@ -1,7 +1,6 @@
 package com.dasolsystem.core.expenditure.controller;
 
 
-import com.dasolsystem.core.entity.Expenditure;
 import com.dasolsystem.core.expenditure.dto.ExpenditureRequestDto;
 import com.dasolsystem.core.expenditure.dto.ExpenditureResponseDto;
 import com.dasolsystem.core.expenditure.service.ExpenditureService;

@@ -4,7 +4,6 @@ import com.dasolsystem.config.excption.AuthFailException;
 import com.dasolsystem.core.enums.JwtCode;
 import com.dasolsystem.core.entity.RedisJwtId;
 import com.dasolsystem.core.enums.ApiState;
-import com.dasolsystem.core.enums.Role;
 import com.dasolsystem.core.jwt.dto.TokenAccesserDto;
 import com.dasolsystem.core.jwt.dto.TokenIdAccesserDto;
 import com.dasolsystem.core.jwt.repository.JwtRepository;

@@ -1,7 +1,6 @@
 package com.dasolsystem.core.jwt.util;
 
 import com.dasolsystem.core.enums.JwtCode;
-import com.dasolsystem.core.enums.Role;
 import com.dasolsystem.core.jwt.dto.TokenIdAccesserDto;
 import io.jsonwebtoken.Claims;
 import org.springframework.stereotype.Component;

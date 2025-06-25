@@ -1,6 +1,5 @@
 package com.dasolsystem.core.auth.user.dto;
 
-import com.dasolsystem.core.entity.Deposit;
 import lombok.*;
 
 import java.util.List;

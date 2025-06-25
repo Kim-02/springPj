@@ -8,8 +8,7 @@ import com.dasolsystem.core.auth.user.repository.UserRepository;
 import com.dasolsystem.core.auth.user.service.UserService;
 import com.dasolsystem.core.deposit.dto.*;
 import com.dasolsystem.core.deposit.repository.DepositRepository;
-import com.dasolsystem.core.entity.Deposit;
-import com.dasolsystem.core.entity.Users;
+import com.dasolsystem.core.entity.Member;
 import com.dasolsystem.core.enums.ApiState;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,10 +54,10 @@ public class DepositServiceImpl implements DepositService {
                 String depositType = requestDto.getDepositType();
 
                 if (amount.equals(requestDto.getSelectAmount())) {
-                    List<Users> usersList = userRepository.findByName(name);
+                    List<Member> usersList = userRepository.findByName(name);
                     if (usersList.size() == 1) {
                         // 단일 사용자 처리
-                        Users user = usersList.get(0);
+                        Member user = usersList.get(0);
                         List<Deposit> flag = depositRepository.findByUsersAndDepositTypeAndAmount(user, depositType, amount);
                         boolean exists = !flag.isEmpty();
                         if (!exists) {
@@ -78,7 +77,7 @@ public class DepositServiceImpl implements DepositService {
                         }
                     } else if (usersList.size() > 1) { // 동명이인 처리
                         log.warn("동명이인 발생: 이름={}에 대해 여러 명이 조회되었습니다.", name);
-                        for (Users user : usersList) {
+                        for (Member user : usersList) {
                             duplicateUsers.computeIfAbsent(user.getName(), k -> new ArrayList<>()).add(user.getStudentId());
                         }
                     } else {
@@ -108,7 +107,7 @@ public class DepositServiceImpl implements DepositService {
     @Transactional
     public String updatePersonalDeposit(String studentId, String depositType, Integer amount) {
         // 사용자가 존재하는지 조회
-        Users user = userRepository.findByStudentId(studentId)
+        Member user = userRepository.findByStudentId(studentId)
                 .orElseThrow(() -> new DBFaillException(ApiState.ERROR_502, "None find user"));
 
         // 동일한 depositType과 amount를 가진 입금 내역이 이미 있는지 확인
@@ -137,7 +136,7 @@ public class DepositServiceImpl implements DepositService {
 
     @Transactional(readOnly = true)
     public List<DepositUsersDto> findDepositUsers(String depositType) {
-        List<Users> usersList = depositRepository.findUsersByDepositType(depositType);
+        List<Member> usersList = depositRepository.findUsersByDepositType(depositType);
 
         // depositType이 "학생회비"인 경우, paidUser가 true 인 사용자만 필터링합니다.
         if ("학생회비".equals(depositType)) {

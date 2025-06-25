@@ -4,17 +4,15 @@ import com.dasolsystem.config.excption.AuthFailException;
 import com.dasolsystem.core.auth.signin.dto.RequestSignincheckDto;
 import com.dasolsystem.core.auth.signin.dto.ResponseSignincheckDto;
 import com.dasolsystem.core.auth.user.repository.UserRepository;
-import com.dasolsystem.core.entity.Users;
+import com.dasolsystem.core.entity.Member;
 import com.dasolsystem.core.enums.ApiState;
 import com.dasolsystem.core.jwt.util.JwtBuilder;
 import jdk.jfr.Description;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -59,7 +57,7 @@ public class signinServiceImpl implements signinService {
     public ResponseSignincheckDto loginCheck(RequestSignincheckDto dto) {
         String id = dto.getId();
         String pw = dto.getPw();
-        Users valid = repo.findByEmailID(id);
+        Member valid = repo.findByEmailID(id);
         if(valid == null){
             throw new UsernameNotFoundException("Not Found id");
         }

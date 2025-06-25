@@ -1,10 +1,8 @@
 package com.dasolsystem.core.entity;
 
 
-import com.dasolsystem.core.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,28 +13,37 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name="post")
 public class Post {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "post_id", updatable = false, nullable = false)
+    private Integer postId;
 
-    @Column(length = 50)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
+
+    @Column(name = "title", length = 255, nullable = false)
     private String title;
 
-    @Column(length = 20)
-    private String username;
-
-    @Column(columnDefinition = "TEXT")
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    private LocalDate createdAt;
+    @Column(name = "start_date", nullable = false)
+    private LocalDateTime startDate;
 
-    @Enumerated(EnumType.STRING)
-    private Role access_role;
+    @Column(name = "end_date")
+    private LocalDateTime endDate;
 
-    //TODO 파일 첨부 기능은 나중에 구현
+    @Column(name = "capacity")
+    private Integer capacity;
 
+    @Column(name = "target", length = 100)
+    private String target;
 
 
 

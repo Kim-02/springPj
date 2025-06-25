@@ -2,8 +2,7 @@ package com.dasolsystem.core.file.service;
 
 import com.dasolsystem.core.amount.dto.AmountUsersResponseDto;
 import com.dasolsystem.core.auth.user.repository.UserRepository;
-import com.dasolsystem.core.deposit.dto.DepositUsersDto;
-import com.dasolsystem.core.entity.Users;
+import com.dasolsystem.core.entity.Member;
 import com.dasolsystem.core.file.dto.StudentIdDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -71,10 +70,10 @@ public class ExcelService {
             row.createCell(0).setCellValue(studentId);
 
             // 학번을 기준으로 사용자 정보를 찾아 이름을 가져옴
-            Optional<Users> userOpt = userRepository.findByStudentId(studentId);
+            Optional<Member> userOpt = userRepository.findByStudentId(studentId);
             if (userOpt.isPresent()) {
                 // 사용자 정보가 있는 경우
-                Users user = userOpt.get();
+                Member user = userOpt.get();
                 row.createCell(1).setCellValue(user.getName());
             } else {
                 // 사용자 정보가 없는 경우, 이름은 빈칸

@@ -1,6 +1,5 @@
 package com.dasolsystem.core.expenditure.repository;
 
-import com.dasolsystem.core.entity.Expenditure;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;

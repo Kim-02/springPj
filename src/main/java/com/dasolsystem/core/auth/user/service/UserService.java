@@ -4,7 +4,6 @@ import com.dasolsystem.core.auth.user.dto.StudentSaveRequestDto;
 import com.dasolsystem.core.auth.user.dto.StudentSaveResponseDto;
 import com.dasolsystem.core.auth.user.dto.StudentSearchRequestDto;
 import com.dasolsystem.core.auth.user.dto.StudentSearchResponseDto;
-import com.dasolsystem.core.enums.Role;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;

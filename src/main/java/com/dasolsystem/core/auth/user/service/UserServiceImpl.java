@@ -6,9 +6,8 @@ import com.dasolsystem.core.auth.user.dto.StudentSaveResponseDto;
 import com.dasolsystem.core.auth.user.dto.StudentSearchRequestDto;
 import com.dasolsystem.core.auth.user.dto.StudentSearchResponseDto;
 import com.dasolsystem.core.auth.user.repository.UserRepository;
-import com.dasolsystem.core.entity.Users;
+import com.dasolsystem.core.entity.Member;
 import com.dasolsystem.core.enums.ApiState;
-import com.dasolsystem.core.enums.Role;
 import jdk.jfr.Description;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
@@ -32,7 +31,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     public StudentSaveResponseDto saveStudent(MultipartFile file) throws IOException {
-        List<Users> newUsers = new ArrayList<>();
+        List<Member> newUsers = new ArrayList<>();
 
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0);
@@ -57,7 +56,7 @@ public class UserServiceImpl implements UserService {
                     continue;
                 }
 
-                Users user = Users.builder()
+                Member user = Member.builder()
                         .name(name)
                         .role(Role.User)
                         .studentId(studentId)
@@ -105,7 +104,7 @@ public class UserServiceImpl implements UserService {
                     throw new DBFaillException(ApiState.ERROR_503, "Exist Users: "+user.getName());
                 }, () -> {
                     // 존재하지 않으면 새 유저 생성 후 저장
-                    Users newUser = Users.builder()
+                    Member newUser = Member.builder()
                             .name(requestDto.getName())
                             .studentId(requestDto.getStudentId())
                             .build();
@@ -148,13 +147,13 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(readOnly = true)
     public String findStudentId(String studentName) {
-        List<Users> userid = userRepository.findByName(studentName);
+        List<Member> userid = userRepository.findByName(studentName);
         //찾지 못하였다면
         if(userid.isEmpty()){
             return "none found";
         } else if (userid.size()>1) {//동명이인
             StringBuilder builder = new StringBuilder();
-            for(Users user : userid){
+            for(Member user : userid){
                 builder.append(user.getStudentId());
                 builder.append(", ");
             }

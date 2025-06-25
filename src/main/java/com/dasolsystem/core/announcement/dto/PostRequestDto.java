@@ -1,12 +1,9 @@
 package com.dasolsystem.core.announcement.dto;
 
 
-import com.dasolsystem.core.enums.Role;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.*;
-
-import java.time.LocalDate;
 
 @Getter
 @Setter

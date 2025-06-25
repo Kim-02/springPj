@@ -1,6 +1,5 @@
 package com.dasolsystem.core.auth.signup.dto;
 
-import com.dasolsystem.core.enums.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

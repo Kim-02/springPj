@@ -4,9 +4,8 @@ import com.dasolsystem.config.excption.AuthFailException;
 import com.dasolsystem.core.auth.signup.dto.RequestSignupDto;
 import com.dasolsystem.core.auth.signup.dto.ResponseSavedNameDto;
 import com.dasolsystem.core.auth.user.repository.UserRepository;
-import com.dasolsystem.core.entity.Users;
+import com.dasolsystem.core.entity.Member;
 import com.dasolsystem.core.enums.ApiState;
-import com.dasolsystem.core.enums.Role;
 import jakarta.transaction.Transactional;
 import jdk.jfr.Description;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +25,7 @@ public class SignupServiceImpl implements SignupService {
                 || userRepository.existsBystudentId(request.getStudentId())) {//중복검사
             throw new AuthFailException(ApiState.ERROR_701,"Exist User");
         }
-        Users user = Users.builder()
+        Member user = Member.builder()
                 .studentId(request.getStudentId())
                 .name(request.getName())
                 .emailID(request.getEmail())
@@ -35,7 +34,7 @@ public class SignupServiceImpl implements SignupService {
                 .password(bCryptPasswordEncoder.encode(request.getPassword()))
                 .role(Role.User)
                 .build();
-        Users savedUsers = userRepository.save(user);
+        Member savedUsers = userRepository.save(user);
         return ResponseSavedNameDto.builder()
                 .userName(savedUsers.getName())
                 .message("Signup Success")

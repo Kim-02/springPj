@@ -1,7 +1,6 @@
 package com.dasolsystem.core.auth.userdetail.dto;
 
 
-import com.dasolsystem.core.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
