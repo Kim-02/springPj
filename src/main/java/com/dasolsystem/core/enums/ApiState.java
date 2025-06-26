@@ -13,6 +13,7 @@ public enum ApiState {
     ERROR_603(603), //리프레시 토큰 식별자 불일치
     ERROR_604(604), //새 Refresh 토큰 생성 실패
     ERROR_605(605), //토큰 불일치
+    ERROR_606(606), //로그아웃된 토큰
     //회원가입 에러
     ERROR_701(701), //Exist Users
 

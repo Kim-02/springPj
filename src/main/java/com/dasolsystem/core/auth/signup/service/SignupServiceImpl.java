@@ -4,7 +4,7 @@ import com.dasolsystem.config.excption.AuthFailException;
 import com.dasolsystem.core.auth.repository.RoleRepository;
 import com.dasolsystem.core.auth.signup.dto.RequestSignupDto;
 import com.dasolsystem.core.auth.signup.dto.ResponseSavedNameDto;
-import com.dasolsystem.core.auth.user.repository.UserRepository;
+import com.dasolsystem.core.auth.repository.UserRepository;
 import com.dasolsystem.core.entity.Member;
 import com.dasolsystem.core.entity.Role;
 import com.dasolsystem.core.enums.ApiState;

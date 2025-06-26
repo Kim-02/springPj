@@ -1,6 +1,7 @@
 package com.dasolsystem.config;
 
 import com.dasolsystem.core.auth.userdetail.service.CustomUserDetailsService;
+import com.dasolsystem.core.guardian.SecurityGuardian;
 import com.dasolsystem.core.jwt.filter.JwtRequestFilter;
 import com.dasolsystem.core.jwt.util.JwtBuilder;
 import com.dasolsystem.core.handler.CustomAccessDeniedHandler;
@@ -9,7 +10,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.SecurityContextDsl;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -28,7 +31,8 @@ public class SecurityConfig {
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
 
     private final CustomUserDetailsService userDetailsService;
-    private final JwtBuilder jwtBuilder;
+    private final RedisTemplate<Object, Object> redisTemplate;
+    private final SecurityGuardian securityGuardian;
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
@@ -39,8 +43,8 @@ public class SecurityConfig {
 
 
     @Bean
-    public JwtRequestFilter jwtRequestFilter(JwtBuilder jwtBuilder, CustomUserDetailsService userDetailsService) {
-        return new JwtRequestFilter(jwtBuilder,userDetailsService);
+    public JwtRequestFilter jwtRequestFilter(RedisTemplate<Object,Object> redisTemplate, CustomUserDetailsService userDetailsService, SecurityGuardian securityGuardian) {
+        return new JwtRequestFilter(redisTemplate,userDetailsService,securityGuardian);
     }
 
     @Bean
@@ -88,9 +92,9 @@ public class SecurityConfig {
         );
 
         //JWT필터 추가
-        http.addFilterBefore(jwtRequestFilter(jwtBuilder,userDetailsService), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtRequestFilter(redisTemplate,userDetailsService,securityGuardian), UsernamePasswordAuthenticationFilter.class);
 
-        http.exceptionHandling(exptionhandling -> exptionhandling
+        http.exceptionHandling(exceptionhandling -> exceptionhandling
                 .authenticationEntryPoint(authenticationEntryPoint)
                 .accessDeniedHandler(accessDeniedHandler));
 

@@ -1,6 +1,6 @@
 package com.dasolsystem.core.auth.userdetail.service;
 
-import com.dasolsystem.core.auth.user.repository.UserRepository;
+import com.dasolsystem.core.auth.repository.UserRepository;
 import com.dasolsystem.core.auth.userdetail.controller.CustomUserDetailsController;
 import com.dasolsystem.core.auth.userdetail.dto.UserinfoDto;
 import com.dasolsystem.core.entity.Member;
@@ -16,15 +16,16 @@ import org.springframework.transaction.annotation.Transactional;
 public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
     private final UserRepository userRepository;
     @Override
-    public UserDetails loadUserByUsername(String emailId) throws UsernameNotFoundException {
-        Member users = userRepository.findByEmailID(emailId);
-        if(users == null) {
-            throw new UsernameNotFoundException("Cannot find user with email id " + emailId);
-        }
+    public UserDetails loadUserByUsername(String studentId) throws UsernameNotFoundException {
+        Member users = userRepository.findByStudentId(studentId).orElseThrow(
+                () -> new UsernameNotFoundException(studentId)
+        );
         UserinfoDto userinfoDto = UserinfoDto.builder()
-                .emailId(users.getEmailID())
+                .studentId(users.getStudentId())
                 .password(users.getPassword())
-                .username(users.getName())
+                .gender(users.getGender())
+                .email(users.getEmail())
+                .name(users.getName())
                 .role(users.getRole())
                 .build();
         return CustomUserDetailsController.builder()

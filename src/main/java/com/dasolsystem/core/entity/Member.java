@@ -6,6 +6,9 @@ import com.dasolsystem.core.enums.Gender;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @Builder
@@ -17,9 +20,19 @@ public class Member {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="member_id",updatable = false,nullable = false)
+    @Column(name="member_id",updatable = false,nullable = false,columnDefinition = "BIGINT")
     private Long id;
 
+    /**
+     * 본인참조
+     */
+    @ManyToMany
+    @JoinTable(
+            name = "member_relation",
+            joinColumns        = @JoinColumn(name = "child_id"),
+            inverseJoinColumns = @JoinColumn(name = "parent_id")
+    )
+    private List<Member> managerMemberId = new ArrayList<>();
 
     @Column(name = "student_id", length = 10, nullable = false, unique = true)
     private String studentId;

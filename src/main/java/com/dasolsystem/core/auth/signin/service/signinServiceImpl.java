@@ -1,11 +1,14 @@
 package com.dasolsystem.core.auth.signin.service;
 
 import com.dasolsystem.config.excption.AuthFailException;
+import com.dasolsystem.config.excption.DBFaillException;
+import com.dasolsystem.core.auth.repository.RoleRepository;
 import com.dasolsystem.core.auth.signin.dto.RequestSigninCheckDto;
 import com.dasolsystem.core.auth.signin.dto.ResponseSignincheckDto;
-import com.dasolsystem.core.auth.user.repository.UserRepository;
+import com.dasolsystem.core.auth.repository.UserRepository;
 import com.dasolsystem.core.entity.Member;
 import com.dasolsystem.core.enums.ApiState;
+import com.dasolsystem.core.jwt.dto.JwtRequestDto;
 import com.dasolsystem.core.jwt.util.JwtBuilder;
 import jdk.jfr.Description;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +28,7 @@ public class signinServiceImpl implements signinService {
     private final UserRepository userRepository;
     private final JwtBuilder jwtBuilder;
     private final PasswordEncoder passwordEncoder;
-
+    private final RoleRepository roleRepository;
 
     @Description("로그인")
     public Map<String, String> login(RequestSigninCheckDto dto)  {
@@ -34,15 +37,25 @@ public class signinServiceImpl implements signinService {
         ResponseSignincheckDto responseDto = loginCheck(dto);
         Map<String,String> headerMap = new HashMap<>();
         if(responseDto.getState()== ApiState.OK){
-            jwtToken = jwtBuilder.generateAccessToken(responseDto.getEmailId(),responseDto.getRole(), responseDto.getName());
-            refreshTokenId = jwtBuilder.getRefreshTokenId(responseDto.getEmailId());
+            jwtToken = jwtBuilder.generateAccessJWT(
+                    JwtRequestDto.builder()
+                            .role(
+                                    roleRepository.findByCode(responseDto.getRoleCode())
+                                            .orElseThrow(() -> new DBFaillException(ApiState.ERROR_501))
+                                            .getName()
+                            )
+                            .studentId(responseDto.getStudentId())
+                            .name(responseDto.getName())
+                            .build()
+            );
+            refreshTokenId = jwtBuilder.generateRefreshId(responseDto.getStudentId());
             headerMap.put("Content-Type", "application/json");
             headerMap.put("Authorization", "Bearer " + jwtToken);
             headerMap.put("rAuthorization", "Bearer " + refreshTokenId);
-            headerMap.put("User-Name",responseDto.getName());
+            headerMap.put("userName",responseDto.getName());
             headerMap.put("Message",responseDto.getMessage());
             log.info("✅ Login Success");
-            log.info("Username: "+headerMap.get("User-Name"));
+            log.info("Username: "+headerMap.get("userName"));
         }
         else if(responseDto.getState()==ApiState.ERROR_901){
             throw new AuthFailException(ApiState.ERROR_901,responseDto.getMessage());
@@ -57,10 +70,7 @@ public class signinServiceImpl implements signinService {
     public ResponseSignincheckDto loginCheck(RequestSigninCheckDto dto) {
         String id = dto.getStudent_id();
         String pw = dto.getPw();
-        Member valid = userRepository.findByStudentId(id);
-        if(valid == null){
-            throw new UsernameNotFoundException("Not Found id");
-        }
+        Member valid = userRepository.findByStudentId(id).orElseThrow(()-> new UsernameNotFoundException("Not Found id"));
         if(!passwordEncoder.matches(pw, valid.getPassword())){
             throw new BadCredentialsException("Wrong password");
         }

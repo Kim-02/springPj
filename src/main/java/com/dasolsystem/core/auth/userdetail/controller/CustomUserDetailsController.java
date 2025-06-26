@@ -21,7 +21,7 @@ public class CustomUserDetailsController implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<String> roles = new ArrayList<>();
-        roles.add("ROLE_"+userinfo.getRole());
+        roles.add("ROLE_"+userinfo.getRole().getName());
 
         return roles.stream()
                 .map(SimpleGrantedAuthority::new)
@@ -34,6 +34,6 @@ public class CustomUserDetailsController implements UserDetails {
     }
     @Override
     public String getUsername() {
-        return userinfo.getEmailId();
+        return userinfo.getName();
     }
 }

@@ -1,6 +1,8 @@
 package com.dasolsystem.core.auth.userdetail.dto;
 
 
+import com.dasolsystem.core.entity.Role;
+import com.dasolsystem.core.enums.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,9 +13,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @Data
 public class UserinfoDto {
-
-    private String emailId;
+    private String studentId;
+    private String name;
+    private String email;
+    private Gender gender;
     private String password;
-    private String username;
     private Role role;
 }

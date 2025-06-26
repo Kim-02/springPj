@@ -32,7 +32,7 @@ public class SignInController {
             res.setHeader("Content-Type",headers.get("Content-Type"));
             res.setHeader("Authorization",headers.get("Authorization"));
             res.setHeader("rAuthorization",headers.get("rAuthorization"));
-            res.setHeader("User-Name",headers.get("User-Name"));
+            res.setHeader("userName",headers.get("userName"));
             res.setHeader("Message",headers.get("Message"));
         }catch(AuthFailException | UsernameNotFoundException | BadCredentialsException e){
             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -42,7 +42,7 @@ public class SignInController {
                 ResponseJson.builder()
                         .status(res.getStatus())
                         .message(res.getHeader("Message"))
-                        .result(res.getHeader("User-Name"))
+                        .result(res.getHeader("userName"))
                         .build()
         );
     }

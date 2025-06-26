@@ -17,10 +17,10 @@ public class PermissionChangeId {
     private static final long serialVersionUID = 1L;
 
     @Column(name = "requester_id", nullable = false)
-    private Integer requesterId;
+    private Long requesterId;
 
     @Column(name = "target_id", nullable = false)
-    private Integer targetId;
+    private Long targetId;
 
     @Column(name = "changed_at", nullable = false)
     private LocalDateTime changedAt;
