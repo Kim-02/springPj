@@ -8,5 +8,5 @@ import java.util.Map;
 
 public interface signinService {
     ResponseSignincheckDto loginCheck(RequestSigninCheckDto dto);
-    Map<String,String> login(RequestSigninCheckDto dto);
+    Map<String, String> login(RequestSigninCheckDto dto);
 }

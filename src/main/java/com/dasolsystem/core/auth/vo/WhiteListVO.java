@@ -22,6 +22,7 @@ public class WhiteListVO {
             "/api/deposit/personal/refund",
             "/api/expend/post",
             "/api/amount/download/amount_check",
-            "/api/announce/post"
+            "/api/announce/post",
+            "/index.html"
     };
 }

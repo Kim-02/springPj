@@ -20,7 +20,7 @@ public class Member {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="member_id",updatable = false,nullable = false,columnDefinition = "BIGINT")
+    @Column(name="member_id",updatable = false,nullable = false)
     private Long id;
 
     /**
@@ -29,12 +29,21 @@ public class Member {
     @ManyToMany
     @JoinTable(
             name = "member_relation",
-            joinColumns        = @JoinColumn(name = "child_id"),
-            inverseJoinColumns = @JoinColumn(name = "parent_id")
+            joinColumns = @JoinColumn(
+                    name = "subordinate_id",
+                    referencedColumnName = "member_id"
+            ),
+            inverseJoinColumns = @JoinColumn(
+                    name = "manager_id",
+                    referencedColumnName = "member_id"
+            )
     )
-    private List<Member> managerMemberId = new ArrayList<>();
+    private List<Member> managers = new ArrayList<>();
 
-    @Column(name = "student_id", length = 10, nullable = false, unique = true)
+    @ManyToMany(mappedBy = "managers")
+    private List<Member> subordinates = new ArrayList<>();
+
+    @Column(name = "student_id", length = 20, nullable = false, unique = true)
     private String studentId;
 
     @Column(name = "password", length = 255, nullable = false)
@@ -51,7 +60,7 @@ public class Member {
     @Column(name = "email", length = 50, nullable = false, unique = true)
     private String email;
 
-    @Column(name = "phone_num", length = 20, nullable = false)
+    @Column(name = "phone_num", length = 50, nullable = false)
     private String phone;
 
     @Column(name = "name", length = 50, nullable = false)

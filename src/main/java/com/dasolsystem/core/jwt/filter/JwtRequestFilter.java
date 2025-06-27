@@ -47,50 +47,67 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     );
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String accessToken = request.getHeader(AUTHORIZATION_HEADER).substring(BEARER_PREFIX.length());
-        String refreshTokenId = request.getHeader(REFRESH_AUTHORIZATION_HEADER).substring(BEARER_PREFIX.length());
-        String username = request.getHeader(USER_NAME);
-        String requestURI = request.getRequestURI();
-        if (WHITE_LIST.contains(requestURI)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        try {
-            //만약 토큰이 있다면
-            if (StringUtils.hasText(accessToken) && StringUtils.hasText(refreshTokenId)) {
-                Boolean isBlacklisted = redisTemplate.hasKey("blacklist:access:" + accessToken);
-                if (Boolean.TRUE.equals(isBlacklisted)) {
-                    SecurityContextHolder.clearContext();
-                    throw new AuthFailException(ApiState.ERROR_606, "logout token, please login first");
-                }
-                //유효성 검증
-                TokenResponseDto responseToken = securityGuardian.tokenValidator(accessToken, refreshTokenId);
-                UserDetails userDetails = userDetailsService.loadUserByUsername(securityGuardian.getStudentId(responseToken.getAccessToken()));
-                if(userDetails!=null) {
-
-                    //security 접근 토큰 생성
-                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-                            new UsernamePasswordAuthenticationToken(
-                                    userDetails,
-                                    null,
-                                    userDetails.getAuthorities()
-                            );
-                    //접근 토큰 활성화
-                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-                }
-
-            }
-            else {
-                throw new AuthFailException(ApiState.ERROR_602, "None AccessToken Please Login");
-            }
-        } catch (AuthFailException e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write(e.getMessage());
-            return;
-        }
-
-        filterChain.doFilter(request, response);
+    public boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        return WHITE_LIST.contains(request.getRequestURI());
     }
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        try {
+            String accessToken = request.getHeader(AUTHORIZATION_HEADER);
+            if (accessToken == null || !accessToken.startsWith(BEARER_PREFIX)) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("로그인 후에 이용할 수 있는 서비스입니다.");
+                return;
+            }
+            accessToken = accessToken.substring(BEARER_PREFIX.length());
+
+            String refreshTokenId = request.getHeader(REFRESH_AUTHORIZATION_HEADER);
+            if (refreshTokenId == null || !refreshTokenId.startsWith(BEARER_PREFIX)) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("로그인 후에 이용할 수 있는 서비스입니다.");
+                return;
+            }
+            refreshTokenId = refreshTokenId.substring(BEARER_PREFIX.length());
+
+
+            try {
+                //만약 토큰이 있다면
+                if (StringUtils.hasText(accessToken) && StringUtils.hasText(refreshTokenId)) {
+                    Boolean isBlacklisted = redisTemplate.hasKey("blacklist:access:" + accessToken);
+                    if (Boolean.TRUE.equals(isBlacklisted)) {
+                        SecurityContextHolder.clearContext();
+                        throw new AuthFailException(ApiState.ERROR_606, "logout token, please login first");
+                    }
+                    //유효성 검증
+                    TokenResponseDto responseToken = securityGuardian.tokenValidator(accessToken, refreshTokenId);
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(securityGuardian.getStudentId(responseToken.getAccessToken()));
+                    if (userDetails != null) {
+
+                        //security 접근 토큰 생성
+                        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
+                                new UsernamePasswordAuthenticationToken(
+                                        userDetails,
+                                        null,
+                                        userDetails.getAuthorities()
+                                );
+                        //접근 토큰 활성화
+                        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                    }
+
+                } else {
+                    throw new AuthFailException(ApiState.ERROR_602, "None AccessToken Please Login");
+                }
+            } catch (AuthFailException e) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write(e.getMessage());
+                return;
+            }
+
+            filterChain.doFilter(request, response);
+        }catch (Exception e) {
+            throw new ServletException(e.getMessage(), e.getCause());
+        }
+    }
+
 }

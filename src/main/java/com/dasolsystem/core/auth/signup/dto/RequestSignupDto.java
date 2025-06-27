@@ -21,8 +21,6 @@ public class RequestSignupDto {
     private String password;
 
     @NotNull
-    @Pattern(regexp = "^[MF]$") //정규식으로 정의
-    @Size(min=1)
     private Gender gender;
 
     @NotNull
@@ -30,7 +28,6 @@ public class RequestSignupDto {
     private String email;
 
     @NotNull
-    @Size(min=20)
     private String phone;
 
     @NotNull

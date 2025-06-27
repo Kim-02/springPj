@@ -16,7 +16,7 @@ public class ApprovalRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "request_id", updatable = false, nullable = false)
-    private Integer requestId;
+    private Long requestId;
 
     /** 요청자 (기안자 회원) */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

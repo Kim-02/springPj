@@ -14,7 +14,7 @@ public class Inquiry_Post {
      */
     @Id
     @Column(name = "post_id", updatable = false, nullable = false)
-    private Integer postId;
+    private Long postId;
 
     /**
      * 1:1 식별 관계 매핑.

@@ -25,9 +25,7 @@ import static io.jsonwebtoken.SignatureAlgorithm.HS256;
 @Component
 @RequiredArgsConstructor
 public class JwtBuilderImpl implements JwtBuilder {
-    private RoleRepository roleRepository;
-    private JwtRepository jwtRepository;
-    private RedisJwtRepository redisJwtRepository;
+    private final RedisJwtRepository redisJwtRepository;
     private final RedisTemplate<String, String> redisTemplate;
 
     @Value("${jwt.secret.key}")

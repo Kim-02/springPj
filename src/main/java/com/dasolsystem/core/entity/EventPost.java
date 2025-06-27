@@ -12,7 +12,7 @@ import lombok.Setter;
 public class EventPost {
     @Id
     @Column(name = "post_id", updatable = false, nullable = false)
-    private Integer postId;
+    private Long postId;
     /**
      * 게시글(Post)와 1:1 식별 관계.
      * EventBoard.postId 를 PK 로 쓰면서

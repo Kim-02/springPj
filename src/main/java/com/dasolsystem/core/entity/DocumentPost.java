@@ -11,7 +11,7 @@ import lombok.Setter;
 public class DocumentPost {
     @Id
     @Column(name = "post_id", nullable = false)
-    private Integer postId;
+    private Long postId;
 
     /**
      * Post 엔티티와 1:1 식별 관계.

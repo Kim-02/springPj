@@ -26,14 +26,14 @@ public class SignInController {
             @RequestBody RequestSigninCheckDto signinCheckDto,
             HttpServletResponse res
             ){
+        String name = "";
         try{
             Map<String,String> headers = signinService.login(signinCheckDto);
             res.setStatus(HttpServletResponse.SC_OK);
             res.setHeader("Content-Type",headers.get("Content-Type"));
             res.setHeader("Authorization",headers.get("Authorization"));
             res.setHeader("rAuthorization",headers.get("rAuthorization"));
-            res.setHeader("userName",headers.get("userName"));
-            res.setHeader("Message",headers.get("Message"));
+            name = headers.get("name");
         }catch(AuthFailException | UsernameNotFoundException | BadCredentialsException e){
             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             res.setHeader("Error.", e.getMessage());
@@ -41,8 +41,8 @@ public class SignInController {
         return ResponseEntity.ok(
                 ResponseJson.builder()
                         .status(res.getStatus())
-                        .message(res.getHeader("Message"))
-                        .result(res.getHeader("userName"))
+                        .message("Success")
+                        .result("User name: "+name)
                         .build()
         );
     }

@@ -11,7 +11,7 @@ public class TransactionRecord {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "tx_id", updatable = false, nullable = false)
-    private Integer txId;
+    private Long txId;
 
     /** 입금·출금한 회원 (FK → 회원.user_id) */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

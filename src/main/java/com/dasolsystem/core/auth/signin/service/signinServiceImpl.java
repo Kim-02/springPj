@@ -52,10 +52,11 @@ public class signinServiceImpl implements signinService {
             headerMap.put("Content-Type", "application/json");
             headerMap.put("Authorization", "Bearer " + jwtToken);
             headerMap.put("rAuthorization", "Bearer " + refreshTokenId);
-            headerMap.put("userName",responseDto.getName());
-            headerMap.put("Message",responseDto.getMessage());
+            headerMap.put("name", responseDto.getName());
             log.info("✅ Login Success");
-            log.info("Username: "+headerMap.get("userName"));
+            log.info("login Id "+responseDto.getStudentId());
+            log.info("login Name "+responseDto.getName());
+            log.info("login role "+responseDto.getRoleCode());
         }
         else if(responseDto.getState()==ApiState.ERROR_901){
             throw new AuthFailException(ApiState.ERROR_901,responseDto.getMessage());

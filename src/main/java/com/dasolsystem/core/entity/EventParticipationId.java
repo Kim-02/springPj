@@ -14,10 +14,10 @@ public class EventParticipationId {
     private static final long serialVersionUID = 1L;
 
     @Column(name = "member_id", nullable = false)
-    private Integer memberId;
+    private Long memberId;
 
     @Column(name = "board_id", nullable = false)
-    private Integer boardId;
+    private Long boardId;
 
     @Override
     public boolean equals(Object o) {

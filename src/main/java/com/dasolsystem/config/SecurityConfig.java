@@ -21,6 +21,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -86,7 +91,8 @@ public class SecurityConfig {
                         "/api/deposit/personal/refund",
                         "/api/expend/post",
                         "/api/amount/download/amount_check",
-                        "/api/announce/post"
+                        "/api/announce/post",
+                        "index.html"
                         ).permitAll()
                 .anyRequest().authenticated()
         );
@@ -101,5 +107,18 @@ public class SecurityConfig {
 
         log.info("✅ 필터 설정 완료");
         return http.build();
+    }
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:3000"));
+        config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);  // 쿠키나 Authorization 헤더 허용
+        config.setExposedHeaders(List.of("Authorization", "rAuthorization"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        // /api/** 뿐만 아니라 Preflight 를 포함한 모든 경로에 적용
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 }
