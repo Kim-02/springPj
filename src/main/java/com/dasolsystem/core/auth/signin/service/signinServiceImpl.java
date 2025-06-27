@@ -71,7 +71,7 @@ public class signinServiceImpl implements signinService {
     public ResponseSignincheckDto loginCheck(RequestSigninCheckDto dto) {
         String id = dto.getStudent_id();
         String pw = dto.getPw();
-        Member valid = userRepository.findByStudentId(id).orElseThrow(()-> new UsernameNotFoundException("Not Found id"));
+        Member valid = userRepository.findByStudentIdWithRole(id).orElseThrow(()-> new UsernameNotFoundException("Not Found id"));
         if(!passwordEncoder.matches(pw, valid.getPassword())){
             throw new BadCredentialsException("Wrong password");
         }

@@ -15,9 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
     private final UserRepository userRepository;
+
     @Override
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String studentId) throws UsernameNotFoundException {
-        Member users = userRepository.findByStudentId(studentId).orElseThrow(
+        Member users = userRepository.findByStudentIdWithRole(studentId).orElseThrow(
                 () -> new UsernameNotFoundException(studentId)
         );
         UserinfoDto userinfoDto = UserinfoDto.builder()

@@ -54,6 +54,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
+            log.info("인증 로직에 진입");
             String accessToken = request.getHeader(AUTHORIZATION_HEADER);
             if (accessToken == null || !accessToken.startsWith(BEARER_PREFIX)) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -83,7 +84,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     TokenResponseDto responseToken = securityGuardian.tokenValidator(accessToken, refreshTokenId);
                     UserDetails userDetails = userDetailsService.loadUserByUsername(securityGuardian.getStudentId(responseToken.getAccessToken()));
                     if (userDetails != null) {
-
+                        log.info("유효성 검증 진입");
                         //security 접근 토큰 생성
                         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
                                 new UsernamePasswordAuthenticationToken(

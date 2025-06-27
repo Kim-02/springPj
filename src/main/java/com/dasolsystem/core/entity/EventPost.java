@@ -2,13 +2,15 @@ package com.dasolsystem.core.entity;
 
 import com.dasolsystem.config.BooleanToYNConverter;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name="event_post")
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class EventPost {
     @Id
     @Column(name = "post_id", updatable = false, nullable = false)

@@ -1,19 +1,24 @@
 package com.dasolsystem.core.guardian;
 
 import com.dasolsystem.config.excption.DBFaillException;
-import com.dasolsystem.core.entity.RedisJwtId;
 import com.dasolsystem.core.enums.ApiState;
 import com.dasolsystem.core.enums.JwtCode;
+import com.dasolsystem.core.handler.ResponseJson;
 import com.dasolsystem.core.jwt.dto.JwtRequestDto;
 import com.dasolsystem.core.jwt.util.JwtBuilder;
 import com.dasolsystem.core.redis.reopsitory.RedisJwtRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.security.Key;
 
 @Slf4j
 @Component
@@ -105,5 +110,21 @@ public class SecurityGuardian {
             log.error("token is empty{}", e.getMessage());
             return JwtCode.WRONG;
         }
+    }
+
+    public Claims getServletTokenClaims(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if (header == null || !header.startsWith("Bearer ")) {
+            return null;
+        }
+        String token = header.substring(7);
+        byte[] KeyBytes = Decoders.BASE64.decode(SecretKey);
+        Key key = Keys.hmacShaKeyFor(KeyBytes);
+
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token).getBody();
+
     }
 }
