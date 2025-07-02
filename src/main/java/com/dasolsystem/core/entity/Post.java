@@ -46,6 +46,21 @@ public class Post {
     private String target;
 
 
+    @OneToOne(mappedBy = "post",
+            cascade = CascadeType.REMOVE,
+            orphanRemoval = true
+    )
+    private EventPost eventPost;
 
+    @OneToOne(mappedBy = "post",
+            cascade = CascadeType.REMOVE,
+            orphanRemoval = true
+    )
+    private InquiryPost inquiryPost;
 
+    @OneToOne(mappedBy = "post",
+            cascade = CascadeType.REMOVE,
+            orphanRemoval = true
+    )
+    private DocumentPost documentPost;
 }

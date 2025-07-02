@@ -1,12 +1,14 @@
 package com.dasolsystem.core.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name="document_post")
 public class DocumentPost {
     @Id

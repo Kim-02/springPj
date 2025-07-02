@@ -50,17 +50,23 @@ public class SecurityGuardian {
             String refreshToken = redisJwtRepository.findById(Long.valueOf(refreshTokenId)).orElseThrow(
                     () -> new DBFaillException(ApiState.ERROR_600,"DB fail ,not exist Id")
             ).getJwtToken();
+            log.info("-> get refresh token from redis");
+            //기존 사용하던 리프레시 토큰을 사용할 수 없게 한다.
+            redisJwtRepository.deleteById(Long.valueOf(refreshTokenId));
             Claims refreshClaims = Jwts.parserBuilder()
                     .setSigningKey(Keys.hmacShaKeyFor(Decoders.BASE64.decode(RefreshSecretKey)))
                     .build()
                     .parseClaimsJws(refreshToken).getBody();
             String studentId = refreshClaims.getSubject();
+            log.info("--> get refresh token subject = "+studentId);
             Claims accessClaims = Jwts.parserBuilder()
                     .setSigningKey(Keys.hmacShaKeyFor(Decoders.BASE64.decode(SecretKey)))
                     .build()
                     .parseClaimsJws(accessToken).getBody();
 
+            //여기서 새로운 아이디를 생성해서 반환한다.
             Long newRefreshTokenId = jwtBuilder.generateRefreshId(studentId);
+
             String newAccessToken = jwtBuilder.generateAccessJWT(
                     JwtRequestDto.builder()
                             .name(accessClaims.get("userName", String.class))

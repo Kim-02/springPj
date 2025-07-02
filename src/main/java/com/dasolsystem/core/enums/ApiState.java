@@ -25,7 +25,11 @@ public enum ApiState {
     //DB 관련 오류
     ERROR_501(501), //DB접근 오류
     ERROR_502(502), //DB탐색 오류
-    ERROR_503(503) //DB에 이미 있는 데이터
+    ERROR_503(503), //DB에 이미 있는 데이터
+
+    //post 조회오류
+    ERROR_1001(1001), //조회 불가
+    ERROR_1002(1002) //사용자 식별 오류
 
     //예상치 못한 에러
     ,ERROR_UNKNOWN(100);

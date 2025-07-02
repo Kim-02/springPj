@@ -1,14 +1,16 @@
 package com.dasolsystem.core.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Table(name="inquiry_post")
-public class Inquiry_Post {
+public class InquiryPost {
     /**
      * 이 테이블의 PK이자, 게시글(Post) 테이블의 FK 역할도 합니다.
      */
