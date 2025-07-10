@@ -3,7 +3,7 @@ package com.dasolsystem.core.guardian;
 import com.dasolsystem.config.excption.DBFaillException;
 import com.dasolsystem.core.enums.ApiState;
 import com.dasolsystem.core.enums.JwtCode;
-import com.dasolsystem.core.handler.ResponseJson;
+import com.dasolsystem.core.enums.Role;
 import com.dasolsystem.core.jwt.dto.JwtRequestDto;
 import com.dasolsystem.core.jwt.util.JwtBuilder;
 import com.dasolsystem.core.redis.reopsitory.RedisJwtRepository;
@@ -14,9 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Key;
 
@@ -48,7 +46,7 @@ public class SecurityGuardian {
         }
         if(accessStatus == JwtCode.EXPIRE){
             String refreshToken = redisJwtRepository.findById(Long.valueOf(refreshTokenId)).orElseThrow(
-                    () -> new DBFaillException(ApiState.ERROR_600,"DB fail ,not exist Id")
+                    () -> new DBFaillException(ApiState.ERROR_500,"DB fail ,not exist Id")
             ).getJwtToken();
             log.info("-> get refresh token from redis");
             //기존 사용하던 리프레시 토큰을 사용할 수 없게 한다.
@@ -118,6 +116,12 @@ public class SecurityGuardian {
         }
     }
 
+    /**
+     * HttpSevletRequest로 받은 토큰을 처리할 수 있는 요청
+     * Bearer을 포함한 원문을 보내야 한다.
+     * @param request
+     * @return Claims를 반환
+     */
     public Claims getServletTokenClaims(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
         if (header == null || !header.startsWith("Bearer ")) {
@@ -132,5 +136,12 @@ public class SecurityGuardian {
                 .build()
                 .parseClaimsJws(token).getBody();
 
+    }
+
+    public Boolean userValidate(HttpServletRequest request, String approvalRole) {
+        Claims accessClaims = getServletTokenClaims(request);
+        String roleName = accessClaims.get("role", String.class);
+        Role role = Role.valueOf(roleName);
+        return role.isAtLeast(Role.valueOf(approvalRole));
     }
 }

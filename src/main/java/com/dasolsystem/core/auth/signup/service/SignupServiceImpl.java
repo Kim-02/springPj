@@ -6,7 +6,7 @@ import com.dasolsystem.core.auth.signup.dto.RequestSignupDto;
 import com.dasolsystem.core.auth.signup.dto.ResponseSavedNameDto;
 import com.dasolsystem.core.auth.repository.UserRepository;
 import com.dasolsystem.core.entity.Member;
-import com.dasolsystem.core.entity.Role;
+import com.dasolsystem.core.entity.RoleCode;
 import com.dasolsystem.core.enums.ApiState;
 import jakarta.transaction.Transactional;
 import jdk.jfr.Description;
@@ -25,8 +25,8 @@ public class SignupServiceImpl implements SignupService {
     @Transactional
     public ResponseSavedNameDto signup(RequestSignupDto request) {
         if(userRepository.existsBystudentId(request.getStudent_id()))
-            throw new AuthFailException(ApiState.ERROR_701,"Exist User");
-        Role default_role = roleRepository.findById(100L);
+            throw new AuthFailException(ApiState.ERROR_700,"Exist User");
+        RoleCode default_role = roleRepository.findById(100L);
         Member user = Member.builder()
                 .studentId(request.getStudent_id())
                 .password(bCryptPasswordEncoder.encode(request.getPassword()))

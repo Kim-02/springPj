@@ -9,7 +9,7 @@ import lombok.Getter;
 @Entity
 @Getter
 @Table(name="role_code")
-public class Role {
+public class RoleCode {
     @Id
     @Column(name="role_code",length = 20)
     private String code;

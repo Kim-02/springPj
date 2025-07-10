@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
 
 @Service
 @RequiredArgsConstructor
@@ -56,8 +55,8 @@ public class EventServicePostImpl implements EventPostService{
 
     @Transactional
     public Long deleteEventPost(Long postId,String studentId) {
-        Post post = postRepository.findById(postId).orElseThrow(()->new DBFaillException(ApiState.ERROR_1001,"없는 게시글"));
-        if(!post.getMember().getStudentId().equals(studentId)) throw new DBFaillException(ApiState.ERROR_1002,"작성자 식별 오류, 다시 로그인하세요.");
+        Post post = postRepository.findById(postId).orElseThrow(()->new DBFaillException(ApiState.ERROR_500,"없는 게시글"));
+        if(!post.getMember().getStudentId().equals(studentId)) throw new DBFaillException(ApiState.ERROR_500,"작성자 식별 오류, 다시 로그인하세요.");
         Long return_id = post.getPostId();
         postRepository.delete(post);
         return return_id;
@@ -66,10 +65,10 @@ public class EventServicePostImpl implements EventPostService{
     @Transactional
     public Long updateEventPost(EventPostRequestDto dto, Long postId, String studentId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new DBFaillException(ApiState.ERROR_1001, "없는 게시글"));
+                .orElseThrow(() -> new DBFaillException(ApiState.ERROR_500, "없는 게시글"));
 
         if (!post.getMember().getStudentId().equals(studentId)) {
-            throw new DBFaillException(ApiState.ERROR_1002, "작성자 식별 오류, 다시 로그인하세요.");
+            throw new DBFaillException(ApiState.ERROR_500, "작성자 식별 오류, 다시 로그인하세요.");
         }
 
         // 1) Post 필드: null 체크 후에만 업데이트
@@ -104,7 +103,7 @@ public class EventServicePostImpl implements EventPostService{
 
     @Transactional(readOnly = true)
     public EventPostResponseDto getEventPost(Long postId) {
-        Post post = postRepository.findById(postId).orElseThrow(()-> new DBFaillException(ApiState.ERROR_1001,"없는 게시글"));
+        Post post = postRepository.findById(postId).orElseThrow(()-> new DBFaillException(ApiState.ERROR_500,"없는 게시글"));
         return EventPostResponseDto.builder()
                 .memberName(post.getMember().getName())
                 .content(post.getContent())

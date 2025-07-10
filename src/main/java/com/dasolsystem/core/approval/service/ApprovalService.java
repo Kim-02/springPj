@@ -1,12 +1,11 @@
-//package com.dasolsystem.core.approval.service;
-//
-//import com.dasolsystem.core.approval.dto.ApprovalPostDto;
-//import com.dasolsystem.core.approval.dto.ApprovalSummaryDto;
-//
-//import java.io.IOException;
-//import java.util.List;
-//
-//public interface ApprovalService {
-//    Long saveApprovePost(ApprovalPostDto postDto) throws IOException;
-//    List<ApprovalSummaryDto> getApprovalSummaries();
-//}
+package com.dasolsystem.core.approval.service;
+
+import com.dasolsystem.core.approval.dto.ApprovalPostAcceptDto;
+import com.dasolsystem.core.approval.dto.ApprovalRequestDto;
+import com.dasolsystem.core.approval.dto.GetApprovalPostResponse;
+
+public interface ApprovalService {
+    Long postRequest(ApprovalRequestDto dto);
+    Long approveRequestAccept(ApprovalPostAcceptDto dto, String studentId);
+    GetApprovalPostResponse getApprovalPost(String studentId);
+}

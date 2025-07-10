@@ -1,86 +1,101 @@
-//package com.dasolsystem.core.approval.service;
-//
-//import com.dasolsystem.config.S3Uploader;
-//import com.dasolsystem.config.excption.FileException;
-//import com.dasolsystem.core.approval.dto.ApprovalPostDto;
-//import com.dasolsystem.core.approval.dto.ApprovalSummaryDto;
-//import com.dasolsystem.core.approval.repository.ApprovalRepository;
-//import com.dasolsystem.core.entity.Approval;
-//import com.dasolsystem.core.entity.Users;
-//import com.dasolsystem.core.enums.ApiState;
-//import lombok.RequiredArgsConstructor;
-//import org.springframework.beans.factory.annotation.Value;
-//import org.springframework.data.domain.Sort;
-//import org.springframework.stereotype.Service;
-//import org.springframework.transaction.annotation.Transactional;
-//import org.springframework.web.multipart.MultipartFile;
-//
-//import java.io.IOException;
-//import java.time.LocalDateTime;
-//import java.util.List;
-//import java.util.stream.Collectors;
-//
-//@Service
-//@RequiredArgsConstructor
-//public class ApprovalServiceImpl implements ApprovalService {
-//
-//    private final ApprovalRepository approvalRepository;
-//    private final S3Uploader s3Uploader;
-//
-//    @Value("${cloud.aws.s3.bucket}")
-//    private String bucket;
-//    @Transactional
-//    public Long saveApprovePost(ApprovalPostDto postDto) throws IOException {
-//        // ✅ 1. S3에 영수증 업로드
-//        String receiptUrl = null;
-//        MultipartFile file = postDto.getReceipt();
-//
-//        if (file != null && !file.isEmpty()) {
-//            try {
-//                receiptUrl = s3Uploader.upload(file, file.getName());
-//            } catch (IOException e) {
-//                throw new FileException(ApiState.ERROR_801,"파일 업로드에 실패했습니다.");
-//            }
-//        }
-//
-//        // ✅ 2. Approval 엔티티 생성 및 저장
-//        Approval approval = Approval.builder()
-//                .approvalDate(LocalDateTime.now())
-//                .title(postDto.getTitle())
-//                .drafterName(postDto.getDrafterName())
-//                .approvalUsers(postDto.getApprovalUsers())
-//                .deposit(postDto.getDeposit())
-//                .accountNumber(postDto.getAccountNumber())
-//                .depositer(postDto.getDepositer())
-//                .description(postDto.getDescription())
-//                .approvalCode(postDto.getApprovalCode())
-//                .receiptUrl(receiptUrl) // ✅ URL 저장
-//                .build();
-//
-//        approvalRepository.save(approval); // ✅ 저장
-//        return approval.getId();
-//    }
-//
-//    @Transactional(readOnly = true)
-//    public List<ApprovalSummaryDto> getApprovalSummaries() {
-//        return approvalRepository.findAll(Sort.by(Sort.Direction.ASC, "approvalDate"))
-//                .stream()
-//                .map(approval -> {
-//                    List<String> approvers = approval.getApprovalUsers().stream()
-//                            .map(Users::getName) // Users 엔티티에 getName()이 있다고 가정
-//                            .toList();
-//
-//                    String status = Boolean.TRUE.equals(approval.getApproved()) ? "승인" : "기안중";
-//
-//                    return new ApprovalSummaryDto(
-//                            approval.getApprovalDate(),
-//                            approval.getDrafterName(),
-//                            approvers.get(0),
-//                            approval.getApprovalCode(),
-//                            approval.getTitle(),
-//                            status
-//                    );
-//                })
-//                .collect(Collectors.toList());
-//    }
-//}
+package com.dasolsystem.core.approval.service;
+
+import com.dasolsystem.config.excption.AuthFailException;
+import com.dasolsystem.config.excption.DBFaillException;
+import com.dasolsystem.core.approval.dto.*;
+import com.dasolsystem.core.approval.repository.ApprovalCodeRepository;
+import com.dasolsystem.core.approval.repository.ApprovalRequestRepository;
+import com.dasolsystem.core.auth.repository.UserRepository;
+import com.dasolsystem.core.entity.ApprovalRequest;
+import com.dasolsystem.core.entity.Member;
+import com.dasolsystem.core.enums.ApiState;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class ApprovalServiceImpl implements ApprovalService {
+
+    private final ApprovalRequestRepository approvalRequestRepository;
+    private final UserRepository userRepository;
+    private final ApprovalCodeRepository approvalCodeRepository;
+
+    @Transactional
+    public Long postRequest(ApprovalRequestDto dto) {
+        Member RequestMember = userRepository.findByStudentId(dto.getStudentId()).orElseThrow(()->new DBFaillException(ApiState.ERROR_500,"student not found"));
+        List<Member> approverList = new ArrayList<>();
+        for (String memberId : dto.getApproversId()) {
+            Member member = userRepository.findById(Long.valueOf(memberId))
+                    .orElseThrow(() -> new DBFaillException(ApiState.ERROR_500, "none found member"));
+            approverList.add(member);
+        }
+        ApprovalRequest approvalRequest = ApprovalRequest.builder()
+                .accountNumber(dto.getAccountNumber())
+                .approvers(approverList)
+                .payerName(dto.getPayerName())
+                .receiptFile(dto.getReceiptFile())
+                .requestDate(dto.getRequestDate())
+                .requestDetail(dto.getRequestDetails())
+                .requestedAmount(dto.getRequestAmount())
+                .title(dto.getTitle())
+                .approvalCode(
+                        approvalCodeRepository.findByCode(dto.getApprovalCode()).orElseThrow(()-> new DBFaillException(ApiState.ERROR_500,"approval code not found"))
+                )
+                .member(RequestMember).build();
+        return approvalRequestRepository.save(approvalRequest).getRequestId();
+    }
+
+    @Transactional
+    public Long approveRequestAccept(ApprovalPostAcceptDto dto, String studentId) {
+        Member requestUser = userRepository.findByStudentId(studentId).orElseThrow(()->new DBFaillException(ApiState.ERROR_500,"student not found"));
+        List<Member> approvalUser =approvalRequestRepository.findById(dto.getPostId()).orElseThrow(()->new DBFaillException(ApiState.ERROR_500,"Post not found")).getApprovers();
+        if(!approvalUser.contains(requestUser)) throw new AuthFailException(ApiState.ERROR_700,"이 요청을 처리할 권한이 없습니다.");
+        ApprovalRequest requestPost = approvalRequestRepository.findById(dto.getPostId()).orElseThrow(() -> new DBFaillException(ApiState.ERROR_500,"Post not found"));
+        if(dto.isApproved()){
+            requestPost.setApprovalDate(LocalDateTime.now());
+            requestPost.setIsCompleted(true);
+        }
+        return requestPost.getRequestId();
+    }
+
+    @Transactional(readOnly = true)
+    public GetApprovalPostResponse getApprovalPost(String studentId){
+        Member approver = userRepository.findByStudentId(studentId).orElseThrow(()->new DBFaillException(ApiState.ERROR_500,"student not found"));
+        MemberDto memberDto = MemberDto.builder()
+                .id(approver.getId())
+                .studentId(approver.getStudentId())
+                .name(approver.getName())
+                .build();
+        List<ApprovalRequest> approvalRequests = approver.getApprovalRequests();
+        List<ApprovalRequestsDto> approvalRequestsDto = new ArrayList<>();
+        for(ApprovalRequest approvalRequest : approvalRequests){
+            approvalRequestsDto.add(
+                    ApprovalRequestsDto.builder()
+                            .approvalDate(approvalRequest.getApprovalDate())
+                            .approvalCode(approvalRequest.getApprovalCode().getCode()+" "+approvalRequest.getApprovalCode().getName())
+                            .isCompleted(approvalRequest.getIsCompleted())
+                            .memberName(approvalRequest.getMember().getName())
+                            .requestId(approvalRequest.getRequestId())
+                            .accountNumber(approvalRequest.getAccountNumber())
+                            .payerName(approvalRequest.getPayerName())
+                            .receiptFile(approvalRequest.getReceiptFile())
+                            .requestDetail(approvalRequest.getRequestDetail())
+                            .title(approvalRequest.getTitle())
+                            .requestDate(approvalRequest.getRequestDate())
+                            .requestedAmount(approvalRequest.getRequestedAmount())
+                            .build()
+            );
+
+        }
+        return GetApprovalPostResponse.builder()
+                .approvalRequests(approvalRequestsDto)
+                .approver(memberDto)
+                .build();
+
+    }
+}

@@ -3,11 +3,14 @@ package com.dasolsystem.core.entity;
 
 import com.dasolsystem.config.BooleanToYNConverter;
 import com.dasolsystem.core.enums.Gender;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -16,6 +19,12 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name="member")
+@JsonIgnoreProperties({
+        "hibernateLazyInitializer",
+        "handler",
+        "fieldHandler",
+        "byteBuddyInterceptor"
+})
 public class Member {
 
     @Id
@@ -68,7 +77,21 @@ public class Member {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_code", nullable = false)
-    private Role role;
+    private RoleCode role;
 
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "approvers")
+    @JsonBackReference
+    private List<ApprovalRequest> approvalRequests = new ArrayList<>();
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if(!(o instanceof Member)) return false;
+        return Objects.equals(id, ((Member)o).id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

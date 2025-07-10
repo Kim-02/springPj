@@ -1,6 +1,5 @@
 package com.dasolsystem.core.auth.signin.dto;
 
-import com.dasolsystem.core.entity.Role;
 import com.dasolsystem.core.enums.ApiState;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

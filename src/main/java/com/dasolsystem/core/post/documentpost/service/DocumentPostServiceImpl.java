@@ -9,7 +9,6 @@ import com.dasolsystem.core.enums.ApiState;
 import com.dasolsystem.core.post.documentpost.dto.DocumentPostRequestDto;
 import com.dasolsystem.core.post.documentpost.dto.DocumentPostResponseDto;
 import com.dasolsystem.core.post.documentpost.repository.DocumentPostRepository;
-import com.dasolsystem.core.post.eventpost.dto.EventPostResponseDto;
 import com.dasolsystem.core.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -56,8 +55,8 @@ public class DocumentPostServiceImpl implements DocumentPostService {
 
     @Transactional
     public Long deleteDocumentPost(Long postId, String studentId) {
-        Post post = postRepository.findById(postId).orElseThrow(()->new DBFaillException(ApiState.ERROR_1001,"없는 게시글"));
-        if(!post.getMember().getStudentId().equals(studentId)) throw new DBFaillException(ApiState.ERROR_1002,"작성자 식별 오류, 다시 로그인하세요.");
+        Post post = postRepository.findById(postId).orElseThrow(()->new DBFaillException(ApiState.ERROR_500,"없는 게시글"));
+        if(!post.getMember().getStudentId().equals(studentId)) throw new DBFaillException(ApiState.ERROR_500,"작성자 식별 오류, 다시 로그인하세요.");
         Long return_id = post.getPostId();
         postRepository.delete(post);
         return return_id;
@@ -66,10 +65,10 @@ public class DocumentPostServiceImpl implements DocumentPostService {
     @Transactional
     public Long updateDocumentPost(DocumentPostRequestDto dto, Long postId, String studentId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new DBFaillException(ApiState.ERROR_1001, "없는 게시글"));
+                .orElseThrow(() -> new DBFaillException(ApiState.ERROR_500, "없는 게시글"));
 
         if (!post.getMember().getStudentId().equals(studentId)) {
-            throw new DBFaillException(ApiState.ERROR_1002, "작성자 식별 오류, 다시 로그인하세요.");
+            throw new DBFaillException(ApiState.ERROR_500, "작성자 식별 오류, 다시 로그인하세요.");
         }
 
         // 1) Post 필드: null 체크 후에만 업데이트
@@ -106,7 +105,7 @@ public class DocumentPostServiceImpl implements DocumentPostService {
 
     @Transactional(readOnly = true)
     public DocumentPostResponseDto getDocumentPost(Long postId) {
-        Post post = postRepository.findById(postId).orElseThrow(()-> new DBFaillException(ApiState.ERROR_1001,"없는 게시글"));
+        Post post = postRepository.findById(postId).orElseThrow(()-> new DBFaillException(ApiState.ERROR_500,"없는 게시글"));
         return DocumentPostResponseDto.builder()
                 .memberName(post.getMember().getName())
                 .content(post.getContent())

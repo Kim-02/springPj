@@ -2,13 +2,10 @@ package com.dasolsystem.core.post.inquirypost.service;
 
 import com.dasolsystem.config.excption.DBFaillException;
 import com.dasolsystem.core.auth.repository.UserRepository;
-import com.dasolsystem.core.entity.EventPost;
 import com.dasolsystem.core.entity.InquiryPost;
 import com.dasolsystem.core.entity.Member;
 import com.dasolsystem.core.entity.Post;
 import com.dasolsystem.core.enums.ApiState;
-import com.dasolsystem.core.post.eventpost.dto.EventPostRequestDto;
-import com.dasolsystem.core.post.eventpost.dto.EventPostResponseDto;
 import com.dasolsystem.core.post.inquirypost.dto.InquiryPostRequestDto;
 import com.dasolsystem.core.post.inquirypost.dto.InquiryPostResponseDto;
 import com.dasolsystem.core.post.inquirypost.repository.InquiryPostRepository;
@@ -57,8 +54,8 @@ public class InquiryPostServiceImpl implements InquiryPostService {
     }
     @Transactional
     public Long deleteInquiryPost(Long postId,String studentId) {
-        Post post = postRepository.findById(postId).orElseThrow(()->new DBFaillException(ApiState.ERROR_1001,"없는 게시글"));
-        if(!post.getMember().getStudentId().equals(studentId)) throw new DBFaillException(ApiState.ERROR_1002,"작성자 식별 오류, 다시 로그인하세요.");
+        Post post = postRepository.findById(postId).orElseThrow(()->new DBFaillException(ApiState.ERROR_500,"없는 게시글"));
+        if(!post.getMember().getStudentId().equals(studentId)) throw new DBFaillException(ApiState.ERROR_500,"작성자 식별 오류, 다시 로그인하세요.");
         Long return_id = post.getPostId();
         postRepository.delete(post);
         return return_id;
@@ -66,10 +63,10 @@ public class InquiryPostServiceImpl implements InquiryPostService {
     @Transactional
     public Long updateInquiryPost(InquiryPostRequestDto dto, Long postId, String studentId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new DBFaillException(ApiState.ERROR_1001, "없는 게시글"));
+                .orElseThrow(() -> new DBFaillException(ApiState.ERROR_500, "없는 게시글"));
 
         if (!post.getMember().getStudentId().equals(studentId)) {
-            throw new DBFaillException(ApiState.ERROR_1002, "작성자 식별 오류, 다시 로그인하세요.");
+            throw new DBFaillException(ApiState.ERROR_500, "작성자 식별 오류, 다시 로그인하세요.");
         }
 
         if (StringUtils.hasText(dto.getTitle())) {
@@ -97,7 +94,7 @@ public class InquiryPostServiceImpl implements InquiryPostService {
     }
     @Transactional(readOnly = true)
     public InquiryPostResponseDto getInquiryPost(Long postId) {
-        Post post = postRepository.findById(postId).orElseThrow(()-> new DBFaillException(ApiState.ERROR_1001,"없는 게시글"));
+        Post post = postRepository.findById(postId).orElseThrow(()-> new DBFaillException(ApiState.ERROR_500,"없는 게시글"));
         return InquiryPostResponseDto.builder()
                 .memberName(post.getMember().getName())
                 .content(post.getContent())

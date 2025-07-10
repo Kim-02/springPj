@@ -2,34 +2,8 @@ package com.dasolsystem.config.excption;
 
 import com.dasolsystem.core.enums.ApiState;
 
-public class InvalidTokenException extends RuntimeException {
-    Integer code;
-    String message;
-
-    public InvalidTokenException(ApiState codeEnum) {
-        super();
-        this.code = codeEnum.getNum();
-        this.message = "error." + this.code;
+public class InvalidTokenException extends ApiException {
+    public InvalidTokenException(ApiState state,String message) {
+        super(state, message);
     }
-
-    public InvalidTokenException(ApiState codeEnum,String message) {
-        super();
-        this.code = codeEnum.getNum();
-        this.message = "error." + message;
-    }
-
-    public InvalidTokenException(Integer codeEnum) {
-        super();
-        this.code = codeEnum;
-        this.message = "error." + this.code;
-    }
-
-    public Integer getCode() {
-        return this.code;
-    }
-
-    public String getMessage() {
-        return this.message;
-    }
-
 }

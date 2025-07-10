@@ -1,6 +1,5 @@
 package com.dasolsystem.core.auth.signup.dto;
 
-import com.dasolsystem.core.entity.Role;
 import com.dasolsystem.core.enums.Gender;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;

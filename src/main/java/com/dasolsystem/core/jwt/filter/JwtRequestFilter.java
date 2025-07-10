@@ -78,7 +78,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     Boolean isBlacklisted = redisTemplate.hasKey("blacklist:access:" + accessToken);
                     if (Boolean.TRUE.equals(isBlacklisted)) {
                         SecurityContextHolder.clearContext();
-                        throw new AuthFailException(ApiState.ERROR_606, "logout token, please login first");
+                        throw new AuthFailException(ApiState.ERROR_700, "logout token, please login first");
                     }
                     //유효성 검증
                     TokenResponseDto responseToken = securityGuardian.tokenValidator(accessToken, refreshTokenId);
@@ -97,7 +97,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     }
 
                 } else {
-                    throw new AuthFailException(ApiState.ERROR_602, "None AccessToken Please Login");
+                    throw new AuthFailException(ApiState.ERROR_700, "None AccessToken Please Login");
                 }
             } catch (AuthFailException e) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

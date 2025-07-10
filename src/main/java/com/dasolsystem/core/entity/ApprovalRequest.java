@@ -1,9 +1,13 @@
 package com.dasolsystem.core.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -12,6 +16,12 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Table(name="approval_request")
+@JsonIgnoreProperties({
+        "hibernateLazyInitializer",
+        "handler",
+        "fieldHandler",
+        "byteBuddyInterceptor"
+})
 public class ApprovalRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,6 +33,15 @@ public class ApprovalRequest {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "approval_request_approver",
+            joinColumns = @JoinColumn(name = "request_id"),
+            inverseJoinColumns = @JoinColumn(name = "approver_id")
+    )
+    @JsonManagedReference
+    private List<Member> approvers = new ArrayList<>();
+
     /** 요청 생성 일시 */
     @Column(name = "request_date", nullable = false)
     private LocalDateTime requestDate;
@@ -31,17 +50,10 @@ public class ApprovalRequest {
     @Column(name = "title", length = 255, nullable = false)
     private String title;
 
-    /** 기안자 이름 */
-    @Column(name = "drafter_name", length = 100, nullable = false)
-    private String drafterName;
-
     /** 결재 요청 금액 (원 단위) */
     @Column(name = "requested_amount", nullable = false)
     private Integer requestedAmount;
 
-    /** 결재자 이름 */
-    @Column(name = "approver_name", length = 100, nullable = false)
-    private String approverName;
 
     /** 계좌번호 */
     @Column(name = "account_number", length = 50, nullable = false)

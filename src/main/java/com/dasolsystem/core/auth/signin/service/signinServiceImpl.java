@@ -1,6 +1,7 @@
 package com.dasolsystem.core.auth.signin.service;
 
 import com.dasolsystem.config.excption.AuthFailException;
+import com.dasolsystem.config.excption.CodeFailException;
 import com.dasolsystem.config.excption.DBFaillException;
 import com.dasolsystem.core.auth.repository.RoleRepository;
 import com.dasolsystem.core.auth.signin.dto.RequestSigninCheckDto;
@@ -41,7 +42,7 @@ public class signinServiceImpl implements signinService {
                     JwtRequestDto.builder()
                             .role(
                                     roleRepository.findByCode(responseDto.getRoleCode())
-                                            .orElseThrow(() -> new DBFaillException(ApiState.ERROR_501))
+                                            .orElseThrow(() -> new CodeFailException(ApiState.ERROR_101,"cannot find role"))
                                             .getName()
                             )
                             .studentId(responseDto.getStudentId())
@@ -58,8 +59,8 @@ public class signinServiceImpl implements signinService {
             log.info("login Name "+responseDto.getName());
             log.info("login role "+responseDto.getRoleCode());
         }
-        else if(responseDto.getState()==ApiState.ERROR_901){
-            throw new AuthFailException(ApiState.ERROR_901,responseDto.getMessage());
+        else if(responseDto.getState()==ApiState.ERROR_700){
+            throw new AuthFailException(ApiState.ERROR_700,responseDto.getMessage());
         }
         else{
             throw new AuthFailException(ApiState.ERROR_UNKNOWN,"Unknown Error");

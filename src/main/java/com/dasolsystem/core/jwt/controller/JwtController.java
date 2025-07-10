@@ -38,7 +38,7 @@ public class JwtController {
         try {
             // 1) 클라이언트가 보낸 refresh 토큰 ID로 DB에서 실제 토큰 문자열 조회
             RedisJwtId stored = redisJwtRepository.findById(Long.valueOf(refreshId))
-                    .orElseThrow(() -> new InvalidTokenException(ApiState.ERROR_601, "유효하지 않은 Refresh 토큰 ID"));
+                    .orElseThrow(() -> new InvalidTokenException(ApiState.ERROR_600, "유효하지 않은 Refresh 토큰 ID"));
 
             String storedRefreshToken = stored.getJwtToken();
 
@@ -62,11 +62,11 @@ public class JwtController {
             }
             String studentId = refreshClaims.getSubject();
             if(!accessClaims.getSubject().equals(studentId))
-                throw new InvalidTokenException(ApiState.ERROR_605,"토큰 인증 값이 다릅니다.");
+                throw new InvalidTokenException(ApiState.ERROR_101,"토큰 인증 값이 다릅니다.");
             // 4) 새로운 Refresh 토큰 ID 발급 및 저장
             Long newRefreshId = jwtBuilder.generateRefreshId(studentId);
             RedisJwtId newStored = redisJwtRepository.findById(newRefreshId)
-                    .orElseThrow(() -> new InvalidTokenException(ApiState.ERROR_604, "새 Refresh 토큰 생성 실패"));
+                    .orElseThrow(() -> new InvalidTokenException(ApiState.ERROR_101, "새 Refresh 토큰 생성 실패"));
 
             String newRefreshTokenId = newStored.getId().toString();
 
