@@ -1,5 +1,6 @@
 package com.dasolsystem.core.mainpage.controller;
 
+import com.dasolsystem.core.guardian.SecurityGuardian;
 import com.dasolsystem.core.handler.ResponseJson;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -21,30 +22,14 @@ import java.util.Map;
 @RequestMapping("/api/main")
 @RequiredArgsConstructor
 public class MainPageController {
+    private final SecurityGuardian securityGuardian;
     @Value("${jwt.secret.key}")
     private String SecretKey; //키값임.
 
+    //로그인 유저 정보
     @GetMapping("/user_info")
     public ResponseEntity<ResponseJson<Object>> userInfo(HttpServletRequest request) {
-        try {
-            String header = request.getHeader("Authorization");
-            if (header == null || !header.startsWith("Bearer ")) {
-                return ResponseEntity.status(401)
-                        .body(
-                                ResponseJson.builder()
-                                        .status(401)
-                                        .message("not availble token")
-                                        .build()
-                        );
-            }
-            String token = header.substring(7);
-            byte[] KeyBytes = Decoders.BASE64.decode(SecretKey);
-            Key key = Keys.hmacShaKeyFor(KeyBytes);
-
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token).getBody();
+            Claims claims = securityGuardian.getServletTokenClaims(request);
             String username = claims.get("userName", String.class);
             String studentId = claims.getSubject();
             Map<String, String> data =
@@ -58,15 +43,6 @@ public class MainPageController {
                             .result(data)
                             .build()
             );
-        } catch (Exception e) {
-            return ResponseEntity.status(401)
-                    .body(
-                            ResponseJson.builder()
-                                    .status(401)
-                                    .message("Error"+e.getMessage())
-                            .build()
-                    );
-            }
     }
 
 

@@ -67,7 +67,7 @@ public class ApprovalServiceImpl implements ApprovalService {
     public GetApprovalPostResponse getApprovalPost(String studentId){
         Member approver = userRepository.findByStudentId(studentId).orElseThrow(()->new DBFaillException(ApiState.ERROR_500,"student not found"));
         MemberDto memberDto = MemberDto.builder()
-                .id(approver.getId())
+                .id(approver.getMemberId())
                 .studentId(approver.getStudentId())
                 .name(approver.getName())
                 .build();

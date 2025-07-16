@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class DocumentPostRequestDto {
+
     private String title;
     private String content;
     private LocalDateTime startDate;

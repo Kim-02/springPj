@@ -24,7 +24,6 @@ public class EventPostController {
 
     @PostMapping("/create")
     public ResponseEntity<ResponseJson<?>> createPost(@RequestBody EventPostRequestDto eventPostRequestDto, HttpServletRequest request) {
-        try{
             Claims loginClaim = securityGuardian.getServletTokenClaims(request);
             if(loginClaim == null) throw new IllegalStateException("Login claim is null");
             eventPostRequestDto.setStudentId(loginClaim.getSubject());
@@ -32,18 +31,9 @@ public class EventPostController {
             return ResponseEntity.ok(
                     ResponseJson.builder()
                             .status(200)
-                            .message("success post id: "+ postId)
+                            .message("success post memberId: "+ postId)
                     .build()
             );
-        }catch(Exception e){
-            return ResponseEntity.status(500).body(
-                    ResponseJson.builder()
-                            .status(500)
-                            .message("failer. Error. "+ e.getMessage())
-                    .build()
-
-            );
-        }
 
     }
     @DeleteMapping("/delete")
@@ -70,24 +60,15 @@ public class EventPostController {
 
     @PatchMapping("/posts/{postId}")
     public ResponseEntity<ResponseJson<?>> updatePost(@RequestBody EventPostRequestDto eventPostRequestDto,@PathVariable Long postId, HttpServletRequest request) {
-        try{
-            Claims loginClaim = securityGuardian.getServletTokenClaims(request);
-            if(loginClaim == null) throw new IllegalStateException("Login claim is null");
-            Long updated_id = eventPostService.updateEventPost(eventPostRequestDto,postId,loginClaim.getSubject());
-            return ResponseEntity.ok(
-                    ResponseJson.builder()
-                            .status(200)
-                            .message("updated"+updated_id)
-                            .build()
-            );
-        }catch(Exception e){
-            return ResponseEntity.status(500).body(
-                    ResponseJson.builder()
-                            .status(500)
-                            .message(e.getMessage())
-                            .build()
-            );
-        }
+        Claims loginClaim = securityGuardian.getServletTokenClaims(request);
+        if(loginClaim == null) throw new IllegalStateException("Login claim is null");
+        Long updated_id = eventPostService.updateEventPost(eventPostRequestDto,postId,loginClaim.getSubject());
+        return ResponseEntity.ok(
+                ResponseJson.builder()
+                        .status(200)
+                        .message("updated"+updated_id)
+                        .build()
+        );
     }
     @GetMapping("/posts/get/{postId}")
     public ResponseEntity<ResponseJson<?>> getPost(@PathVariable Long postId) {
@@ -106,5 +87,16 @@ public class EventPostController {
             );
         }
 
+    }
+    @PostMapping("/posts/{postId}/participate")
+    public ResponseEntity<ResponseJson<?>> participatePost(@PathVariable Long postId, HttpServletRequest request) {
+        Claims loginClaim = securityGuardian.getServletTokenClaims(request);
+        String participant = eventPostService.participateEventPost(postId,loginClaim.getSubject());
+        return ResponseEntity.ok(
+                ResponseJson.builder()
+                        .status(200)
+                        .message("success participaint "+participant)
+                .build()
+        );
     }
 }

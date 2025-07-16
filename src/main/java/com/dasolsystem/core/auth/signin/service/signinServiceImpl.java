@@ -14,10 +14,11 @@ import com.dasolsystem.core.jwt.util.JwtBuilder;
 import jdk.jfr.Description;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +29,7 @@ import java.util.Map;
 public class signinServiceImpl implements signinService {
     private final UserRepository userRepository;
     private final JwtBuilder jwtBuilder;
-    private final PasswordEncoder passwordEncoder;
+    private final BCryptPasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
 
     @Description("로그인")
@@ -70,11 +71,11 @@ public class signinServiceImpl implements signinService {
 
     @Description("로그인 check")
     public ResponseSignincheckDto loginCheck(RequestSigninCheckDto dto) {
-        String id = dto.getStudent_id();
-        String pw = dto.getPw();
-        Member valid = userRepository.findByStudentIdWithRole(id).orElseThrow(()-> new UsernameNotFoundException("Not Found id"));
+        String id = dto.getStudentId();
+        String pw = dto.getPassword();
+        Member valid = userRepository.findByStudentIdWithRole(id).orElseThrow(()-> new UsernameNotFoundException("Not Found memberId"));
         if(!passwordEncoder.matches(pw, valid.getPassword())){
-            throw new BadCredentialsException("Wrong password");
+            throw new AuthFailException(ApiState.ERROR_700,"비밀번호가 틀렸습니다.");
         }
         return ResponseSignincheckDto.builder()
                 .state(ApiState.OK)
@@ -85,4 +86,20 @@ public class signinServiceImpl implements signinService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
+    public void checkPassword(String studentId, String password) {
+        String userPassword = userRepository.findByStudentId(studentId).orElseThrow(
+                ()->new DBFaillException(ApiState.ERROR_500,"유저를 찾을 수 없습니다.")
+        ).getPassword();
+        if(!passwordEncoder.matches(password, userPassword)){
+            throw new AuthFailException(ApiState.ERROR_700,"비밀번호가 틀렸습니다.");
+        }
+    }
+    @Transactional
+    public void changePassword(String studentId, String newPassword) {
+        Member loginUser = userRepository.findByStudentId(studentId).orElseThrow(
+                ()->new DBFaillException(ApiState.ERROR_500,"유저를 찾을 수 없습니다.")
+        );
+        loginUser.setPassword(passwordEncoder.encode(newPassword));
+    }
 }

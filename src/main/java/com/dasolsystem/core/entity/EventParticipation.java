@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Access(AccessType.FIELD)
 public class EventParticipation {
     @EmbeddedId
     private EventParticipationId id;
@@ -23,9 +24,9 @@ public class EventParticipation {
     private Member member;
 
     /** 연관 게시글 */
-    @MapsId("boardId")
+    @MapsId("postId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "board_id", nullable = false)
+    @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
     /** 납부 여부 */

@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class RequestSignupDto {
     @NotNull
     @Size(min=10)
-    private String student_id;
+    private String studentId;
 
     @NotNull
     private String password;

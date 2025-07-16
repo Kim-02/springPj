@@ -30,7 +30,7 @@ public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="member_id",updatable = false,nullable = false)
-    private Long id;
+    private Long memberId;
 
     /**
      * 본인참조
@@ -87,11 +87,11 @@ public class Member {
     public boolean equals(Object o) {
         if (this == o) return true;
         if(!(o instanceof Member)) return false;
-        return Objects.equals(id, ((Member)o).id);
+        return Objects.equals(memberId, ((Member)o).memberId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(memberId);
     }
 }

@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/document")
@@ -30,7 +32,7 @@ public class DocumentPostController {
             return ResponseEntity.ok(
                     ResponseJson.builder()
                             .status(200)
-                            .message("success post id: "+ postId)
+                            .message("success post memberId: "+ postId)
                             .build()
             );
         }catch(Exception e){
@@ -68,7 +70,6 @@ public class DocumentPostController {
 
     @PatchMapping("/posts/{postId}")
     public ResponseEntity<ResponseJson<?>> updatePost(@RequestBody DocumentPostRequestDto documentPostRequestDto, @PathVariable Long postId, HttpServletRequest request) {
-        try{
             Claims loginClaim = securityGuardian.getServletTokenClaims(request);
             if(loginClaim == null) throw new IllegalStateException("Login claim is null");
             Long updated_id = documentPostService.updateDocumentPost(documentPostRequestDto,postId,loginClaim.getSubject());
@@ -78,18 +79,9 @@ public class DocumentPostController {
                             .message("updated"+updated_id)
                             .build()
             );
-        }catch(Exception e){
-            return ResponseEntity.status(500).body(
-                    ResponseJson.builder()
-                            .status(500)
-                            .message(e.getMessage())
-                            .build()
-            );
-        }
     }
     @GetMapping("/posts/get/{postId}")
     public ResponseEntity<ResponseJson<?>> getPost(@PathVariable Long postId) {
-        try{
             DocumentPostResponseDto responseDto = documentPostService.getDocumentPost(postId);
             return ResponseEntity.ok(
                     ResponseJson.builder()
@@ -98,11 +90,19 @@ public class DocumentPostController {
                             .result(responseDto)
                             .build()
             );
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(
-                    ResponseJson.builder().status(500).message(e.getMessage()).build()
-            );
-        }
+    }
 
+    @GetMapping("/getAllPost")
+    public ResponseEntity<ResponseJson<?>> getAllPost() {
+        List<DocumentPostResponseDto> responseDtos = documentPostService.getDocumentPosts();
+        return ResponseEntity.ok(
+                ResponseJson.builder()
+                        .status(200)
+                        .message("success loading")
+                        .result(
+                                responseDtos
+                        )
+                .build()
+        );
     }
 }

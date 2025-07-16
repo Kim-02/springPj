@@ -24,11 +24,11 @@ public class SignupServiceImpl implements SignupService {
     @Description("회원 가입")
     @Transactional
     public ResponseSavedNameDto signup(RequestSignupDto request) {
-        if(userRepository.existsBystudentId(request.getStudent_id()))
+        if(userRepository.existsBystudentId(request.getStudentId()))
             throw new AuthFailException(ApiState.ERROR_700,"Exist User");
         RoleCode default_role = roleRepository.findById(100L);
         Member user = Member.builder()
-                .studentId(request.getStudent_id())
+                .studentId(request.getStudentId())
                 .password(bCryptPasswordEncoder.encode(request.getPassword()))
                 .gender(request.getGender())
                 .paidUser(false)

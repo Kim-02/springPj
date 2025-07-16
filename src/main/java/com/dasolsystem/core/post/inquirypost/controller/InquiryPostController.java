@@ -30,7 +30,7 @@ public class InquiryPostController {
             return ResponseEntity.ok(
                     ResponseJson.builder()
                             .status(200)
-                            .message("success post id: "+ postId)
+                            .message("success post memberId: "+ postId)
                             .build()
             );
         }catch(Exception e){

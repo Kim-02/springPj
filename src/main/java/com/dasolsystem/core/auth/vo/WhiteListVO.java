@@ -12,7 +12,7 @@ public class WhiteListVO {
             "/api/auth/signup",
             "/api/users/file/upload",
             "/api/users/personal/upload",
-            "/api/users/personal/find/id",
+            "/api/users/personal/find/memberId",
             "/api/users/personal/find/data",
             "/api/deposit/personal/update",
             "/api/users/personal/delete/user",

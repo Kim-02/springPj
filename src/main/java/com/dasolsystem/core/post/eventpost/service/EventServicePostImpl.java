@@ -2,14 +2,14 @@ package com.dasolsystem.core.post.eventpost.service;
 
 import com.dasolsystem.config.excption.DBFaillException;
 import com.dasolsystem.core.auth.repository.UserRepository;
-import com.dasolsystem.core.entity.EventPost;
-import com.dasolsystem.core.entity.Member;
-import com.dasolsystem.core.entity.Post;
+import com.dasolsystem.core.entity.*;
 import com.dasolsystem.core.enums.ApiState;
 import com.dasolsystem.core.post.eventpost.dto.EventPostRequestDto;
 import com.dasolsystem.core.post.eventpost.dto.EventPostResponseDto;
 import com.dasolsystem.core.post.eventpost.repository.EventPostRepository;
 import com.dasolsystem.core.post.repository.PostRepository;
+import com.dasolsystem.core.user.dto.UserEventParticipationResponseDto;
+import com.dasolsystem.core.user.repository.EventParticipationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,12 +21,12 @@ public class EventServicePostImpl implements EventPostService{
     private final EventPostRepository eventPostRepository;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
-
+    private final EventParticipationRepository eventParticipationRepository;
     @Transactional
     public Long createEventPost(EventPostRequestDto dto) {
         // 1) 작성자(member) 조회
         Member member = userRepository.findByStudentId(dto.getStudentId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다. id=" + dto.getStudentId()));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다. memberId=" + dto.getStudentId()));
 
         // 2) Post 엔티티 생성
         Post post = Post.builder()
@@ -114,5 +114,25 @@ public class EventServicePostImpl implements EventPostService{
                 .notice(post.getEventPost().getNotice())
                 .payAmount(post.getEventPost().getPayAmount())
                 .build();
+    }
+
+    /**
+     * 이벤트를 참여하기 위한 API 이벤트 참여 버튼을 누르면 호출
+     * @param postId 해당 이벤트 ID
+     * @param studentId 참여하는 memberId Token에서 추출
+     * @return 저장된 참여 내역 정보 제목
+     */
+    @Transactional
+    public String participateEventPost(Long postId, String studentId) {
+        EventParticipation eventParticipation =
+                EventParticipation.builder()
+                        .id(new EventParticipationId())
+                        .post(postRepository.findById(postId).orElseThrow(()->new DBFaillException(ApiState.ERROR_500,"post를 찾을 수 없습니다.")))
+                        .paidAt(null)
+                        .paymentStatus(false)
+                        .member(userRepository.findByStudentId(studentId).orElseThrow(()->new DBFaillException(ApiState.ERROR_500,"유저 정보를 찾을 수 없습니다.")))
+                        .build();
+        EventParticipation participateId = eventParticipationRepository.save(eventParticipation);
+        return participateId.getPost().getTitle();
     }
 }

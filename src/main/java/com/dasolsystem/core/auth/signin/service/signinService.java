@@ -9,4 +9,6 @@ import java.util.Map;
 public interface signinService {
     ResponseSignincheckDto loginCheck(RequestSigninCheckDto dto);
     Map<String, String> login(RequestSigninCheckDto dto);
+    void checkPassword(String studentId, String password);
+    void changePassword(String studentId, String newPassword);
 }

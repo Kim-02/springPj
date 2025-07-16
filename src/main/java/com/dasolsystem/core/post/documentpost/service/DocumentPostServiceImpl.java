@@ -15,6 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class DocumentPostServiceImpl implements DocumentPostService {
@@ -26,7 +29,7 @@ public class DocumentPostServiceImpl implements DocumentPostService {
     public Long createDocumentPost(DocumentPostRequestDto dto) {
         // 1) 작성자(member) 조회
         Member member = userRepository.findByStudentId(dto.getStudentId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다. id=" + dto.getStudentId()));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다. memberId=" + dto.getStudentId()));
 
         // 2) Post 엔티티 생성
         Post post = Post.builder()
@@ -107,6 +110,7 @@ public class DocumentPostServiceImpl implements DocumentPostService {
     public DocumentPostResponseDto getDocumentPost(Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(()-> new DBFaillException(ApiState.ERROR_500,"없는 게시글"));
         return DocumentPostResponseDto.builder()
+                .title(post.getTitle())
                 .memberName(post.getMember().getName())
                 .content(post.getContent())
                 .startDate(post.getStartDate())
@@ -116,5 +120,28 @@ public class DocumentPostServiceImpl implements DocumentPostService {
                 .filePath(post.getDocumentPost().getFilePath())
                 .realLocation(post.getDocumentPost().getRealLocation())
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<DocumentPostResponseDto> getDocumentPosts() {
+        List<DocumentPost> entities = documentPostRepository.findAllWithPostAndMember();
+
+        return entities.stream()
+                .map(dp -> {
+                    Post p = dp.getPost();
+                    return DocumentPostResponseDto.builder()
+                            .id(p.getPostId())
+                            .memberName( p.getMember().getName() )
+                            .content(    p.getContent() )
+                            .startDate(  p.getStartDate() )
+                            .endDate(    p.getEndDate() )
+                            .capacity(   p.getCapacity() )
+                            .target(     p.getTarget() )
+                            .filePath(   dp.getFilePath() )
+                            .title(p.getTitle() )
+                            .realLocation(dp.getRealLocation())
+                            .build();
+                })
+                .toList();
     }
 }

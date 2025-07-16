@@ -27,7 +27,7 @@ public class InquiryPostServiceImpl implements InquiryPostService {
     public Long createInquiryPost(InquiryPostRequestDto dto) {
         // 1) 작성자(member) 조회
         Member member = userRepository.findByStudentId(dto.getStudentId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다. id=" + dto.getStudentId()));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다. memberId=" + dto.getStudentId()));
 
         // 2) Post 엔티티 생성
         Post post = Post.builder()
