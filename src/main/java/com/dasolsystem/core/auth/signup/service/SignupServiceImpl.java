@@ -29,6 +29,7 @@ public class SignupServiceImpl implements SignupService {
         RoleCode default_role = roleRepository.findById(100L);
         Member user = Member.builder()
                 .studentId(request.getStudentId())
+                .enterYear(request.getStudentId().substring(0,4))
                 .password(bCryptPasswordEncoder.encode(request.getPassword()))
                 .gender(request.getGender())
                 .paidUser(false)

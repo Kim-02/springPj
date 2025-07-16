@@ -15,7 +15,10 @@ public enum ApiState {
     ERROR_500(500),
 
     //code
-    ERROR_101(101) //코드오류
+    ERROR_101(101), //코드오류
+
+    //file
+    ERROR_800(800)
 
     //예상치 못한 에러
     ,ERROR_UNKNOWN(100);

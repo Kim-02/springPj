@@ -1,11 +1,17 @@
 package com.dasolsystem.core.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name="trasaction_record")
+@Table(name="transaction_record")
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Getter
+@Setter
 public class TransactionRecord {
     /** 거래 내역 고유 ID (PK, AUTO_INCREMENT) */
     @Id

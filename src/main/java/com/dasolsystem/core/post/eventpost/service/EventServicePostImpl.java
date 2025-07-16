@@ -8,7 +8,6 @@ import com.dasolsystem.core.post.eventpost.dto.EventPostRequestDto;
 import com.dasolsystem.core.post.eventpost.dto.EventPostResponseDto;
 import com.dasolsystem.core.post.eventpost.repository.EventPostRepository;
 import com.dasolsystem.core.post.repository.PostRepository;
-import com.dasolsystem.core.user.dto.UserEventParticipationResponseDto;
 import com.dasolsystem.core.user.repository.EventParticipationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -124,15 +123,33 @@ public class EventServicePostImpl implements EventPostService{
      */
     @Transactional
     public String participateEventPost(Long postId, String studentId) {
+        Post post = postRepository.findById(postId).orElseThrow(()->new DBFaillException(ApiState.ERROR_500,"post를 찾을 수 없습니다."));
+        Member user = userRepository.findByStudentId(studentId).orElseThrow(()->new DBFaillException(ApiState.ERROR_500,"유저 정보를 찾을 수 없습니다."));
+        EventParticipationId id = new EventParticipationId();
+        id.setPostId(post.getPostId());
+        id.setMemberId(user.getMemberId());
+        eventParticipationRepository.findByIdMemberIdAndIdPostId(
+                user.getMemberId(), post.getPostId()
+        ).ifPresent(ep ->{
+            throw new DBFaillException(ApiState.ERROR_500,"이미 신청하였습니다.");
+        });
+        String baseName = post.getTitle() + user.getName();
+        String paymentName = baseName;
+        int suffix = (int)(user.getMemberId() % 10);
+
+        while (eventParticipationRepository.existsByPaymentName(paymentName)) {
+            paymentName = baseName + (suffix++);
+        }
+
         EventParticipation eventParticipation =
                 EventParticipation.builder()
-                        .id(new EventParticipationId())
-                        .post(postRepository.findById(postId).orElseThrow(()->new DBFaillException(ApiState.ERROR_500,"post를 찾을 수 없습니다.")))
+                        .id(id)
+                        .post(post)
                         .paidAt(null)
                         .paymentStatus(false)
-                        .member(userRepository.findByStudentId(studentId).orElseThrow(()->new DBFaillException(ApiState.ERROR_500,"유저 정보를 찾을 수 없습니다.")))
+                        .paymentName(paymentName)
+                        .member(user)
                         .build();
-        EventParticipation participateId = eventParticipationRepository.save(eventParticipation);
-        return participateId.getPost().getTitle();
+        return eventParticipationRepository.save(eventParticipation).getPost().getTitle();
     }
 }

@@ -55,6 +55,9 @@ public class Member {
     @Column(name = "student_id", length = 20, nullable = false, unique = true)
     private String studentId;
 
+    @Column(name = "enter_year",length = 10, nullable = false)
+    private String enterYear;
+
     @Column(name = "password", length = 255, nullable = false)
     private String password;       // 해시값 저장
 

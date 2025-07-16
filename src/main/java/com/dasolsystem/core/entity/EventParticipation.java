@@ -29,6 +29,10 @@ public class EventParticipation {
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
+    /** 참여자 입금명*/
+    @Column(name="payment_name",nullable = false)
+    private String paymentName;
+
     /** 납부 여부 */
     @Column(name = "payment_status", nullable = false)
     private Boolean paymentStatus;
