@@ -1,11 +1,13 @@
 package com.dasolsystem.core.user.controller;
 
 import com.dasolsystem.config.excption.AuthFailException;
+import com.dasolsystem.config.excption.CodeFailException;
 import com.dasolsystem.core.auth.repository.UserRepository;
 import com.dasolsystem.core.entity.Member;
 import com.dasolsystem.core.enums.ApiState;
 import com.dasolsystem.core.guardian.SecurityGuardian;
 import com.dasolsystem.core.handler.ResponseJson;
+import com.dasolsystem.core.user.dto.DepartmentDto;
 import com.dasolsystem.core.user.dto.UserEventParticipationResponseDto;
 import com.dasolsystem.core.user.dto.UserProfileResponseDto;
 import com.dasolsystem.core.user.service.UserService;
@@ -13,10 +15,7 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -60,5 +59,31 @@ public class UserController {
                         .build()
         );
     }
+    @PostMapping("/department/giving")
+    public ResponseEntity<ResponseJson<?>> userGivingDepartment(@RequestBody DepartmentDto department, HttpServletRequest request) {
+        if(!securityGuardian.userValidate(request,"Presidency")){
+            throw new CodeFailException(ApiState.ERROR_101,"권한이 없습니다. 로그인 정보를 확인하세요");
+        }
+        DepartmentDto responseDto = userService.setUserDepartment(department.getStudentId(), department);
+        return ResponseEntity.ok(
+                ResponseJson.builder()
+                        .status(200)
+                        .message("역할 변경이 완료되었습니다. "+responseDto.getResult())
+                .build()
+        );
 
+    }
+    @DeleteMapping("/department/delete")
+    public ResponseEntity<ResponseJson<?>> userDeleteDepartment(@RequestParam String studentId,HttpServletRequest request) {
+        if(!securityGuardian.userValidate(request,"Presidency")){
+            throw new CodeFailException(ApiState.ERROR_101,"권한이 없습니다. 로그인 정보를 확인하세요");
+        }
+        String result = userService.deleteUserDepartment(studentId);
+        return ResponseEntity.ok(
+                ResponseJson.builder()
+                        .status(200)
+                        .message("success "+result)
+                        .build()
+        );
+    }
 }

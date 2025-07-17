@@ -82,6 +82,10 @@ public class Member {
     @JoinColumn(name = "role_code", nullable = false)
     private RoleCode role;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_role")
+    private Department department;
+
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "approvers")
     @JsonBackReference
     private List<ApprovalRequest> approvalRequests = new ArrayList<>();

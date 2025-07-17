@@ -1,6 +1,7 @@
 package com.dasolsystem.core.auth.repository;
 
 import com.dasolsystem.core.entity.Member;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -19,4 +20,10 @@ public interface UserRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByStudentId(String studentId);
 
     List<Member> findByName(String name);
+
+    //fetch join
+    @Query("SELECT m FROM Member m JOIN FETCH m.department d JOIN FETCH m.role r")
+    List<Member> findAllWithDeptAndRole();
+
+
 }
