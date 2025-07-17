@@ -7,13 +7,16 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Embeddable
 @Getter
 @Setter
-public class PermissionChangeId {
+public class PermissionChangeId implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Column(name = "requester_id", nullable = false)
@@ -21,9 +24,6 @@ public class PermissionChangeId {
 
     @Column(name = "target_id", nullable = false)
     private Long targetId;
-
-    @Column(name = "changed_at", nullable = false)
-    private LocalDateTime changedAt;
 
     @Override
     public boolean equals(Object obj) {

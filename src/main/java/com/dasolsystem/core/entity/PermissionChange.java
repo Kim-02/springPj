@@ -3,6 +3,8 @@ package com.dasolsystem.core.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name="permission_change")
 @Getter
@@ -29,4 +31,7 @@ public class PermissionChange {
 
     @Column(name = "reason", length = 255)
     private String reason;
+
+    @Column(name = "changed_at", nullable = false)
+    private LocalDateTime changedAt;
 }

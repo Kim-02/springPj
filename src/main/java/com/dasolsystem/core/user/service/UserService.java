@@ -12,4 +12,5 @@ public interface UserService {
     List<UserEventParticipationResponseDto> getUserEventParticipation(Member member);
     DepartmentDto setUserDepartment(String studentId, DepartmentDto department);
     String deleteUserDepartment(String studentId);
+    void changeUserPermission(String requesterId, String reason, String targetId, String role);
 }

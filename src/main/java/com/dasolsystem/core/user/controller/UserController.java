@@ -8,12 +8,14 @@ import com.dasolsystem.core.enums.ApiState;
 import com.dasolsystem.core.guardian.SecurityGuardian;
 import com.dasolsystem.core.handler.ResponseJson;
 import com.dasolsystem.core.user.dto.DepartmentDto;
+import com.dasolsystem.core.user.dto.PermissionChangeDto;
 import com.dasolsystem.core.user.dto.UserEventParticipationResponseDto;
 import com.dasolsystem.core.user.dto.UserProfileResponseDto;
 import com.dasolsystem.core.user.service.UserService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -84,6 +86,24 @@ public class UserController {
                         .status(200)
                         .message("success "+result)
                         .build()
+        );
+    }
+    @PostMapping("/permission/change")
+    public ResponseEntity<ResponseJson<?>> userPermissionChange(@RequestBody PermissionChangeDto pcDto,HttpServletRequest request){
+        if(!securityGuardian.userValidate(request,"Presidency")){
+            throw new CodeFailException(ApiState.ERROR_101,"권한이 없습니다. 로그인 정보를 확인하세요");
+        }
+        String requesterId = securityGuardian.getServletTokenClaims(request).getSubject();
+        String targetId = pcDto.getTargetStudentId();
+        String reason = pcDto.getReason();
+        String role = pcDto.getRole();
+        userService.changeUserPermission(requesterId,reason,targetId,role);
+        return ResponseEntity.ok(
+                ResponseJson
+                        .builder()
+                        .status(200)
+                        .message("변경 내역 저장 완료"+pcDto.getReason())
+                .build()
         );
     }
 }
