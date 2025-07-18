@@ -3,6 +3,7 @@ package com.dasolsystem.core.test;
 import com.dasolsystem.core.guardian.SecurityGuardian;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,6 +24,7 @@ public class FileTestController {
 
     private final SecurityGuardian securityGuardian;
 
+    @Transactional
     @PostMapping("/upload")
     public String upload(@RequestBody FileDto dto, HttpServletRequest servletRequest) throws IOException {
         String requestId = securityGuardian.getServletTokenClaims(servletRequest).getSubject();
