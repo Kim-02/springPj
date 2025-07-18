@@ -1,6 +1,7 @@
 package com.dasolsystem.core.guardian;
 
 import com.dasolsystem.config.excption.DBFaillException;
+import com.dasolsystem.config.excption.InvalidTokenException;
 import com.dasolsystem.core.enums.ApiState;
 import com.dasolsystem.core.enums.JwtCode;
 import com.dasolsystem.core.enums.Role;
@@ -50,17 +51,31 @@ public class SecurityGuardian {
             ).getJwtToken();
             log.info("-> get refresh token from redis");
             //기존 사용하던 리프레시 토큰을 사용할 수 없게 한다.
+            String studentId;
+            try{
+                Claims refreshClaims = Jwts.parserBuilder()
+                        .setAllowedClockSkewSeconds(30)
+                        .setSigningKey(Keys.hmacShaKeyFor(Decoders.BASE64.decode(RefreshSecretKey)))
+                        .build()
+                        .parseClaimsJws(refreshToken).getBody();
+                studentId = refreshClaims.getSubject();
+            }catch (JwtException e){
+                throw new InvalidTokenException(ApiState.ERROR_101,"refresh token expired");
+            }
             redisJwtRepository.deleteById(Long.valueOf(refreshTokenId));
-            Claims refreshClaims = Jwts.parserBuilder()
-                    .setSigningKey(Keys.hmacShaKeyFor(Decoders.BASE64.decode(RefreshSecretKey)))
-                    .build()
-                    .parseClaimsJws(refreshToken).getBody();
-            String studentId = refreshClaims.getSubject();
+            log.info("-> delete refresh token from redis");
+
             log.info("--> get refresh token subject = "+studentId);
-            Claims accessClaims = Jwts.parserBuilder()
-                    .setSigningKey(Keys.hmacShaKeyFor(Decoders.BASE64.decode(SecretKey)))
-                    .build()
-                    .parseClaimsJws(accessToken).getBody();
+            Claims accessClaims;
+            try{
+                accessClaims = Jwts.parserBuilder()
+                        .setSigningKey(Keys.hmacShaKeyFor(Decoders.BASE64.decode(SecretKey)))
+                        .build()
+                        .parseClaimsJws(accessToken).getBody();
+            }catch (ExpiredJwtException ex) {
+                // 만료된 토큰이라도 ex.getClaims() 로 클레임 추출 가능
+                accessClaims = ex.getClaims();
+            }
 
             //여기서 새로운 아이디를 생성해서 반환한다.
             Long newRefreshTokenId = jwtBuilder.generateRefreshId(studentId);

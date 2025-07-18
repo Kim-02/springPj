@@ -82,7 +82,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     }
                     //유효성 검증
                     TokenResponseDto responseToken = securityGuardian.tokenValidator(accessToken, refreshTokenId);
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(securityGuardian.getStudentId(responseToken.getAccessToken()));
+                    if(responseToken.getJwtCode() != JwtCode.OK){
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        response.getWriter().write("토큰이 유효하지 않습니다.");
+                        return;
+                    }
+                    String finalAccessToken = responseToken.getAccessToken();
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(securityGuardian.getStudentId(finalAccessToken));
                     if (userDetails != null) {
                         log.info("유효성 검증 진입");
                         //security 접근 토큰 생성
@@ -94,18 +100,23 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                                 );
                         //접근 토큰 활성화
                         SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                        if (!finalAccessToken.equals(accessToken)) {
+                            response.setHeader(AUTHORIZATION_HEADER, BEARER_PREFIX + finalAccessToken);
+                            response.setHeader(REFRESH_AUTHORIZATION_HEADER, BEARER_PREFIX + responseToken.getRefreshToken());
+                        }
                     }
 
                 } else {
                     throw new AuthFailException(ApiState.ERROR_700, "None AccessToken Please Login");
                 }
+                filterChain.doFilter(request, response);
             } catch (AuthFailException e) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write(e.getMessage());
                 return;
             }
 
-            filterChain.doFilter(request, response);
+
         }catch (Exception e) {
             throw new ServletException(e.getMessage(), e.getCause());
         }

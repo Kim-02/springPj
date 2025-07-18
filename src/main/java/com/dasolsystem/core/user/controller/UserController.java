@@ -7,10 +7,7 @@ import com.dasolsystem.core.entity.Member;
 import com.dasolsystem.core.enums.ApiState;
 import com.dasolsystem.core.guardian.SecurityGuardian;
 import com.dasolsystem.core.handler.ResponseJson;
-import com.dasolsystem.core.user.dto.DepartmentDto;
-import com.dasolsystem.core.user.dto.PermissionChangeDto;
-import com.dasolsystem.core.user.dto.UserEventParticipationResponseDto;
-import com.dasolsystem.core.user.dto.UserProfileResponseDto;
+import com.dasolsystem.core.user.dto.*;
 import com.dasolsystem.core.user.service.UserService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
@@ -104,6 +101,20 @@ public class UserController {
                         .status(200)
                         .message("변경 내역 저장 완료"+pcDto.getReason())
                 .build()
+        );
+    }
+    @GetMapping("/permission/get/all")
+    public ResponseEntity<ResponseJson<?>> userPermissionGetAll(HttpServletRequest request){
+        if(!securityGuardian.userValidate(request,"Presidency")){
+            throw new CodeFailException(ApiState.ERROR_101,"권한이 없습니다. 로그인 정보를 확인하세요");
+        }
+        String loginId = securityGuardian.getServletTokenClaims(request).getSubject();
+        List<PermissionChangeLogDto> resDto = userService.getPermissionChangeLog(loginId);
+        return ResponseEntity.ok(
+                ResponseJson.builder()
+                        .status(200)
+                        .result(resDto)
+                        .build()
         );
     }
 }

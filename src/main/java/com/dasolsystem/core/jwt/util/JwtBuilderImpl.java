@@ -34,7 +34,7 @@ public class JwtBuilderImpl implements JwtBuilder {
     @Value("${jwt.refresh.secret.key}")
     private String RefreshSecretKey;
 
-    private static final Long AccessTokenExpTime = Duration.ofMinutes(15).toMillis();
+    private static final Long AccessTokenExpTime = Duration.ofMinutes(1).toMillis();
     private static final Long RefreshTokenExpTime = Duration.ofDays(7).toMillis();
 
     /**

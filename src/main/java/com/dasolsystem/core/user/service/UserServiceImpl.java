@@ -9,6 +9,7 @@ import com.dasolsystem.core.entity.*;
 import com.dasolsystem.core.enums.ApiState;
 import com.dasolsystem.core.enums.Role;
 import com.dasolsystem.core.user.dto.DepartmentDto;
+import com.dasolsystem.core.user.dto.PermissionChangeLogDto;
 import com.dasolsystem.core.user.dto.UserEventParticipationResponseDto;
 import com.dasolsystem.core.user.dto.UserProfileResponseDto;
 import com.dasolsystem.core.user.repository.EventParticipationRepository;
@@ -108,5 +109,22 @@ public class UserServiceImpl implements UserService {
                 .changedAt(LocalDateTime.now())
                 .build();
         permissionChangeRepository.save(permissionChange);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PermissionChangeLogDto> getPermissionChangeLog(String requesterId) {
+        List<PermissionChange> changeList = permissionChangeRepository.findAllByIdRequesterId(Long.valueOf(requesterId));
+        List<PermissionChangeLogDto> changeLogDtos = new ArrayList<>();
+        for(PermissionChange permissionChange : changeList) {
+            changeLogDtos.add(
+                    PermissionChangeLogDto.builder()
+                            .changeTime(permissionChange.getChangedAt())
+                            .changeId(permissionChange.getTarget().getStudentId())
+                            .changeName(permissionChange.getTarget().getName())
+                            .changeLog(permissionChange.getReason())
+                            .build()
+            );
+        }
+        return changeLogDtos;
     }
 }
