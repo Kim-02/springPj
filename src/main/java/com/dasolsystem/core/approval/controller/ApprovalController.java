@@ -20,6 +20,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/api/approval")
 @RequiredArgsConstructor
@@ -28,7 +30,7 @@ public class ApprovalController {
     private final ApprovalService approvalService;
 
     @PostMapping("/post")
-    public ResponseEntity<ResponseJson<?>> post(@RequestBody ApprovalRequestDto approvalRequestDto,HttpServletRequest request) {
+    public ResponseEntity<ResponseJson<?>> post(@ModelAttribute ApprovalRequestDto approvalRequestDto,HttpServletRequest request) throws IOException {
         if(!securityGuardian.userValidate(request,"Manager")) throw new InvalidTokenException(ApiState.ERROR_101,"권한을 확인하세요");
         Long approvalId = approvalService.postRequest(approvalRequestDto);
         return ResponseEntity.ok(
@@ -46,7 +48,7 @@ public class ApprovalController {
      * @return
      */
     @PostMapping("/postAccept")
-    public ResponseEntity<ResponseJson<?>> postAccept(@RequestBody ApprovalPostAcceptDto dto,
+    public ResponseEntity<ResponseJson<?>> postAccept(@ModelAttribute ApprovalPostAcceptDto dto,
                                                       HttpServletRequest request) {
         if(!securityGuardian.userValidate(request,"Manager")) throw new InvalidTokenException(ApiState.ERROR_101,"권한을 확인하세요");
         String studentId = securityGuardian.getServletTokenClaims(request).getSubject();
@@ -60,7 +62,7 @@ public class ApprovalController {
     }
 
     @GetMapping("/getAcceptPost")
-    public ResponseEntity<ResponseJson<?>> getAcceptPost(HttpServletRequest request) {
+    public ResponseEntity<ResponseJson<?>> getAcceptPost(HttpServletRequest request) throws IOException {
         if(!securityGuardian.userValidate(request,"Manager")) throw new InvalidTokenException(ApiState.ERROR_101,"권한을 확인하세요");
         String studentId = securityGuardian.getServletTokenClaims(request).getSubject();
         GetApprovalPostResponse response = approvalService.getApprovalPost(studentId);

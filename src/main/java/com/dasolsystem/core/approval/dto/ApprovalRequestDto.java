@@ -4,6 +4,7 @@ import com.dasolsystem.core.entity.ApprovalCode;
 import com.dasolsystem.core.entity.Member;
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.List;
 @Builder
 public class ApprovalRequestDto {
     private String accountNumber;
-    private String receiptFile; //파일 경로
+    private MultipartFile receiptFile; //파일 경로
     private LocalDateTime requestDate;
     private String requestDetails;
     private Integer requestAmount;
