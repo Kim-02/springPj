@@ -4,8 +4,10 @@ import com.dasolsystem.core.approval.dto.ApprovalPostAcceptDto;
 import com.dasolsystem.core.approval.dto.ApprovalRequestDto;
 import com.dasolsystem.core.approval.dto.GetApprovalPostResponse;
 
+import java.io.IOException;
+
 public interface ApprovalService {
-    Long postRequest(ApprovalRequestDto dto);
+    Long postRequest(ApprovalRequestDto dto) throws IOException;
     Long approveRequestAccept(ApprovalPostAcceptDto dto, String studentId);
-    GetApprovalPostResponse getApprovalPost(String studentId);
+    GetApprovalPostResponse getApprovalPost(String studentId) throws IOException;
 }

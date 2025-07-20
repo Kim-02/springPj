@@ -9,12 +9,20 @@ import com.dasolsystem.core.auth.repository.UserRepository;
 import com.dasolsystem.core.entity.ApprovalRequest;
 import com.dasolsystem.core.entity.Member;
 import com.dasolsystem.core.enums.ApiState;
+import com.dasolsystem.core.file.FileControlService;
+import com.dasolsystem.core.file.dto.FileUploadDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 @Service
@@ -24,9 +32,10 @@ public class ApprovalServiceImpl implements ApprovalService {
     private final ApprovalRequestRepository approvalRequestRepository;
     private final UserRepository userRepository;
     private final ApprovalCodeRepository approvalCodeRepository;
+    private final FileControlService fileControlService;
 
     @Transactional
-    public Long postRequest(ApprovalRequestDto dto) {
+    public Long postRequest(ApprovalRequestDto dto) throws IOException {
         Member RequestMember = userRepository.findByStudentId(dto.getStudentId()).orElseThrow(()->new DBFaillException(ApiState.ERROR_500,"student not found"));
         List<Member> approverList = new ArrayList<>();
         for (String memberId : dto.getApproversId()) {
@@ -34,11 +43,18 @@ public class ApprovalServiceImpl implements ApprovalService {
                     .orElseThrow(() -> new DBFaillException(ApiState.ERROR_500, "none found member"));
             approverList.add(member);
         }
+
+        String filePath = fileControlService.uploadFile(
+                FileUploadDto.builder()
+                        .file(dto.getReceiptFile())
+                        .path("approval/"+dto.getStudentId())
+                        .build()
+        );
         ApprovalRequest approvalRequest = ApprovalRequest.builder()
                 .accountNumber(dto.getAccountNumber())
                 .approvers(approverList)
                 .payerName(dto.getPayerName())
-                .receiptFile(dto.getReceiptFile())
+                .receiptFile(filePath)
                 .requestDate(dto.getRequestDate())
                 .requestDetail(dto.getRequestDetails())
                 .requestedAmount(dto.getRequestAmount())
@@ -64,7 +80,7 @@ public class ApprovalServiceImpl implements ApprovalService {
     }
 
     @Transactional(readOnly = true)
-    public GetApprovalPostResponse getApprovalPost(String studentId){
+    public GetApprovalPostResponse getApprovalPost(String studentId) throws IOException {
         Member approver = userRepository.findByStudentId(studentId).orElseThrow(()->new DBFaillException(ApiState.ERROR_500,"student not found"));
         MemberDto memberDto = MemberDto.builder()
                 .id(approver.getMemberId())
@@ -74,6 +90,12 @@ public class ApprovalServiceImpl implements ApprovalService {
         List<ApprovalRequest> approvalRequests = approver.getApprovalRequests();
         List<ApprovalRequestsDto> approvalRequestsDto = new ArrayList<>();
         for(ApprovalRequest approvalRequest : approvalRequests){
+            byte[] fileBytes = fileControlService.getFileBytes(approvalRequest.getReceiptFile());
+            BufferedImage image = ImageIO.read(new ByteArrayInputStream(fileBytes));
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(image, "png", baos);
+            byte[] imageBytes = baos.toByteArray();
+            String base64 = Base64.getEncoder().encodeToString(imageBytes);
             approvalRequestsDto.add(
                     ApprovalRequestsDto.builder()
                             .approvalDate(approvalRequest.getApprovalDate())
@@ -83,7 +105,7 @@ public class ApprovalServiceImpl implements ApprovalService {
                             .requestId(approvalRequest.getRequestId())
                             .accountNumber(approvalRequest.getAccountNumber())
                             .payerName(approvalRequest.getPayerName())
-                            .receiptFile(approvalRequest.getReceiptFile())
+                            .receiptFile(base64)
                             .requestDetail(approvalRequest.getRequestDetail())
                             .title(approvalRequest.getTitle())
                             .requestDate(approvalRequest.getRequestDate())
