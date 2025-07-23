@@ -93,7 +93,7 @@ public class ApprovalServiceImpl implements ApprovalService {
             byte[] fileBytes = fileControlService.getFileBytes(approvalRequest.getReceiptFile());
             BufferedImage image = ImageIO.read(new ByteArrayInputStream(fileBytes));
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(image, "png", baos);
+            ImageIO.write(image, "jpg", baos);
             byte[] imageBytes = baos.toByteArray();
             String base64 = Base64.getEncoder().encodeToString(imageBytes);
             approvalRequestsDto.add(
@@ -119,5 +119,52 @@ public class ApprovalServiceImpl implements ApprovalService {
                 .approver(memberDto)
                 .build();
 
+    }
+
+    @Transactional
+    public List<ApprovalAllPostViewDto> getAllApprovalRequests() throws IOException {
+        List<ApprovalRequest> allApprovalRequests = approvalRequestRepository.findAll();
+        List<ApprovalAllPostViewDto> approvalRequestDtos = new ArrayList<>();
+
+        for(ApprovalRequest approvalRequest : allApprovalRequests){
+            byte[] fileBytes = fileControlService.getFileBytes(approvalRequest.getReceiptFile());
+            BufferedImage image = ImageIO.read(new ByteArrayInputStream(fileBytes));
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(image, "jpg", baos);
+            byte[] imageBytes = baos.toByteArray();
+            String base64 = Base64.getEncoder().encodeToString(imageBytes);
+            List<MemberDto> approvers = new ArrayList<>();
+            for(Member member:approvalRequest.getApprovers()){
+                approvers.add(
+                        MemberDto.builder()
+                                .id(member.getMemberId())
+                                .name(member.getName())
+                                .studentId(member.getStudentId())
+                                .build()
+                );
+            }
+            approvalRequestDtos.add(
+                    ApprovalAllPostViewDto.builder()
+                            .approvers(approvers)
+                            .approvalRequests(
+                                    ApprovalRequestsDto.builder()
+                                            .requestId(approvalRequest.getRequestId())
+                                            .memberName(approvalRequest.getMember().getName())
+                                            .requestDate(approvalRequest.getRequestDate())
+                                            .title(approvalRequest.getTitle())
+                                            .requestedAmount(approvalRequest.getRequestedAmount())
+                                            .accountNumber(approvalRequest.getAccountNumber())
+                                            .payerName(approvalRequest.getPayerName())
+                                            .requestDetail(approvalRequest.getRequestDetail())
+                                            .approvalCode(approvalRequest.getApprovalCode().getCode()+" "+approvalRequest.getApprovalCode().getName())
+                                            .isCompleted(approvalRequest.getIsCompleted())
+                                            .approvalDate(approvalRequest.getApprovalDate())
+                                            .build()
+                            )
+                            .byteFile(base64)
+                            .build()
+            );
+        }
+        return approvalRequestDtos;
     }
 }

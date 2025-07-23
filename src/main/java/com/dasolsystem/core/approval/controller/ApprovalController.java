@@ -29,6 +29,7 @@ public class ApprovalController {
     private final SecurityGuardian securityGuardian;
     private final ApprovalService approvalService;
 
+    //결재 신청
     @PostMapping("/post")
     public ResponseEntity<ResponseJson<?>> post(@ModelAttribute ApprovalRequestDto approvalRequestDto,HttpServletRequest request) throws IOException {
         if(!securityGuardian.userValidate(request,"Manager")) throw new InvalidTokenException(ApiState.ERROR_101,"권한을 확인하세요");
@@ -61,6 +62,7 @@ public class ApprovalController {
         );
     }
 
+    //본인에게 온 결재 요청을 모두 확인할 수 있음
     @GetMapping("/getAcceptPost")
     public ResponseEntity<ResponseJson<?>> getAcceptPost(HttpServletRequest request) throws IOException {
         if(!securityGuardian.userValidate(request,"Manager")) throw new InvalidTokenException(ApiState.ERROR_101,"권한을 확인하세요");
@@ -77,6 +79,18 @@ public class ApprovalController {
         );
     }
 
-    
+    //모든 결재 요청을 확인할 수 있음
+    @GetMapping("/getAllRequest")
+    public ResponseEntity<ResponseJson<?>> getAllRequest() throws IOException {
+        return ResponseEntity.ok(
+                ResponseJson.builder()
+                        .status(200)
+                        .result(
+                                approvalService.getAllApprovalRequests()
+                        )
+                        .build()
+        );
+    }
+
 }
 
