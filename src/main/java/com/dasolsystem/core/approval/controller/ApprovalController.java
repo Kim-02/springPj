@@ -49,7 +49,7 @@ public class ApprovalController {
      * @return
      */
     @PostMapping("/postAccept")
-    public ResponseEntity<ResponseJson<?>> postAccept(@ModelAttribute ApprovalPostAcceptDto dto,
+    public ResponseEntity<ResponseJson<?>> postAccept(@RequestBody ApprovalPostAcceptDto dto,
                                                       HttpServletRequest request) {
         if(!securityGuardian.userValidate(request,"Manager")) throw new InvalidTokenException(ApiState.ERROR_101,"권한을 확인하세요");
         String studentId = securityGuardian.getServletTokenClaims(request).getSubject();

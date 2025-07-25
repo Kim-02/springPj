@@ -103,6 +103,7 @@ public class UserController {
                 .build()
         );
     }
+    //권한 변경 기록을 가져온다
     @GetMapping("/permission/get/all")
     public ResponseEntity<ResponseJson<?>> userPermissionGetAll(HttpServletRequest request){
         if(!securityGuardian.userValidate(request,"Presidency")){
