@@ -8,6 +8,7 @@ import com.dasolsystem.config.excption.InvalidTokenException;
 import com.dasolsystem.core.approval.dto.ApprovalPostAcceptDto;
 import com.dasolsystem.core.approval.dto.ApprovalRequestDto;
 import com.dasolsystem.core.approval.dto.GetApprovalPostResponse;
+import com.dasolsystem.core.approval.repository.ApprovalRequestRepository;
 import com.dasolsystem.core.approval.service.ApprovalService;
 import com.dasolsystem.core.enums.ApiState;
 import com.dasolsystem.core.guardian.SecurityGuardian;
@@ -17,7 +18,9 @@ import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -28,7 +31,7 @@ import java.io.IOException;
 public class ApprovalController {
     private final SecurityGuardian securityGuardian;
     private final ApprovalService approvalService;
-
+    private final ApprovalRequestRepository approvalRequestRepository;
     //결재 신청
     @PostMapping("/post")
     public ResponseEntity<ResponseJson<?>> post(@ModelAttribute ApprovalRequestDto approvalRequestDto,HttpServletRequest request) throws IOException {
@@ -92,5 +95,20 @@ public class ApprovalController {
         );
     }
 
+    //회장 권한을 가지면 요청을 삭제할 수 있음
+    @DeleteMapping("/deleteRequest/{postId}")
+    @Transactional
+    public ResponseEntity<ResponseJson<?>> deleteRequest(@PathVariable Long postId,HttpServletRequest request){
+        if(!securityGuardian.userValidate(request,"Manager")) throw new InvalidTokenException(ApiState.ERROR_101,"권한을 확인하세요");
+        if (!approvalRequestRepository.existsById(postId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ResponseJson.builder()
+                            .status(404)
+                            .message("삭제할 요청을 찾을 수 없습니다: " + postId)
+                            .build());
+        }
+        approvalRequestRepository.deleteById(postId);
+        return ResponseEntity.noContent().build();
+    }
 }
 
