@@ -5,15 +5,15 @@ import com.dasolsystem.core.entity.EventParticipation;
 import com.dasolsystem.core.entity.Member;
 import com.dasolsystem.core.entity.TransactionRecord;
 import com.dasolsystem.core.handler.ResponseJson;
+import com.dasolsystem.core.trasaction.dto.AmountResponseDto;
 import com.dasolsystem.core.trasaction.dto.ErrorResponseDto;
+import com.dasolsystem.core.trasaction.dto.ExpendTransactionDto;
 import com.dasolsystem.core.trasaction.repository.TransactionRecordRepository;
 import com.dasolsystem.core.user.repository.EventParticipationRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -101,5 +101,33 @@ public class TransactionRecordServiceImpl implements TransactionRecordService {
         }catch (Exception e) {
             throw new IOException(e);
         }
+    }
+
+    @Transactional
+    public void expendRecordSave(ExpendTransactionDto dto){
+        TransactionRecord record = TransactionRecord.builder()
+                .txDate(LocalDateTime.now())
+                .approvalRequest(dto.getApprovalRequest())
+                .expense(true)
+                .member(dto.getMember())
+                .amount(dto.getAmount())
+                .build();
+        transactionRecordRepository.save(record);
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseJson<?> getTotalAmount(){
+        Integer nowAmount = transactionRecordRepository.findNowAmount();
+        Integer expend = transactionRecordRepository.findNowExpendAmount();
+        Integer append = transactionRecordRepository.findNowAppendAmount();
+        AmountResponseDto amountResponseDto = AmountResponseDto.builder()
+                .append(append)
+                .expend(expend)
+                .amount(nowAmount)
+                .build();
+        return ResponseJson.builder()
+                .status(200)
+                .message("totalAmount")
+                .result(amountResponseDto).build();
     }
 }

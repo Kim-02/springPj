@@ -11,6 +11,8 @@ import com.dasolsystem.core.entity.Member;
 import com.dasolsystem.core.enums.ApiState;
 import com.dasolsystem.core.file.FileControlService;
 import com.dasolsystem.core.file.dto.FileUploadDto;
+import com.dasolsystem.core.trasaction.dto.ExpendTransactionDto;
+import com.dasolsystem.core.trasaction.service.TransactionRecordService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +35,7 @@ public class ApprovalServiceImpl implements ApprovalService {
     private final UserRepository userRepository;
     private final ApprovalCodeRepository approvalCodeRepository;
     private final FileControlService fileControlService;
+    private final TransactionRecordService transactionRecordService;
 
     @Transactional
     public Long postRequest(ApprovalRequestDto dto) throws IOException {
@@ -76,6 +79,12 @@ public class ApprovalServiceImpl implements ApprovalService {
             requestPost.setApprovalDate(LocalDateTime.now());
             requestPost.setIsCompleted(true);
         }
+        //출금 기록부
+        transactionRecordService.expendRecordSave(ExpendTransactionDto.builder()
+                        .amount(requestPost.getRequestedAmount())
+                        .approvalRequest(requestPost)
+                        .member(requestUser)
+                .build());
         return requestPost.getRequestId();
     }
 
@@ -121,7 +130,7 @@ public class ApprovalServiceImpl implements ApprovalService {
 
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ApprovalAllPostViewDto> getAllApprovalRequests() throws IOException {
         List<ApprovalRequest> allApprovalRequests = approvalRequestRepository.findAll();
         List<ApprovalAllPostViewDto> approvalRequestDtos = new ArrayList<>();
