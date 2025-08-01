@@ -8,5 +8,5 @@ import lombok.Data;
 public class PaymentStatusDto {
     private String name;
     private String studentId;
-    private Boolean paid;
+    private boolean paidUser;
 }

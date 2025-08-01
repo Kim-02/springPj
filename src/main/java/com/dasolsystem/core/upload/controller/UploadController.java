@@ -16,18 +16,16 @@ public class UploadController {
     private final UploadService uploadService;
 
     /**
-     * 회원 명단 + 납부 명단 엑셀 업로드 처리
+     * 전체 회원 명단 엑셀 업로드 처리
+     * 엑셀 형식: No., 학번, 이름, 성별, 휴대전화, 학적상태, 학과, 학년
      */
-    @PostMapping("/member-payment")
-    public ResponseEntity<String> uploadMemberAndPayment(
-            @RequestParam("memberFile") MultipartFile memberFile,
-            @RequestParam("paymentFile") MultipartFile paymentFile
-    ) {
+    @PostMapping("/member")
+    public ResponseEntity<String> uploadMemberExcel(@RequestParam("memberFile") MultipartFile memberFile) {
         try {
-            uploadService.processExcelFiles(memberFile, paymentFile);
-            return ResponseEntity.ok("✅ 회원 업로드 및 납부 처리 완료");
+            uploadService.processExcelFile(memberFile);
+            return ResponseEntity.ok("✅ 회원 업로드 완료");
         } catch (Exception e) {
-            log.error("❌ 업로드 중 오류 발생", e);
+            log.error("❌ 회원 업로드 실패", e);
             return ResponseEntity.internalServerError().body("❌ 업로드 실패: " + e.getMessage());
         }
     }
