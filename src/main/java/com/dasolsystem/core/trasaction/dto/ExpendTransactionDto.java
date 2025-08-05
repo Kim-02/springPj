@@ -11,4 +11,5 @@ public class ExpendTransactionDto {
     private Member member;
     private ApprovalRequest approvalRequest;
     private Integer amount;
+    private String code;
 }

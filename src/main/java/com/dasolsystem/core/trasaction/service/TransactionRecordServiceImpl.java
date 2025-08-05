@@ -112,6 +112,10 @@ public class TransactionRecordServiceImpl implements TransactionRecordService {
                 .member(dto.getMember())
                 .amount(dto.getAmount())
                 .build();
+        if(Objects.equals(dto.getCode(), "환불금")&& dto.getMember().getPaidUser()){
+            Member member = dto.getMember();
+            member.setPaidUser(false);
+        }
         transactionRecordRepository.save(record);
     }
 

@@ -84,6 +84,7 @@ public class ApprovalServiceImpl implements ApprovalService {
                         .amount(requestPost.getRequestedAmount())
                         .approvalRequest(requestPost)
                         .member(requestUser)
+                        .code(requestPost.getApprovalCode().getName())
                 .build());
         return requestPost.getRequestId();
     }
