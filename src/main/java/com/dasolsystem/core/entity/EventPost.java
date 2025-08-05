@@ -35,12 +35,7 @@
         @Column(name = "pay_amount")
         private Integer payAmount;
 
-        @OneToMany(
-                mappedBy = "eventPost",
-                cascade = CascadeType.ALL,
-                orphanRemoval = true,
-                fetch = FetchType.LAZY
-        )
+        @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
         @JoinColumn(name = "post_id")
         List<EventItem> eventItems = new ArrayList<>();
     }
