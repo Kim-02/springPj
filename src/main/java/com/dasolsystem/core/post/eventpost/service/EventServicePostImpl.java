@@ -4,6 +4,7 @@ import com.dasolsystem.config.excption.DBFaillException;
 import com.dasolsystem.core.auth.repository.UserRepository;
 import com.dasolsystem.core.entity.*;
 import com.dasolsystem.core.enums.ApiState;
+import com.dasolsystem.core.post.eventpost.dto.EventItemDto;
 import com.dasolsystem.core.post.eventpost.dto.EventPostRequestDto;
 import com.dasolsystem.core.post.eventpost.dto.EventPostResponseDto;
 import com.dasolsystem.core.post.eventpost.repository.EventPostRepository;
@@ -14,6 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class EventServicePostImpl implements EventPostService{
@@ -21,13 +25,22 @@ public class EventServicePostImpl implements EventPostService{
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final EventParticipationRepository eventParticipationRepository;
+
+
+    /**
+     * 이벤트 게시글을 작성하는 서비스
+     * 작성과 동시에 EventItem이 연결되고 만약 아이템이 없다면 그대로 들어간다.
+     * 다중 선택 기능은 프론트에서 구현이 필요하다.
+     * @param dto
+     * @return
+     */
     @Transactional
     public Long createEventPost(EventPostRequestDto dto) {
-        // 1) 작성자(member) 조회
+        // 1) Member 조회
         Member member = userRepository.findByStudentId(dto.getStudentId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다. memberId=" + dto.getStudentId()));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
-        // 2) Post 엔티티 생성
+        // 2) Post 엔티티 생성 및 저장
         Post post = Post.builder()
                 .title(dto.getTitle())
                 .content(dto.getContent())
@@ -37,18 +50,26 @@ public class EventServicePostImpl implements EventPostService{
                 .target(dto.getTarget())
                 .member(member)
                 .build();
+        postRepository.save(post);
 
-        // 3) EventPost 엔티티에 Post 연결 및 추가 필드 세팅
+        // 3) EventPost 생성
         EventPost eventPost = EventPost.builder()
-                .post(post)                // composition 매핑이라면 post 필드에
-                .notice(dto.getNotice())   // 공지 여부
-                .payAmount(dto.getPayAmount()) // 결제 금액
+                .post(post)
+                .notice(dto.getNotice())
+                .payAmount(dto.getPayAmount())
                 .build();
 
-        // 4) 저장 (JOINED 상속이든, composition이든 save만으로 두 테이블에 반영)
-        EventPost saved = eventPostRepository.save(eventPost);
+        // 4) EventItem 들 연결
+        for (EventItemDto itemDto : dto.getItems()) {
+            EventItem item = EventItem.builder()
+                    .itemName(itemDto.getItemName())
+                    .itemCost(itemDto.getItemCost())
+                    .build();
+            eventPost.getEventItems().add(item);
+        }
 
-        // 5) 생성된 식별자 반환
+        // 5) 저장 (cascade로 EventItem들도 함께 persist)
+        EventPost saved = eventPostRepository.save(eventPost);
         return saved.getPostId();
     }
 
@@ -95,7 +116,15 @@ public class EventServicePostImpl implements EventPostService{
         if (dto.getPayAmount() != 0) {
             eventPost.setPayAmount(dto.getPayAmount());
         }
-
+        List<EventItem> newList = new ArrayList<>();
+        for (EventItemDto itemDto : dto.getItems()) {
+            EventItem item = EventItem.builder()
+                    .itemName(itemDto.getItemName())
+                    .itemCost(itemDto.getItemCost())
+                    .build();
+            newList.add(item);
+        }
+        eventPost.setEventItems(newList);
         return post.getPostId();
     }
 
@@ -103,6 +132,16 @@ public class EventServicePostImpl implements EventPostService{
     @Transactional(readOnly = true)
     public EventPostResponseDto getEventPost(Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(()-> new DBFaillException(ApiState.ERROR_500,"없는 게시글"));
+        List<EventItemDto> itemDto = new ArrayList<>();
+        for(EventItem items: post.getEventPost().getEventItems()){
+            itemDto.add(
+                    EventItemDto.builder()
+                            .itemName(items.getItemName())
+                            .itemCost(items.getItemCost())
+                            .id(items.getId())
+                            .build()
+            );
+        }
         return EventPostResponseDto.builder()
                 .memberName(post.getMember().getName())
                 .content(post.getContent())
@@ -112,11 +151,14 @@ public class EventServicePostImpl implements EventPostService{
                 .target(post.getTarget())
                 .notice(post.getEventPost().getNotice())
                 .payAmount(post.getEventPost().getPayAmount())
+                .eventItem(itemDto)
                 .build();
     }
 
     /**
      * 이벤트를 참여하기 위한 API 이벤트 참여 버튼을 누르면 호출
+     * 참여시 해당 이벤트 전용 입금자명이 생성된다.
+     * 한 유저는 이벤트에 한번만 참여 가능하다.
      * @param postId 해당 이벤트 ID
      * @param studentId 참여하는 memberId Token에서 추출
      * @return 저장된 참여 내역 정보 제목

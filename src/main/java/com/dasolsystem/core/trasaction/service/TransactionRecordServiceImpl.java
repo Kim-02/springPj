@@ -29,7 +29,17 @@ public class TransactionRecordServiceImpl implements TransactionRecordService {
     private final EventParticipationRepository eventParticipationRepository;
     private final UserRepository userRepository;
 
-
+    /**
+     * 이벤트에 해당하는 입금자명으로 입금을 할 시 해당 이벤트를 입금 처리를 하고
+     * 만약 해당하는 이벤트가 없을 경우 이름을 이용해서 검색하고 해당 사용자가 가지고 있는 이벤트를 전부 반환한다.
+     * 만약 이름을 DB에서 찾을 수 없다면 찾을 수 없는 이름으로 따로 반환한다.
+     * @param file 입금 목록 xlsx파일
+     * @return
+     * 입금처리가 완료된 사용자 이름(completeUser)
+     * 입금처리가 불가능한 사용자 이름(selectedUser) 내부에 해당 사용자가 가지고 있는 이벤트 목록(userEventList)
+     * DB에서 찾을 수 없는 사용자 이름(noneFoundUsers)
+     * 이렇게 Json으로 반환하면 된다.
+     */
     @Transactional
     public ResponseJson<?> appendRecordSave(MultipartFile file) throws IOException {
         List<String> userFoundFail = new ArrayList<>();

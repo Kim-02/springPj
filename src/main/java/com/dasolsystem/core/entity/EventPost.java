@@ -4,6 +4,9 @@
     import jakarta.persistence.*;
     import lombok.*;
 
+    import java.util.ArrayList;
+    import java.util.List;
+
     @Entity
     @Table(name="event_post")
     @Getter
@@ -29,6 +32,15 @@
         @Column(name = "notice", columnDefinition = "ENUM('Y','N') DEFAULT 'N'", nullable = false)
         private Boolean notice;
 
-        @Column(name = "pay_amount", nullable = false)
+        @Column(name = "pay_amount")
         private Integer payAmount;
+
+        @OneToMany(
+                mappedBy = "eventPost",
+                cascade = CascadeType.ALL,
+                orphanRemoval = true,
+                fetch = FetchType.LAZY
+        )
+        @JoinColumn(name = "post_id")
+        List<EventItem> eventItems = new ArrayList<>();
     }
