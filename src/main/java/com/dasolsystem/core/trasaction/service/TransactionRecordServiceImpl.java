@@ -42,76 +42,154 @@ public class TransactionRecordServiceImpl implements TransactionRecordService {
      */
     @Transactional
     public ResponseJson<?> appendRecordSave(MultipartFile file) throws IOException {
-        List<String> userFoundFail = new ArrayList<>();
-        Map<String,List<String>> userDuplicate = new HashMap<>();
+        List<String> completeUser = new ArrayList<>(); // 처리 성공한 사용자 목록
+        List<String> userFoundFail = new ArrayList<>(); // 이름으로도 찾지 못한 사용자
+        Map<String, ErrorResponseDto.SelectedUserInfo> selectedUser = new HashMap<>(); // 동명이인 등 선택 필요한 사용자
+
         DataFormatter formatter = new DataFormatter();
-        try {
-            Workbook workbook = WorkbookFactory.create(file.getInputStream());
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+
+        try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0);
-            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+
+            // 열 인덱스 맵 구성
+            Map<String, Integer> columnIndex = new HashMap<>();
+            Row headerRow = sheet.getRow(0);
+            for (Cell cell : headerRow) {
+                String header = formatter.formatCellValue(cell).trim();
+                columnIndex.put(header, cell.getColumnIndex());
+            }
+
+            // 필수 열 누락 시 예외
+            if (!columnIndex.containsKey("거래일시") || !columnIndex.containsKey("입금액") || !columnIndex.containsKey("내용")) {
+                throw new IOException("엑셀 파일에 '거래일시', '입금액', '내용' 열이 포함되어 있어야 합니다.");
+            }
+
+            // 각 행 처리
             for (int idx = 1; idx <= sheet.getLastRowNum(); idx++) {
                 Row row = sheet.getRow(idx);
-                if (row == null || formatter.formatCellValue(row.getCell(4))==null || formatter.formatCellValue(row.getCell(4)).isEmpty()) continue;
-                //입금 로직
-                String payDate = formatter.formatCellValue(row.getCell(2));
-                String name = formatter.formatCellValue(row.getCell(6));
-                Integer amount = Integer.valueOf(formatter.formatCellValue(row.getCell(5)));
+                if (row == null) continue;
+
+                String payDate = formatter.formatCellValue(row.getCell(columnIndex.get("거래일시")));
+                String amountStr = formatter.formatCellValue(row.getCell(columnIndex.get("입금액")));
+                String content = formatter.formatCellValue(row.getCell(columnIndex.get("내용")));
+
+                if (payDate == null || amountStr == null || content == null) continue;
+                if (payDate.isBlank() || amountStr.isBlank() || content.isBlank()) continue;
+                if (amountStr.equals("0")) continue;
+
                 LocalDateTime date = LocalDateTime.parse(payDate, fmt);
-                Optional<EventParticipation> optEp =
-                        eventParticipationRepository.findByPaymentName(name);
+                Integer amount = Integer.parseInt(amountStr);
 
-                if (optEp.isPresent()) {
-                    EventParticipation ep = optEp.get();
-                    ep.setPaidAt(date);
-                    ep.setPaymentStatus(true);
-                    eventParticipationRepository.save(ep);
+                String paymentFull = content.trim();
+                List<EventParticipation> matches = eventParticipationRepository.findAllByPaymentName(paymentFull);
 
-                    TransactionRecord transactionRecord = TransactionRecord.builder()
-                            .amount(amount)
-                            .txDate(date)
-                            .member(ep.getMember())
-                            .expense(false)
-                            .build();
-                    if(!transactionRecordRepository.existsByTxDate(date)){
-                        transactionRecordRepository.save(transactionRecord);
-                    }
-                } else {
-                    List<Member> foundUsers = userRepository.findByName(name);
-                    if (foundUsers.isEmpty()) { //찾을 수 없다면 이름을 반환
-                        userFoundFail.add(name);
-                    } else if (foundUsers.size() > 1) { //두명 이상이라면 학번을 기록해서 반환
-                        List<String> studentIds = foundUsers.stream()
-                                .map(Member::getStudentId)
-                                .collect(Collectors.toList());
-                        userDuplicate.put(name, studentIds);
-                    } else {//한 명밖에 없다면 기록
-                        Member member = foundUsers.get(0);
-                        TransactionRecord tr = TransactionRecord.builder()
-                                .amount(amount)
-                                .txDate(date)
-                                .member(member)
-                                .expense(false)
-                                .build();
-                        if(!transactionRecordRepository.existsByTxDate(date)){
-                            transactionRecordRepository.save(tr);
+                // 정확히 하나의 사용자가 매칭된 경우
+                if (matches.size() == 1) {
+                    EventParticipation ep = matches.get(0);
+
+                    // completeUser에 추가 (입금 여부와 상관없이)
+                    String eventTitle = ep.getPost().getTitle();
+                    String name = ep.getMember().getName();
+                    completeUser.add(eventTitle + name);
+
+                    // 입금 상태가 false일 경우만 처리
+                    if (!Boolean.TRUE.equals(ep.getPaymentStatus())) {
+                        ep.setPaidAt(date);
+                        ep.setPaymentStatus(true);
+                        eventParticipationRepository.save(ep);
+
+                        if (!transactionRecordRepository.existsByTxDate(date)) {
+                            TransactionRecord record = TransactionRecord.builder()
+                                    .amount(amount)
+                                    .txDate(date)
+                                    .member(ep.getMember())
+                                    .expense(false)
+                                    .build();
+                            transactionRecordRepository.save(record);
                         }
                     }
+                    continue;
+                }
 
+                // 복수 매칭된 경우 → 동명이인 처리
+                if (matches.size() > 1) {
+                    for (EventParticipation ep : matches) {
+                        Member member = ep.getMember();
+                        String key = ep.getPaymentName() + "(" + member.getStudentId() + ")";
+                        List<String> titles = List.of(ep.getPost().getTitle());
+
+                        selectedUser.merge(key,
+                                ErrorResponseDto.SelectedUserInfo.builder().events(new ArrayList<>(titles)).build(),
+                                (existing, incoming) -> {
+                                    existing.getEvents().addAll(incoming.getEvents());
+                                    return existing;
+                                });
+                    }
+                    continue;
+                }
+
+                // 사용자 이름만 추출 후 Member 테이블에서 검색
+                String nameOnly = content.replaceAll("[^가-힣]", "").trim();
+                if (nameOnly.isBlank()) continue;
+
+                List<Member> foundUsers = userRepository.findByName(nameOnly);
+
+                if (foundUsers.isEmpty()) {
+                    userFoundFail.add(nameOnly);
+                } else if (foundUsers.size() > 1) {
+                    // 이름만으로는 찾을 수 없는 경우 → 선택 사용자 목록에 추가
+                    for (Member member : foundUsers) {
+                        List<EventParticipation> events = eventParticipationRepository.findByMemberMemberId(member.getMemberId());
+                        List<String> titles = events.stream().map(ep -> ep.getPost().getTitle()).toList();
+
+                        String key = member.getName() + "(" + member.getStudentId() + ")";
+                        selectedUser.merge(key,
+                                ErrorResponseDto.SelectedUserInfo.builder().events(new ArrayList<>(titles)).build(),
+                                (existing, incoming) -> {
+                                    existing.getEvents().addAll(incoming.getEvents());
+                                    return existing;
+                                });
+                    }
+                } else {
+                    // 한 명만 찾은 경우 → 해당 사용자의 모든 참여 이벤트 표시
+                    Member member = foundUsers.get(0);
+                    List<EventParticipation> events = eventParticipationRepository.findByMemberMemberId(member.getMemberId());
+                    List<String> titles = events.stream().map(ep -> ep.getPost().getTitle()).toList();
+
+                    if (!titles.isEmpty()) {
+                        String key = member.getName();
+                        selectedUser.merge(key,
+                                ErrorResponseDto.SelectedUserInfo.builder().events(new ArrayList<>(titles)).build(),
+                                (existing, incoming) -> {
+                                    existing.getEvents().addAll(incoming.getEvents());
+                                    return existing;
+                                });
+                    }
                 }
             }
-            ErrorResponseDto erDto = ErrorResponseDto.builder()
-                    .userDuplicate(userDuplicate)
+
+            // 결과 DTO 구성 후 응답
+            ErrorResponseDto resultDto = ErrorResponseDto.builder()
+                    .completeUser(completeUser)
                     .userFoundFail(userFoundFail)
+                    .selectedUser(selectedUser)
                     .build();
+
             return ResponseJson.builder()
                     .status(200)
                     .message("이벤트 저장 및 입금 기록 완료")
-                    .result(erDto)
+                    .result(resultDto)
                     .build();
-        }catch (Exception e) {
-            throw new IOException(e);
+
+        } catch (Exception e) {
+            throw new IOException("엑셀 파싱 또는 저장 중 오류 발생", e);
         }
     }
+
+
+
+
 
     @Transactional
     public void expendRecordSave(ExpendTransactionDto dto){
