@@ -30,9 +30,7 @@ public class ErrorResponseDto {
     @Builder
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class SelectedUserInfo {
-        private List<String> events;
-
-        // 필요 시 확장 용도로 유지. 지금은 사용하지 않으니 null로 출력되지 않음.
-        private List<String> studentIds;
+        private List<EventDto> events; //이벤트 이름과 이벤트 아이디(post_id)를 유지
+        private String studentId; //해당 학생의 학번
     }
 }
