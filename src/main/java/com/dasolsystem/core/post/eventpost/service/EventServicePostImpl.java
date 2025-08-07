@@ -7,6 +7,7 @@ import com.dasolsystem.core.enums.ApiState;
 import com.dasolsystem.core.post.eventpost.dto.EventItemDto;
 import com.dasolsystem.core.post.eventpost.dto.EventPostRequestDto;
 import com.dasolsystem.core.post.eventpost.dto.EventPostResponseDto;
+import com.dasolsystem.core.post.eventpost.repository.EventItemRepository;
 import com.dasolsystem.core.post.eventpost.repository.EventPostRepository;
 import com.dasolsystem.core.post.repository.PostRepository;
 import com.dasolsystem.core.user.repository.EventParticipationRepository;
@@ -25,7 +26,7 @@ public class EventServicePostImpl implements EventPostService{
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final EventParticipationRepository eventParticipationRepository;
-
+    private final EventItemRepository itemRepository;
 
     /**
      * 이벤트 게시글을 작성하는 서비스
@@ -164,7 +165,7 @@ public class EventServicePostImpl implements EventPostService{
      * @return 저장된 참여 내역 정보 제목
      */
     @Transactional
-    public String participateEventPost(Long postId, String studentId) {
+    public String participateEventPost(Long postId, String studentId,List<Long> itemIds) {
         Post post = postRepository.findById(postId).orElseThrow(()->new DBFaillException(ApiState.ERROR_500,"post를 찾을 수 없습니다."));
         Member user = userRepository.findByStudentId(studentId).orElseThrow(()->new DBFaillException(ApiState.ERROR_500,"유저 정보를 찾을 수 없습니다."));
         EventParticipationId id = new EventParticipationId();
@@ -175,6 +176,7 @@ public class EventServicePostImpl implements EventPostService{
         ).ifPresent(ep ->{
             throw new DBFaillException(ApiState.ERROR_500,"이미 신청하였습니다.");
         });
+
         String baseName = post.getTitle() + user.getName();
         String paymentName = baseName;
         int suffix = (int)(user.getMemberId() % 10);
@@ -182,6 +184,12 @@ public class EventServicePostImpl implements EventPostService{
         while (eventParticipationRepository.existsByPaymentName(paymentName)) {
             paymentName = baseName + (suffix++);
         }
+
+        List<EventItem> items = itemRepository.findAllById(itemIds);
+        if (items.size() != itemIds.size()) {
+            throw new DBFaillException(ApiState.ERROR_500, "유효하지 않은 아이템 ID가 포함되어 있습니다.");
+        }
+
 
         EventParticipation eventParticipation =
                 EventParticipation.builder()
@@ -191,6 +199,7 @@ public class EventServicePostImpl implements EventPostService{
                         .paymentStatus(false)
                         .paymentName(paymentName)
                         .member(user)
+                        .selectedItems(new ArrayList<>(items))
                         .build();
         return eventParticipationRepository.save(eventParticipation).getPost().getTitle();
     }

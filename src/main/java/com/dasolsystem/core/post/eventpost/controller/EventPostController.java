@@ -6,6 +6,7 @@ import com.dasolsystem.core.guardian.SecurityGuardian;
 import com.dasolsystem.core.handler.ResponseJson;
 import com.dasolsystem.core.post.eventpost.dto.EventPostRequestDto;
 import com.dasolsystem.core.post.eventpost.dto.EventPostResponseDto;
+import com.dasolsystem.core.post.eventpost.dto.ParticipateEventRequestDto;
 import com.dasolsystem.core.post.eventpost.service.EventPostService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
@@ -72,7 +73,6 @@ public class EventPostController {
     }
     @GetMapping("/posts/get/{postId}")
     public ResponseEntity<ResponseJson<?>> getPost(@PathVariable Long postId) {
-        try{
             EventPostResponseDto responseDto = eventPostService.getEventPost(postId);
             return ResponseEntity.ok(
                     ResponseJson.builder()
@@ -81,17 +81,12 @@ public class EventPostController {
                             .result(responseDto)
                             .build()
             );
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(
-                    ResponseJson.builder().status(500).message(e.getMessage()).build()
-            );
-        }
 
     }
-    @PostMapping("/posts/{postId}/participate")
-    public ResponseEntity<ResponseJson<?>> participatePost(@PathVariable Long postId, HttpServletRequest request) {
+    @PostMapping("/posts/participate")
+    public ResponseEntity<ResponseJson<?>> participatePost(@RequestBody ParticipateEventRequestDto dto, HttpServletRequest request) {
         Claims loginClaim = securityGuardian.getServletTokenClaims(request);
-        String participant = eventPostService.participateEventPost(postId,loginClaim.getSubject());
+        String participant = eventPostService.participateEventPost(dto.getPostId(),loginClaim.getSubject(),dto.getItemIds());
         return ResponseEntity.ok(
                 ResponseJson.builder()
                         .status(200)

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name="event_participation")
@@ -40,4 +42,16 @@ public class EventParticipation {
     /** 납부 일시 (nullable) */
     @Column(name = "paid_at")
     private LocalDateTime paidAt;
+
+    /** 물품 선택 **/
+    @ManyToMany(fetch=FetchType.LAZY)
+    @JoinTable(
+            name = "event_participation_item",
+            joinColumns = {
+                    @JoinColumn(name = "member_id", referencedColumnName = "member_id"),
+                    @JoinColumn(name = "post_id",   referencedColumnName = "post_id")
+            },
+            inverseJoinColumns = @JoinColumn(name = "item_id")
+    )
+    private List<EventItem> selectedItems;
 }
