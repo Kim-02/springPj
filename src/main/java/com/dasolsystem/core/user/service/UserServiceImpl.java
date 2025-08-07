@@ -7,11 +7,10 @@ import com.dasolsystem.core.auth.repository.UserRepository;
 import com.dasolsystem.core.department.repository.DepartmentRepository;
 import com.dasolsystem.core.entity.*;
 import com.dasolsystem.core.enums.ApiState;
-import com.dasolsystem.core.enums.Role;
-import com.dasolsystem.core.user.dto.DepartmentDto;
-import com.dasolsystem.core.user.dto.PermissionChangeLogDto;
-import com.dasolsystem.core.user.dto.UserEventParticipationResponseDto;
-import com.dasolsystem.core.user.dto.UserProfileResponseDto;
+import com.dasolsystem.core.enums.Gender;
+import com.dasolsystem.core.post.eventpost.repository.EventPostRepository;
+import com.dasolsystem.core.post.repository.PostRepository;
+import com.dasolsystem.core.user.dto.*;
 import com.dasolsystem.core.user.repository.EventParticipationRepository;
 import com.dasolsystem.core.user.repository.PermissionChangeRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,16 +32,21 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PermissionChangeRepository permissionChangeRepository;
     private final RoleRepository roleRepository;
+    private final EventPostRepository eventPostRepository;
 
     @Transactional
-    public UserProfileResponseDto getUserProfile(Member member) {
-        return UserProfileResponseDto.builder()
-                .email(member.getEmail())
-                .paidUser(member.getPaidUser())
-                .phone(member.getPhone())
-                .gender(String.valueOf(member.getGender()))
-                .name(member.getName())
+    public UserInfoDto getUserProfile(Member member) {
+        return UserInfoDto.builder()
+                .memberId(member.getMemberId())
                 .studentId(member.getStudentId())
+                .enterYear(member.getEnterYear())
+                .gender(String.valueOf(member.getGender()))
+                .email(member.getEmail())
+                .phone(member.getPhone())
+                .name(member.getName())
+                .paidUser(member.getPaidUser())
+                .roleName(member.getRole().getName())
+                .department(member.getDepartment().getDepartmentRole())
                 .build();
     }
 
@@ -126,5 +130,29 @@ public class UserServiceImpl implements UserService {
             );
         }
         return changeLogDtos;
+    }
+
+    @Transactional
+    public void changeUserInfo(UserInfoDto userInfoDto) {
+        Member member = userRepository.findByStudentId(userInfoDto.getStudentId()).orElseThrow(
+                ()-> new DBFaillException(ApiState.ERROR_500,"유저 정보를 찾을 수 없습니다.")
+        );
+        member.setEnterYear(userInfoDto.getEnterYear());
+        member.setGender(Gender.valueOf(userInfoDto.getGender()));
+        member.setName(userInfoDto.getName());
+        member.setPhone(userInfoDto.getPhone());
+        member.setEmail(userInfoDto.getEmail());
+    }
+
+    @Transactional
+    public String userLeaveEvent(String studentId, Long eventId) {
+        Member member = userRepository.findByStudentId(studentId).orElseThrow(
+                () -> new DBFaillException(ApiState.ERROR_500,"유저 정보를 찾을 수 없습니다.")
+        );
+        eventParticipationRepository.deleteByMemberMemberIdAndIdPostId(member.getMemberId(), eventId).orElseThrow(
+                () -> new DBFaillException(ApiState.ERROR_500,"참여 정보를 찾을 수 없습니다.")
+        );
+        return eventPostRepository.findById(eventId).orElseThrow(()-> new DBFaillException(ApiState.ERROR_500,"이벤트 정보를 찾을 수 없습니다."))
+                .getPost().getTitle();
     }
 }
