@@ -73,16 +73,29 @@ public class EventPostController {
     }
     @GetMapping("/posts/get/{postId}")
     public ResponseEntity<ResponseJson<?>> getPost(@PathVariable Long postId) {
-            EventPostResponseDto responseDto = eventPostService.getEventPost(postId);
-            return ResponseEntity.ok(
-                    ResponseJson.builder()
-                            .status(200)
-                            .message("success")
-                            .result(responseDto)
-                            .build()
-            );
+        EventPostResponseDto responseDto = eventPostService.getEventPost(postId);
+        return ResponseEntity.ok(
+                ResponseJson.builder()
+                        .status(200)
+                        .message("success")
+                        .result(responseDto)
+                        .build()
+        );
 
     }
+    @GetMapping("/posts/getAll")
+    public ResponseEntity<ResponseJson<?>> getAllPosts() {
+        return ResponseEntity.ok(
+                ResponseJson.builder()
+                        .status(200)
+                        .result(eventPostService.getEventPosts())
+                        .build()
+        );
+    }
+
+
+
+
     @PostMapping("/posts/participate")
     public ResponseEntity<ResponseJson<?>> participatePost(@RequestBody ParticipateEventRequestDto dto, HttpServletRequest request) {
         Claims loginClaim = securityGuardian.getServletTokenClaims(request);

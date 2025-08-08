@@ -23,4 +23,7 @@ public class EventItem {
     @Column(name="item_cost")
     private String itemCost;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id")
+    private EventPost eventPost;
 }

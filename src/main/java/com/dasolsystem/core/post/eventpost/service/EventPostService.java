@@ -11,4 +11,5 @@ public interface EventPostService {
     Long updateEventPost(EventPostRequestDto dto,Long postId,String studentId);
     EventPostResponseDto getEventPost(Long postId);
     String participateEventPost(Long postId, String studentId, List<Long> itemIds);
+    List<EventPostResponseDto> getEventPosts();
 }

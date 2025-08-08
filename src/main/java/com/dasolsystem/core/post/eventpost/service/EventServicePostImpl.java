@@ -66,6 +66,7 @@ public class EventServicePostImpl implements EventPostService{
                     .itemName(itemDto.getItemName())
                     .itemCost(itemDto.getItemCost())
                     .build();
+            item.setEventPost(eventPost);
             eventPost.getEventItems().add(item);
         }
 
@@ -144,6 +145,7 @@ public class EventServicePostImpl implements EventPostService{
             );
         }
         return EventPostResponseDto.builder()
+                .postId(post.getPostId())
                 .memberName(post.getMember().getName())
                 .content(post.getContent())
                 .startDate(post.getStartDate())
@@ -155,6 +157,43 @@ public class EventServicePostImpl implements EventPostService{
                 .eventItem(itemDto)
                 .build();
     }
+
+    @Transactional(readOnly = true)
+    public List<EventPostResponseDto> getEventPosts() {
+        List<EventPost> eventPost = eventPostRepository.findAll();
+        List<EventPostResponseDto> dtos = new ArrayList<>();
+        for(EventPost p: eventPost){
+            List<EventItemDto> itemDto = new ArrayList<>();
+            for(EventItem items: p.getEventItems()){
+                itemDto.add(
+                        EventItemDto.builder()
+                                .itemName(items.getItemName())
+                                .itemCost(items.getItemCost())
+                                .id(items.getId())
+                                .build()
+                );
+            }
+
+            dtos.add(
+                    EventPostResponseDto.builder()
+                            .postId(p.getPostId())
+                            .eventItem(itemDto)
+                            .endDate(p.getPost().getEndDate())
+                            .startDate(p.getPost().getStartDate())
+                            .title(p.getPost().getTitle())
+                            .memberName(p.getPost().getMember().getName())
+                            .content(p.getPost().getContent())
+                            .capacity(p.getPost().getCapacity())
+                            .notice(p.getPost().getEventPost().getNotice())
+                            .target(p.getPost().getTarget())
+                            .payAmount(p.getPost().getEventPost().getPayAmount())
+                            .build()
+            );
+        }
+        return dtos;
+    }
+
+
 
     /**
      * 이벤트를 참여하기 위한 API 이벤트 참여 버튼을 누르면 호출

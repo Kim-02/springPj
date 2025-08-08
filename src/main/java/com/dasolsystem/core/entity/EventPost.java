@@ -35,7 +35,10 @@
         @Column(name = "pay_amount")
         private Integer payAmount;
 
-        @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-        @JoinColumn(name = "post_id")
+        @OneToMany(mappedBy = "eventPost",
+                cascade = CascadeType.ALL,
+                orphanRemoval = true)
+        // ② Builder 사용 시에도 기본값이 유지되도록
+        @Builder.Default
         List<EventItem> eventItems = new ArrayList<>();
     }

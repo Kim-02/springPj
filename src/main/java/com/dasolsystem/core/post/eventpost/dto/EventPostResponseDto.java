@@ -14,6 +14,7 @@ import java.util.List;
 @Builder
 @Data
 public class EventPostResponseDto {
+    private Long postId;
     private Integer capacity;
     private String content;
     private LocalDateTime startDate;
