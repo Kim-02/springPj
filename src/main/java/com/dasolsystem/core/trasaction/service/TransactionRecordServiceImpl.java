@@ -6,6 +6,7 @@ import com.dasolsystem.core.entity.Member;
 import com.dasolsystem.core.entity.TransactionRecord;
 import com.dasolsystem.core.handler.ResponseJson;
 import com.dasolsystem.core.trasaction.dto.AmountResponseDto;
+import com.dasolsystem.core.trasaction.dto.EventDto;
 import com.dasolsystem.core.trasaction.dto.ErrorResponseDto;
 import com.dasolsystem.core.trasaction.dto.ExpendTransactionDto;
 import com.dasolsystem.core.trasaction.repository.TransactionRecordRepository;
@@ -40,19 +41,41 @@ public class TransactionRecordServiceImpl implements TransactionRecordService {
      * DB에서 찾을 수 없는 사용자 이름(noneFoundUsers)
      * 이렇게 Json으로 반환하면 된다.
      */
+
+
+
+    /**
+     * [엑셀 파일을 기반으로 입금 내역 처리 및 결과 반환 메서드]
+     *
+     * 주요 동작 흐름:
+     * 1. 엑셀 파일로부터 거래 일시, 입금액, 내용 열을 파싱
+     * 2. '내용' 값을 payment_name으로 간주하여 이벤트 참여자 목록에서 정확히 일치하는 사용자를 검색
+     *   - 단일 매칭: 바로 입금 처리 및 거래 기록 저장
+     *   - 복수 매칭: 사용자 선택 유도 정보 생성
+     *   - 매칭 실패: 이름만 추출해 fallback 검색 수행
+     * 3. 최종적으로 입금 완료된 사용자 목록, 찾지 못한 사용자 목록, 선택 유도 정보 Map을 포함한 DTO 반환
+     */
     @Transactional
     public ResponseJson<?> appendRecordSave(MultipartFile file) throws IOException {
-        List<String> completeUser = new ArrayList<>(); // 처리 성공한 사용자 목록
-        List<String> userFoundFail = new ArrayList<>(); // 이름으로도 찾지 못한 사용자
-        Map<String, ErrorResponseDto.SelectedUserInfo> selectedUser = new HashMap<>(); // 동명이인 등 선택 필요한 사용자
+        // ✅ 입금 처리가 완료된 사용자의 이름(이벤트명+이름)을 저장
+        List<String> completeUser = new ArrayList<>();
 
+        // ✅ fallback 이름 검색 시에도 매칭되지 않은 이름만 따로 저장
+        List<String> userFoundFail = new ArrayList<>();
+
+        // ✅ 중복 사용자에 대해 선택 유도할 정보를 저장하는 맵 (key: 이름(학번), value: 이벤트 목록 및 학번)
+        Map<String, ErrorResponseDto.SelectedUserInfo> selectedUser = new HashMap<>();
+
+        // 셀의 값을 문자열로 읽기 위한 포맷터
         DataFormatter formatter = new DataFormatter();
+        // 엑셀에 저장된 '거래일시'를 LocalDateTime으로 파싱하기 위한 포맷
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
         try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
+            // 첫 번째 시트를 기준으로 작업
             Sheet sheet = workbook.getSheetAt(0);
 
-            // 열 인덱스 맵 구성
+            // ✅ 엑셀의 헤더(첫 줄)에서 필요한 열들의 인덱스를 파악
             Map<String, Integer> columnIndex = new HashMap<>();
             Row headerRow = sheet.getRow(0);
             for (Cell cell : headerRow) {
@@ -60,45 +83,45 @@ public class TransactionRecordServiceImpl implements TransactionRecordService {
                 columnIndex.put(header, cell.getColumnIndex());
             }
 
-            // 필수 열 누락 시 예외
+            // 필수 열이 존재하는지 확인
             if (!columnIndex.containsKey("거래일시") || !columnIndex.containsKey("입금액") || !columnIndex.containsKey("내용")) {
                 throw new IOException("엑셀 파일에 '거래일시', '입금액', '내용' 열이 포함되어 있어야 합니다.");
             }
 
-            // 각 행 처리
+            // ✅ 데이터 행들을 반복 처리
             for (int idx = 1; idx <= sheet.getLastRowNum(); idx++) {
                 Row row = sheet.getRow(idx);
                 if (row == null) continue;
 
+                // 거래 일시, 입금액, 내용 파싱
                 String payDate = formatter.formatCellValue(row.getCell(columnIndex.get("거래일시")));
                 String amountStr = formatter.formatCellValue(row.getCell(columnIndex.get("입금액")));
                 String content = formatter.formatCellValue(row.getCell(columnIndex.get("내용")));
 
+                // 비어있거나 무효한 값은 건너뜀
                 if (payDate == null || amountStr == null || content == null) continue;
                 if (payDate.isBlank() || amountStr.isBlank() || content.isBlank()) continue;
                 if (amountStr.equals("0")) continue;
 
-                LocalDateTime date = LocalDateTime.parse(payDate, fmt);
-                Integer amount = Integer.parseInt(amountStr);
+                // 문자열 데이터를 실제 타입으로 변환
+                LocalDateTime date = LocalDateTime.parse(payDate, fmt); // 거래일시
+                Integer amount = Integer.parseInt(amountStr);            // 입금액
+                String paymentFull = content.trim();                     // 입금 내용 (예: "t12김승환")
 
-                String paymentFull = content.trim();
+                // ✅ [1차 시도] payment_name 값이 정확히 일치하는 참여자 목록 조회
                 List<EventParticipation> matches = eventParticipationRepository.findAllByPaymentName(paymentFull);
 
-                // 정확히 하나의 사용자가 매칭된 경우
+                // 🎯 단 1명과 매칭된 경우 → 곧바로 입금 처리
                 if (matches.size() == 1) {
                     EventParticipation ep = matches.get(0);
 
-                    // completeUser에 추가 (입금 여부와 상관없이)
-                    String eventTitle = ep.getPost().getTitle();
-                    String name = ep.getMember().getName();
-                    completeUser.add(eventTitle + name);
-
-                    // 입금 상태가 false일 경우만 처리
+                    // 이미 납부된 상태가 아니라면 처리 수행
                     if (!Boolean.TRUE.equals(ep.getPaymentStatus())) {
-                        ep.setPaidAt(date);
-                        ep.setPaymentStatus(true);
+                        ep.setPaidAt(date);         // 납부 일시 등록
+                        ep.setPaymentStatus(true);  // 납부 상태 true로 설정
                         eventParticipationRepository.save(ep);
 
+                        // 동일한 시각의 거래가 이미 존재하지 않을 때만 새로운 기록 추가
                         if (!transactionRecordRepository.existsByTxDate(date)) {
                             TransactionRecord record = TransactionRecord.builder()
                                     .amount(amount)
@@ -108,59 +131,95 @@ public class TransactionRecordServiceImpl implements TransactionRecordService {
                                     .build();
                             transactionRecordRepository.save(record);
                         }
+
+                        // 완료된 사용자 정보 기록 (예: "t12김승환")
+                        String eventTitle = ep.getPost().getTitle();
+                        String name = ep.getMember().getName();
+                        completeUser.add(eventTitle + name);
                     }
-                    continue;
+                    continue; // 다음 엑셀 행으로
                 }
 
-                // 복수 매칭된 경우 → 동명이인 처리
+                // 🎯 같은 payment_name으로 여러 명이 매칭된 경우 → 사용자 선택 유도 정보 구성
                 if (matches.size() > 1) {
                     for (EventParticipation ep : matches) {
                         Member member = ep.getMember();
                         String key = ep.getPaymentName() + "(" + member.getStudentId() + ")";
-                        List<String> titles = List.of(ep.getPost().getTitle());
 
+                        List<EventDto> events = List.of(
+                                EventDto.builder()
+                                        .eventName(ep.getPost().getTitle())
+                                        .eventId(String.valueOf(ep.getPost().getPostId()))
+                                        .build()
+                        );
+
+                        // 중복된 사용자 키에 이벤트 누적 추가
                         selectedUser.merge(key,
-                                ErrorResponseDto.SelectedUserInfo.builder().events(new ArrayList<>(titles)).build(),
+                                ErrorResponseDto.SelectedUserInfo.builder()
+                                        .events(new ArrayList<>(events))
+                                        .studentId(member.getStudentId())
+                                        .build(),
                                 (existing, incoming) -> {
                                     existing.getEvents().addAll(incoming.getEvents());
                                     return existing;
                                 });
                     }
-                    continue;
+                    continue; // 다음 엑셀 행으로
                 }
 
-                // 사용자 이름만 추출 후 Member 테이블에서 검색
-                String nameOnly = content.replaceAll("[^가-힣]", "").trim();
+                // ✅ [2차 fallback] 이름만 추출해서 member 테이블에서 이름 기반 검색
+                String nameOnly = content.replaceAll("[^가-힣]", "").trim(); // 예: "김승환"
                 if (nameOnly.isBlank()) continue;
 
                 List<Member> foundUsers = userRepository.findByName(nameOnly);
 
+                // ❌ 이름 검색조차 실패 → 실패 목록에 기록
                 if (foundUsers.isEmpty()) {
                     userFoundFail.add(nameOnly);
-                } else if (foundUsers.size() > 1) {
-                    // 이름만으로는 찾을 수 없는 경우 → 선택 사용자 목록에 추가
+                }
+                // ⚠️ 동명이인 존재 → 선택 유도 정보 구성
+                else if (foundUsers.size() > 1) {
                     for (Member member : foundUsers) {
-                        List<EventParticipation> events = eventParticipationRepository.findByMemberMemberId(member.getMemberId());
-                        List<String> titles = events.stream().map(ep -> ep.getPost().getTitle()).toList();
+                        List<EventParticipation> eventsList = eventParticipationRepository.findByMemberMemberId(member.getMemberId());
+
+                        List<EventDto> events = eventsList.stream().map(ep ->
+                                EventDto.builder()
+                                        .eventName(ep.getPost().getTitle())
+                                        .eventId(String.valueOf(ep.getPost().getPostId()))
+                                        .build()
+                        ).toList();
 
                         String key = member.getName() + "(" + member.getStudentId() + ")";
                         selectedUser.merge(key,
-                                ErrorResponseDto.SelectedUserInfo.builder().events(new ArrayList<>(titles)).build(),
+                                ErrorResponseDto.SelectedUserInfo.builder()
+                                        .events(new ArrayList<>(events))
+                                        .studentId(member.getStudentId())
+                                        .build(),
                                 (existing, incoming) -> {
                                     existing.getEvents().addAll(incoming.getEvents());
                                     return existing;
                                 });
                     }
-                } else {
-                    // 한 명만 찾은 경우 → 해당 사용자의 모든 참여 이벤트 표시
+                }
+                // ✅ 이름이 유일하게 일치 → 참여한 이벤트 목록만 반환 (선택 필요)
+                else {
                     Member member = foundUsers.get(0);
-                    List<EventParticipation> events = eventParticipationRepository.findByMemberMemberId(member.getMemberId());
-                    List<String> titles = events.stream().map(ep -> ep.getPost().getTitle()).toList();
+                    List<EventParticipation> eventsList = eventParticipationRepository.findByMemberMemberId(member.getMemberId());
 
-                    if (!titles.isEmpty()) {
+                    List<EventDto> events = eventsList.stream().map(ep ->
+                            EventDto.builder()
+                                    .eventName(ep.getPost().getTitle())
+                                    .eventId(String.valueOf(ep.getPost().getPostId()))
+                                    .build()
+                    ).toList();
+
+                    if (!events.isEmpty()) {
                         String key = member.getName();
                         selectedUser.merge(key,
-                                ErrorResponseDto.SelectedUserInfo.builder().events(new ArrayList<>(titles)).build(),
+                                ErrorResponseDto.SelectedUserInfo.builder()
+                                        .events(new ArrayList<>(events))
+                                        .studentId(member.getStudentId())
+                                        .build(),
                                 (existing, incoming) -> {
                                     existing.getEvents().addAll(incoming.getEvents());
                                     return existing;
@@ -169,7 +228,7 @@ public class TransactionRecordServiceImpl implements TransactionRecordService {
                 }
             }
 
-            // 결과 DTO 구성 후 응답
+            // ✅ 최종 결과 DTO 생성 및 반환
             ErrorResponseDto resultDto = ErrorResponseDto.builder()
                     .completeUser(completeUser)
                     .userFoundFail(userFoundFail)
@@ -183,9 +242,13 @@ public class TransactionRecordServiceImpl implements TransactionRecordService {
                     .build();
 
         } catch (Exception e) {
+            // 엑셀 파싱 또는 트랜잭션 저장 중 예외 발생 → IOException으로 감싸서 전달
             throw new IOException("엑셀 파싱 또는 저장 중 오류 발생", e);
         }
     }
+
+
+
 
 
 
