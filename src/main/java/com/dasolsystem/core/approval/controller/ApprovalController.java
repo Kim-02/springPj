@@ -110,5 +110,19 @@ public class ApprovalController {
         approvalRequestRepository.deleteById(postId);
         return ResponseEntity.noContent().build();
     }
+
+    /**
+     * 월을 선택하면 해당 월에 해당하는 결재 정보를 모두 불러와서 반환하면 됨.
+     * 사진 데이터를 가져오는 방법은
+     *             byte[] fileBytes = fileControlService.getFileBytes(approvalRequest.getReceiptFile());
+     *             BufferedImage image = ImageIO.read(new ByteArrayInputStream(fileBytes));
+     *             ByteArrayOutputStream baos = new ByteArrayOutputStream();
+     *             ImageIO.write(image, "jpg", baos);
+     *             byte[] imageBytes = baos.toByteArray();
+     *             String base64 = Base64.getEncoder().encodeToString(imageBytes);
+     * 이 코드를 참고 하면 됨
+     * 결재 정보는 ApprovalRequest DB를 보면 됨
+     *
+     */
 }
 
