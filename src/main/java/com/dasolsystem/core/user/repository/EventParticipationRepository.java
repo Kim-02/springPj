@@ -16,6 +16,7 @@ public interface EventParticipationRepository extends JpaRepository<EventPartici
             Long memberId,
             Long postId
     );
+    Optional<?> deleteByMemberMemberIdAndIdPostId(Long memberId, Long postId);
     Optional<EventParticipation> findByPaymentName(String paymentName);
 
     /**
