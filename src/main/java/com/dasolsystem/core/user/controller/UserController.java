@@ -78,7 +78,7 @@ public class UserController {
     }
     //사용자가 속한 이벤트에서 나갈 수 있는 기능
     @PostMapping("/event/leave/{eventId}")
-    public ResponseEntity<ResponseJson<?>> eventLeave(HttpServletRequest request,@RequestParam Long eventId) {
+    public ResponseEntity<ResponseJson<?>> eventLeave(HttpServletRequest request,@PathVariable Long eventId) {
         Claims loginClaim = securityGuardian.getServletTokenClaims(request);
         String leaveName = userService.userLeaveEvent(loginClaim.getSubject(), eventId);
         return ResponseEntity.ok(
