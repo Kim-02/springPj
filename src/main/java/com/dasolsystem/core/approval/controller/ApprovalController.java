@@ -36,6 +36,7 @@ public class ApprovalController {
     @PostMapping("/post")
     public ResponseEntity<ResponseJson<?>> post(@ModelAttribute ApprovalRequestDto approvalRequestDto,HttpServletRequest request) throws IOException {
         if(!securityGuardian.userValidate(request,"Manager")) throw new InvalidTokenException(ApiState.ERROR_101,"권한을 확인하세요");
+        approvalRequestDto.setStudentId(securityGuardian.getServletTokenClaims(request).getSubject());
         Long approvalId = approvalService.postRequest(approvalRequestDto);
         return ResponseEntity.ok(
                 ResponseJson.builder()
