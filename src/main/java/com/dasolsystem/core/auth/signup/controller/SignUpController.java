@@ -23,26 +23,29 @@ public class SignUpController {
     @Description("회원가입 - 인증이 필요하지 않은 페이지")
     @PostMapping("/signup")
     public ResponseEntity<ResponseJson<Object>> signUp(@RequestBody @Valid RequestSignupDto requestSignupDto){
-        try{
-            ResponseSavedNameDto response = signupService.signup(requestSignupDto);
+        ResponseSavedNameDto response = signupService.signup(requestSignupDto);
 
-            return ResponseEntity.ok(
-                    ResponseJson.builder()
-                            .status(200)
-                            .message("success")
-                            .result(response.getMessage())
-                            .build()
-            );
-        }catch (AuthFailException e){
-            return ResponseEntity.ok(
-                    ResponseJson.builder()
-                            .status(e.getCode())
-                            .message("Error.")
-                            .result("Error."+e.getMessage())
-                            .build()
-            );
-        }
+        return ResponseEntity.ok(
+                ResponseJson.builder()
+                        .status(200)
+                        .message("success")
+                        .result(response.getMessage())
+                        .build()
+        );
 
+    }
+
+    //이메일로 인증코드 전송
+    @PostMapping("/verify")
+    public ResponseEntity<ResponseJson<?>> verification(@RequestBody String email){
+        signupService.emailVerificationCode(email);
+
+        return ResponseEntity.ok(
+                ResponseJson.builder()
+                        .status(200)
+                        .message("메일이 전송되었습니다.")
+                        .build()
+        );
     }
 
 }

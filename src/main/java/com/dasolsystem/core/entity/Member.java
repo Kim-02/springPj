@@ -69,7 +69,7 @@ public class Member {
     @Column(name = "paid_user", columnDefinition = "ENUM('Y','N') DEFAULT 'N'", nullable = false,insertable=false)
     private Boolean paidUser;
 
-    @Column(name = "email", length = 50, nullable = false, unique = true)
+    @Column(name = "email", length = 50, nullable = false)
     private String email;
 
     @Column(name = "phone_num", length = 50, nullable = false)
@@ -90,6 +90,13 @@ public class Member {
     @JsonBackReference
     private List<ApprovalRequest> approvalRequests = new ArrayList<>();
 
+    //개인정보 동의 여부
+    @Column(name ="personal_info_yn")
+    private Boolean personalInfoYn;
+
+    //이메일 인증 여부
+    @Column(name="email_check_yn")
+    private Boolean emailCheckYn;
 
     @Override
     public boolean equals(Object o) {
