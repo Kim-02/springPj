@@ -18,13 +18,10 @@ import jakarta.transaction.Transactional;
 import jdk.jfr.Description;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
@@ -34,15 +31,14 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class SignupServiceImpl implements SignupService {
+    //email
+    private final JavaMailSender mailSender;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final RoleRepository roleRepository;
     private final SecureRandom random = new  SecureRandom();
     private final RedisJwtRepository redisJwtRepository;
 
-
-    //email
-    private final JavaMailSender mailSender = new JavaMailSenderImpl();
 
     @Value("${mail.from}")
     private String from;
@@ -83,7 +79,7 @@ public class SignupServiceImpl implements SignupService {
         String key = "verify:email:" + email;
         String code = String.format("%08d",random.nextInt(100_000_000));
         RedisJwtId redisJwtId = RedisJwtId.builder()
-                .id(Long.valueOf(UUID.randomUUID().toString()))
+                .id(UUID.randomUUID().getLeastSignificantBits() & Long.MAX_VALUE)
                 .jti(key)
                 .jwtToken(code)
                 .ttl(120L)

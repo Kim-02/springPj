@@ -11,6 +11,7 @@ public class WhiteListVO {
             "/api/auth/login",
             "/api/auth/signup",
             "/index.html",
-            "/api/ping"
+            "/api/ping",
+            "/api/auth/verify"
     };
 }

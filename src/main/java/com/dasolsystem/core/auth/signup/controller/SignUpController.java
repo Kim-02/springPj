@@ -1,6 +1,7 @@
 package com.dasolsystem.core.auth.signup.controller;
 
 import com.dasolsystem.config.excption.AuthFailException;
+import com.dasolsystem.core.auth.signup.dto.EmailDto;
 import com.dasolsystem.core.handler.ResponseJson;
 import com.dasolsystem.core.auth.signup.dto.RequestSignupDto;
 import com.dasolsystem.core.auth.signup.dto.ResponseSavedNameDto;
@@ -37,8 +38,8 @@ public class SignUpController {
 
     //이메일로 인증코드 전송
     @PostMapping("/verify")
-    public ResponseEntity<ResponseJson<?>> verification(@RequestBody String email){
-        signupService.emailVerificationCode(email);
+    public ResponseEntity<ResponseJson<?>> verification(@RequestBody EmailDto emailDto){
+        signupService.emailVerificationCode(emailDto.getEmail());
 
         return ResponseEntity.ok(
                 ResponseJson.builder()

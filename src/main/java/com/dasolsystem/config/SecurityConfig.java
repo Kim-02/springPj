@@ -80,7 +80,8 @@ public class SecurityConfig {
                         "/api/auth/login",
                         "/api/auth/signup",
                         "/api/ping",
-                        "/index.html"
+                        "/index.html",
+                        "/api/auth/verify"
                         ).permitAll()
                 .anyRequest().authenticated()
         );
