@@ -111,6 +111,7 @@ public class UserController {
     /**
      * 회장 이상 권한 필요
      * 학번을 입력하고 그 학번에 해당하는 부서를 삭제함
+     * ////////사용안함//////////
      * @param studentId
      * @param request
      * @return

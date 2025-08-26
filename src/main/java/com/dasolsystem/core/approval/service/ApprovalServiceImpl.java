@@ -177,4 +177,9 @@ public class ApprovalServiceImpl implements ApprovalService {
         }
         return approvalRequestDtos;
     }
+
+//    @Transactional(readOnly = true)
+//    public List<ApprovalAllPostViewDto> getTitleApprovalRequests() throws IOException {
+//        List<ApprovalRequest> allApprovalRequests = approvalRequestRepository.findAll();
+//    }
 }
