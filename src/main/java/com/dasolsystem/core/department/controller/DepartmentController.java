@@ -1,6 +1,6 @@
 package com.dasolsystem.core.department.controller;
 
-import com.dasolsystem.core.department.dto.DepartmentTreeNode;
+import com.dasolsystem.core.department.dto.DepartmentOrgTreeDto;
 import com.dasolsystem.core.department.service.DepartmentService;
 import com.dasolsystem.core.handler.ResponseJson;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ public class DepartmentController {
 
     @GetMapping("/tree")
     public ResponseEntity<ResponseJson<?>> tree() {
-        DepartmentTreeNode root = departmentService.getDepartmentTree();
+        DepartmentOrgTreeDto root = departmentService.getDepartmentTree();
         return ResponseEntity.ok(
                 ResponseJson.builder()
                         .status(200)
