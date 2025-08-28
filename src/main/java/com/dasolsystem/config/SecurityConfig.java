@@ -94,7 +94,6 @@ public class SecurityConfig {
                         "/swagger-ui/swagger-ui.css",
                         "/v3/api-docs/swagger-config",
                         "/v3/api-docs"
-
                         ).permitAll()
                 .anyRequest().authenticated()
         );

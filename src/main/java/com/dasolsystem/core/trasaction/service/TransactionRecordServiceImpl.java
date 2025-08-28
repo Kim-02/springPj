@@ -247,13 +247,6 @@ public class TransactionRecordServiceImpl implements TransactionRecordService {
         }
     }
 
-
-
-
-
-
-
-
     @Transactional
     public void expendRecordSave(ExpendTransactionDto dto){
         TransactionRecord record = TransactionRecord.builder()
@@ -285,4 +278,6 @@ public class TransactionRecordServiceImpl implements TransactionRecordService {
                 .message("totalAmount")
                 .result(amountResponseDto).build();
     }
+
+
 }
