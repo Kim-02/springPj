@@ -18,8 +18,10 @@ public enum ApiState {
     ERROR_101(101), //코드오류
 
     //file
-    ERROR_800(800)
+    ERROR_800(800),
 
+    //mail
+    ERROR_900(900)
     //예상치 못한 에러
     ,ERROR_UNKNOWN(100);
 

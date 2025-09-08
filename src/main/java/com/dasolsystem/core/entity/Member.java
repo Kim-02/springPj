@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DynamicInsert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,7 @@ import java.util.Objects;
         "fieldHandler",
         "byteBuddyInterceptor"
 })
+@DynamicInsert
 public class Member {
 
     @Id
@@ -69,7 +71,7 @@ public class Member {
     @Column(name = "paid_user", columnDefinition = "ENUM('Y','N') DEFAULT 'N'", nullable = false,insertable=false)
     private Boolean paidUser;
 
-    @Column(name = "email", length = 50, nullable = false, unique = true)
+    @Column(name = "email", length = 50, nullable = false)
     private String email;
 
     @Column(name = "phone_num", length = 50, nullable = false)
@@ -90,6 +92,13 @@ public class Member {
     @JsonBackReference
     private List<ApprovalRequest> approvalRequests = new ArrayList<>();
 
+    //개인정보 동의 여부
+    @Column(name ="personal_info_yn")
+    private Boolean personalInfoYn;
+
+    //이메일 인증 여부
+    @Column(name="email_check_yn")
+    private Boolean emailCheckYn;
 
     @Override
     public boolean equals(Object o) {

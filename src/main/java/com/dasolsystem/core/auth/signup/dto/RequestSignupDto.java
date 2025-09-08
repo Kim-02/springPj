@@ -32,4 +32,10 @@ public class RequestSignupDto {
     @NotNull
     @Size(max=20)
     private String name;
+
+    @NotNull
+    private Boolean personalInfoYn;
+
+    @NotNull
+    private String verificationCode;
 }

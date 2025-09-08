@@ -13,4 +13,5 @@ public interface ApprovalService {
     Long approveRequestAccept(ApprovalPostAcceptDto dto, String studentId);
     GetApprovalPostResponse getApprovalPost(String studentId) throws IOException;
     List<ApprovalAllPostViewDto> getAllApprovalRequests() throws IOException;
+    List<ApprovalAllPostViewDto> getApprovalRequestsByYearMonth(int year, int month) throws IOException;
 }

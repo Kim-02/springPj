@@ -7,6 +7,7 @@ import com.dasolsystem.config.excption.DBFaillException;
 import com.dasolsystem.config.excption.InvalidTokenException;
 import com.dasolsystem.core.approval.dto.ApprovalPostAcceptDto;
 import com.dasolsystem.core.approval.dto.ApprovalRequestDto;
+import com.dasolsystem.core.approval.dto.DateTimeImportDto;
 import com.dasolsystem.core.approval.dto.GetApprovalPostResponse;
 import com.dasolsystem.core.approval.repository.ApprovalRequestRepository;
 import com.dasolsystem.core.approval.service.ApprovalService;
@@ -82,7 +83,16 @@ public class ApprovalController {
                         .build()
         );
     }
+    @PostMapping("/getMonthlyRequest")
+    public ResponseEntity<ResponseJson<?>> getMonthlyRequest(@RequestBody DateTimeImportDto dto) throws IOException {
+        return ResponseEntity.ok(
+                ResponseJson.builder()
+                        .status(200)
+                        .result(approvalService.getApprovalRequestsByYearMonth(dto.getYear(),dto.getMonth()))
+                        .build()
+        );
 
+    }
     //모든 결재 요청을 확인할 수 있음
     @GetMapping("/getAllRequest")
     public ResponseEntity<ResponseJson<?>> getAllRequest() throws IOException {

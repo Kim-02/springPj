@@ -1,7 +1,7 @@
 package com.dasolsystem.core.department.service;
 
-import com.dasolsystem.core.department.dto.DepartmentTreeNode;
+import com.dasolsystem.core.department.dto.DepartmentOrgTreeDto;
 
 public interface DepartmentService {
-    DepartmentTreeNode getDepartmentTree();
+    DepartmentOrgTreeDto getDepartmentTree();
 }

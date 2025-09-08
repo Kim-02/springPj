@@ -23,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -176,5 +177,52 @@ public class ApprovalServiceImpl implements ApprovalService {
             );
         }
         return approvalRequestDtos;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ApprovalAllPostViewDto> getApprovalRequestsByYearMonth(int year, int month) throws IOException {
+        LocalDateTime start = YearMonth.of(year, month).atDay(1).atStartOfDay();
+        LocalDateTime end = start.plusMonths(1);
+
+        List<ApprovalRequest> requests =
+                approvalRequestRepository.findAllByRequestDateInMonthFetchApprovers(start, end);
+
+        List<ApprovalAllPostViewDto> dtos = new ArrayList<>();
+
+        for (ApprovalRequest ar : requests) {
+            byte[] fileBytes = fileControlService.getFileBytes(ar.getReceiptFile());
+            BufferedImage image = ImageIO.read(new ByteArrayInputStream(fileBytes));
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(image, "jpg", baos);
+            String base64 = Base64.getEncoder().encodeToString(baos.toByteArray());
+
+            List<MemberDto> approvers = new ArrayList<>();
+            for (Member m : ar.getApprovers()) {
+                approvers.add(MemberDto.builder()
+                        .id(m.getMemberId())
+                        .name(m.getName())
+                        .studentId(m.getStudentId())
+                        .build());
+            }
+
+            dtos.add(ApprovalAllPostViewDto.builder()
+                    .approvers(approvers)
+                    .approvalRequests(ApprovalRequestsDto.builder()
+                            .requestId(ar.getRequestId())
+                            .memberName(ar.getMember().getName())
+                            .requestDate(ar.getRequestDate())
+                            .title(ar.getTitle())
+                            .requestedAmount(ar.getRequestedAmount())
+                            .accountNumber(ar.getAccountNumber())
+                            .payerName(ar.getPayerName())
+                            .requestDetail(ar.getRequestDetail())
+                            .approvalCode(ar.getApprovalCode().getCode() + " " + ar.getApprovalCode().getName())
+                            .isCompleted(ar.getIsCompleted())
+                            .approvalDate(ar.getApprovalDate())
+                            .build())
+                    .byteFile(base64)
+                    .build());
+        }
+        return dtos;
     }
 }

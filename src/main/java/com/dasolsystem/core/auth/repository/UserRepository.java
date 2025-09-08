@@ -26,4 +26,5 @@ public interface UserRepository extends JpaRepository<Member, Long> {
     List<Member> findAllWithDeptAndRole();
 
 
+    Optional<Member> findByEmail(String email);
 }
