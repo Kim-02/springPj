@@ -2,6 +2,7 @@ package com.dasolsystem.core.auth.signup.controller;
 
 import com.dasolsystem.config.excption.AuthFailException;
 import com.dasolsystem.core.auth.signup.dto.EmailDto;
+import com.dasolsystem.core.auth.signup.dto.IssuanceDto;
 import com.dasolsystem.core.handler.ResponseJson;
 import com.dasolsystem.core.auth.signup.dto.RequestSignupDto;
 import com.dasolsystem.core.auth.signup.dto.ResponseSavedNameDto;
@@ -9,6 +10,7 @@ import com.dasolsystem.core.auth.signup.service.SignupService;
 import jakarta.validation.Valid;
 import jdk.jfr.Description;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -49,4 +51,16 @@ public class SignUpController {
         );
     }
 
+    @PostMapping("/password/issuance")
+    public ResponseEntity<ResponseJson<?>> issuance(@RequestBody IssuanceDto dto){
+        signupService.emailIssuance(dto);
+
+
+        return ResponseEntity.ok(
+                ResponseJson.builder()
+                        .status(200)
+                        .message("비밀번호가 이메일로 전송되었습니다.")
+                .build()
+        );
+    }
 }

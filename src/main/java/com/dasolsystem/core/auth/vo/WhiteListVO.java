@@ -13,6 +13,7 @@ public class WhiteListVO {
             "/index.html",
             "/api/ping",
             "/api/auth/verify",
+            "/api/auth/password/issuance",
 
             //swagger
             "/swagger-ui/index.html",

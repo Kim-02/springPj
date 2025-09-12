@@ -82,7 +82,7 @@ public class SecurityConfig {
                         "/api/ping",
                         "/index.html",
                         "/api/auth/verify",
-
+                        "/api/auth/password/issuance",
 
                         "/swagger-ui/index.html",
                         "/swagger-ui/favicon-16x16.png",

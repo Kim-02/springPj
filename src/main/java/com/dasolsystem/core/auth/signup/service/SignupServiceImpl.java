@@ -4,6 +4,7 @@ import com.dasolsystem.config.excption.AuthFailException;
 import com.dasolsystem.config.excption.DBFaillException;
 import com.dasolsystem.config.excption.MailFailException;
 import com.dasolsystem.core.auth.repository.RoleRepository;
+import com.dasolsystem.core.auth.signup.dto.IssuanceDto;
 import com.dasolsystem.core.auth.signup.dto.RequestSignupDto;
 import com.dasolsystem.core.auth.signup.dto.ResponseSavedNameDto;
 import com.dasolsystem.core.auth.repository.UserRepository;
@@ -26,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.time.Duration;
+import java.util.Random;
 import java.util.UUID;
 
 @Service
@@ -37,8 +39,11 @@ public class SignupServiceImpl implements SignupService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final RoleRepository roleRepository;
     private final SecureRandom random = new  SecureRandom();
+    private final Random rand = new Random();
     private final RedisJwtRepository redisJwtRepository;
 
+    private static final String CHAR_POOL = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    private static final int LENGTH = 6;
 
     @Value("${mail.from}")
     private String from;
@@ -88,6 +93,18 @@ public class SignupServiceImpl implements SignupService {
         emailSender(email,code,Duration.ofMinutes(2));
     }
 
+    @Transactional
+    public void emailIssuance(IssuanceDto dto) {
+        Member member = userRepository.findByEmail(dto.getEmail()).orElseThrow(
+                () -> new AuthFailException(ApiState.ERROR_700,"member을 찾을 수 없습니다. 이메일을 확인하세요.")
+        );
+        String newPw = generateRandomString();
+        String setPw = bCryptPasswordEncoder.encode(newPw);
+        member.setPassword(setPw);
+        passWordEmailSender(dto.getEmail(),newPw);
+    }
+
+
     private void emailSender(String to, String code, Duration ttl){
         String subject = "이메일 인증 코드";
         String html = """
@@ -100,6 +117,17 @@ public class SignupServiceImpl implements SignupService {
         sendHtml(to, subject, html);
     }
 
+    private void passWordEmailSender(String to,String password){
+        String sub = "비밀번호 변경";
+        String html = """
+            <html><body>
+            <h2>비밀번호 변경</h2>
+            <p>비밀번호: <b>%s</b></p>
+            <p>로그인 후 마이페이지에서 비밀번호를 변경해주세요</p>
+            </body></html>
+            """.formatted(password);
+        sendHtml(to, sub, html);
+    }
     private void sendHtml(String to, String subject, String html) {
         try {
             MimeMessage msg = mailSender.createMimeMessage();
@@ -126,5 +154,14 @@ public class SignupServiceImpl implements SignupService {
 
         redisJwtRepository.deleteById(e.getId());
         return true;
+    }
+
+    private String generateRandomString() {
+        StringBuilder sb = new StringBuilder(LENGTH);
+        for (int i = 0; i < LENGTH; i++) {
+            int idx = rand.nextInt(CHAR_POOL.length());
+            sb.append(CHAR_POOL.charAt(idx));
+        }
+        return sb.toString();
     }
 }
