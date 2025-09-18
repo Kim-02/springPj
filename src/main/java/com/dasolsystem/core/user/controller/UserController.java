@@ -13,9 +13,16 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @RestController
@@ -168,5 +175,23 @@ public class UserController {
                         .result(resDto)
                         .build()
         );
+    }
+
+    @PostMapping("/search/paiduser")
+    public ResponseEntity<byte[]> returnPaidUserXlsx(@RequestPart MultipartFile file) throws IOException {
+        byte[] resBody = userService.buildResponseXlsx(file);
+        ContentDisposition cd = ContentDisposition.attachment()
+                .filename(encodeFilename("학회비납부자_%s.xlsx".formatted(file.getOriginalFilename())))
+                .build();
+
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, cd.toString())
+                .contentType(MediaType.parseMediaType(
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .contentLength(resBody.length)
+                .body(resBody);
+    }
+
+    private String encodeFilename(String name) {
+        return URLEncoder.encode(name, StandardCharsets.UTF_8).replace("+", "%20");
     }
 }

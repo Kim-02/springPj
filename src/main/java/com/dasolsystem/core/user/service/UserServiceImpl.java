@@ -12,12 +12,20 @@ import com.dasolsystem.core.post.eventpost.repository.EventPostRepository;
 import com.dasolsystem.core.post.repository.PostRepository;
 import com.dasolsystem.core.user.dto.*;
 import com.dasolsystem.core.user.repository.EventParticipationRepository;
+import com.dasolsystem.core.user.repository.PaidUserRepository;
 import com.dasolsystem.core.user.repository.PermissionChangeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.hibernate.jdbc.Work;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +41,8 @@ public class UserServiceImpl implements UserService {
     private final PermissionChangeRepository permissionChangeRepository;
     private final RoleRepository roleRepository;
     private final EventPostRepository eventPostRepository;
+    private final PaidUserRepository paidUserRepository;
+
 
     @Transactional
     public UserInfoDto getUserProfile(Member member) {
@@ -154,5 +164,38 @@ public class UserServiceImpl implements UserService {
         );
         return eventPostRepository.findById(eventId).orElseThrow(()-> new DBFaillException(ApiState.ERROR_500,"이벤트 정보를 찾을 수 없습니다."))
                 .getPost().getTitle();
+    }
+
+
+    @Transactional(readOnly = true)
+    public byte[] buildResponseXlsx(MultipartFile file) throws IOException {
+        try (InputStream in = file.getInputStream();
+             Workbook wb = WorkbookFactory.create(in);
+             ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+
+            Sheet sheet = wb.getSheetAt(0);
+            DataFormatter fmt = new DataFormatter();
+
+            for (int r = 1; r <= sheet.getLastRowNum(); r++) { // 헤더 건너뜀
+                Row row = sheet.getRow(r);
+                if (row == null) continue;
+
+                Cell c0 = row.getCell(0, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL); // A열 학번
+                if (c0 == null) continue;
+                String studentId = fmt.formatCellValue(c0).trim();
+                if (studentId.isEmpty()) continue;
+
+                Cell c1 = row.getCell(1, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK); // 이름
+                Cell c2 = row.getCell(2, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK); // 납부표시
+
+                paidUserRepository.findByStudentId(studentId).ifPresentOrElse(
+                        v -> { c1.setCellValue(v.getName()); c2.setCellValue("○"); },
+                        () -> { c1.setCellValue("미납자");   c2.setCellValue("X"); }
+                );
+            }
+
+            wb.write(baos);
+            return baos.toByteArray();
+        }
     }
 }
