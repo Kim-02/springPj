@@ -114,7 +114,8 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("https://localhost:3000"));
         config.setAllowedOriginPatterns(List.of(
-                "https://*.cloudfront.net"
+                "https://*.cloudfront.net",
+                "https://kutcse.com"
         ));
         config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS","PATCH"));
         config.setAllowedHeaders(List.of("*"));
