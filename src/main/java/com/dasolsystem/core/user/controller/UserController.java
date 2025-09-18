@@ -177,21 +177,48 @@ public class UserController {
         );
     }
 
-    @PostMapping("/search/paiduser")
+    /**
+     * xlsx파일 형태의 첫 줄에 학번을 넣고 돌리면 미납자와 납부자를 구분해준다.
+     *
+     * @param file xlsx파일
+     * @return xslx파일
+     */
+    @PostMapping("/search/paiduser/xlsx")
     public ResponseEntity<byte[]> returnPaidUserXlsx(@RequestPart MultipartFile file) throws IOException {
         byte[] resBody = userService.buildResponseXlsx(file);
-        ContentDisposition cd = ContentDisposition.attachment()
-                .filename(encodeFilename("학회비납부자_%s.xlsx".formatted(file.getOriginalFilename())))
+
+        // 원본 파일명 확장자 제거 후 새 이름 만들기
+        String originalName = file.getOriginalFilename();
+        if (originalName != null && originalName.endsWith(".xlsx")) {
+            originalName = originalName.substring(0, originalName.length() - 5);
+        }
+        String downloadName = "학회비납부자_" + originalName + ".xlsx";
+
+        ContentDisposition cd = ContentDisposition.builder("attachment")
+                .filename(downloadName, StandardCharsets.UTF_8) // 핵심
                 .build();
 
-        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, cd.toString())
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, cd.toString())
                 .contentType(MediaType.parseMediaType(
                         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .contentLength(resBody.length)
                 .body(resBody);
     }
 
-    private String encodeFilename(String name) {
-        return URLEncoder.encode(name, StandardCharsets.UTF_8).replace("+", "%20");
+    /**
+     * 학번을 받아서 만약 있다면 해당 입금 정보를 봔한하고 없다면 errorMessage로 미납자입니다. 를 반환
+     * @param stdId 학번입력
+     * @return 결과 반환
+     */
+    @PostMapping("/search/paiduser/find")
+    public ResponseEntity<ResponseJson<?>> findPaidUser(@RequestBody String stdId){
+        UserYNResponseDto responseDto = userService.getUserYN(stdId);
+        return ResponseEntity.ok(
+                ResponseJson.builder()
+                        .status(200)
+                        .result(responseDto)
+                        .build()
+        );
     }
 }

@@ -198,4 +198,18 @@ public class UserServiceImpl implements UserService {
             return baos.toByteArray();
         }
     }
+
+    @Transactional(readOnly = true)
+    public UserYNResponseDto getUserYN(String studentId) {
+        UserYNResponseDto ynResponse = null;
+        paidUserRepository.findByStudentId(studentId).ifPresentOrElse(
+                v -> {
+                     ynResponse.ok(v.getStudentId(),v.getName(),v.getCost());
+                },
+                ()-> {
+                    ynResponse.error("미납자입니다.");
+                }
+        );
+        return ynResponse;
+    }
 }

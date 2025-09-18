@@ -17,4 +17,5 @@ public interface UserService {
     void changeUserInfo(UserInfoDto userInfoDto);
     String userLeaveEvent(String studentId, Long eventId);
     byte[] buildResponseXlsx(MultipartFile file) throws IOException;
+    UserYNResponseDto getUserYN(String studentId);
 }
