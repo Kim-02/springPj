@@ -115,7 +115,8 @@ public class SecurityConfig {
         config.setAllowedOrigins(List.of("https://localhost:3000"));
         config.setAllowedOriginPatterns(List.of(
                 "https://*.cloudfront.net",
-                "https://kutcse.com"
+                "https://kutcse.com",
+                "https://back.kutcse.com"
         ));
         config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS","PATCH"));
         config.setAllowedHeaders(List.of("*"));
