@@ -80,7 +80,6 @@ public class SecurityConfig {
                         "/api/auth/login",
                         "/api/auth/signup",
                         "/api/ping",
-                        "/index.html",
                         "/api/auth/verify",
                         "/api/auth/password/issuance",
 

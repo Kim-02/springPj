@@ -10,7 +10,6 @@ public class WhiteListVO {
             "/api/auth/logout",
             "/api/auth/login",
             "/api/auth/signup",
-            "/index.html",
             "/api/ping",
             "/api/auth/verify",
             "/api/auth/password/issuance",
