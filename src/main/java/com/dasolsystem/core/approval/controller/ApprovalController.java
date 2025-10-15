@@ -36,7 +36,7 @@ public class ApprovalController {
     //결재 신청
     @PostMapping("/post")
     public ResponseEntity<ResponseJson<?>> post(@ModelAttribute ApprovalRequestDto approvalRequestDto,HttpServletRequest request) throws IOException {
-        if(!securityGuardian.userValidate(request,"Manager")) throw new InvalidTokenException(ApiState.ERROR_101,"권한을 확인하세요");
+        if(!securityGuardian.userValidate(request,"Member")) throw new InvalidTokenException(ApiState.ERROR_101,"권한을 확인하세요");
         approvalRequestDto.setStudentId(securityGuardian.getServletTokenClaims(request).getSubject());
         Long approvalId = approvalService.postRequest(approvalRequestDto);
         return ResponseEntity.ok(
@@ -106,7 +106,7 @@ public class ApprovalController {
         );
     }
 
-    //회장 권한을 가지면 요청을 삭제할 수 있음
+    //부장 권한을 가지면 요청을 삭제할 수 있음
     @DeleteMapping("/deleteRequest/{postId}")
     @Transactional
     public ResponseEntity<ResponseJson<?>> deleteRequest(@PathVariable Long postId,HttpServletRequest request){

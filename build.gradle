@@ -67,7 +67,8 @@ dependencies {
 	implementation 'com.opencsv:opencsv:5.10'
 
 	//S3 - 일단 주석
-	implementation 'software.amazon.awssdk:s3:2.25.20'
+	implementation 'software.amazon.awssdk:s3'
+	implementation platform('software.amazon.awssdk:bom:2.25.20')
 
     //emil
     implementation 'org.springframework.boot:spring-boot-starter-mail'

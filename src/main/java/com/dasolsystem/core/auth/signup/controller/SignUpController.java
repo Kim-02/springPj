@@ -50,7 +50,7 @@ public class SignUpController {
                         .build()
         );
     }
-
+    //비밀번호 재설정
     @PostMapping("/password/issuance")
     public ResponseEntity<ResponseJson<?>> issuance(@RequestBody IssuanceDto dto){
         signupService.emailIssuance(dto);
